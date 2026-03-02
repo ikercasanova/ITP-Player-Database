@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>1. FC Koln ITP — Player Database</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/app.css">
+  <link rel="stylesheet" href="css/components.css">
+</head>
+<body>
+
+  <!-- ══════════════════════════════════════════════════════════
+       HEADER
+  ══════════════════════════════════════════════════════════ -->
+  <header class="app-header">
+    <div class="header-brand">
+      <img src="assets/logos/koln-fs.webp" alt="FC Koln" class="header-logo">
+      <div class="header-titles">
+        <span class="header-title">ITP Player Database</span>
+        <span class="header-season" id="header-season">2025–26</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ══════════════════════════════════════════════════════════
+       VIEW: ROSTER
+  ══════════════════════════════════════════════════════════ -->
+  <main id="view-roster" class="view active">
+    <div class="roster-toolbar">
+      <div class="age-tabs" id="age-tabs">
+        <button class="age-tab active" data-group="all">All</button>
+        <button class="age-tab" data-group="U-17">U-17</button>
+        <button class="age-tab" data-group="U-19">U-19</button>
+        <button class="age-tab" data-group="U-21">U-21</button>
+      </div>
+      <div class="search-wrapper">
+        <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" id="roster-search" class="search-input" placeholder="Search players..." autocomplete="off">
+      </div>
+    </div>
+    <div id="roster-grid" class="roster-grid"></div>
+    <div id="roster-empty" class="empty-state" style="display:none">
+      <div class="empty-icon">
+        <svg width="56" height="56" viewBox="0 0 56 56" fill="none"><circle cx="28" cy="20" r="10" fill="#ddd"/><path d="M8 48c0-11 9-20 20-20s20 9 20 20" fill="#ddd"/></svg>
+      </div>
+      <h2>No players yet</h2>
+      <p>Add your first player to get started.</p>
+      <button class="btn btn-primary" onclick="location.hash='#edit'">+ Add Player</button>
+    </div>
+  </main>
+
+  <!-- ══════════════════════════════════════════════════════════
+       VIEW: PLAYER PROFILE
+  ══════════════════════════════════════════════════════════ -->
+  <main id="view-profile" class="view">
+    <div id="profile-content"></div>
+  </main>
+
+  <!-- ══════════════════════════════════════════════════════════
+       VIEW: TESTING SESSION
+  ══════════════════════════════════════════════════════════ -->
+  <main id="view-testing" class="view">
+    <div id="testing-content"></div>
+  </main>
+
+  <!-- ══════════════════════════════════════════════════════════
+       VIEW: ADD / EDIT PLAYER
+  ══════════════════════════════════════════════════════════ -->
+  <main id="view-edit" class="view">
+    <div id="edit-content"></div>
+  </main>
+
+  <!-- ══════════════════════════════════════════════════════════
+       VIEW: SETTINGS
+  ══════════════════════════════════════════════════════════ -->
+  <main id="view-settings" class="view">
+    <div id="settings-content"></div>
+  </main>
+
+  <!-- ══════════════════════════════════════════════════════════
+       BOTTOM NAV (mobile) / SIDEBAR (desktop)
+  ══════════════════════════════════════════════════════════ -->
+  <nav class="bottom-nav" id="bottom-nav">
+    <a href="#roster" class="nav-item active" data-view="roster">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      <span>Roster</span>
+    </a>
+    <a href="#testing" class="nav-item" data-view="testing">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 20V10"/><path d="M18 20V4"/><path d="M6 20v-4"/></svg>
+      <span>Testing</span>
+    </a>
+    <a href="#edit" class="nav-item" data-view="edit">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+      <span>Add</span>
+    </a>
+    <a href="#settings" class="nav-item" data-view="settings">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      <span>Settings</span>
+    </a>
+  </nav>
+
+  <!-- ══════════════════════════════════════════════════════════
+       FIRST-LAUNCH MODAL
+  ══════════════════════════════════════════════════════════ -->
+  <div id="modal-seed" class="modal-overlay" style="display:none">
+    <div class="modal">
+      <h3>Welcome to ITP Player Database</h3>
+      <p>Would you like to load the 25 pre-registered ITP players from the 2025–26 season?</p>
+      <div class="modal-actions">
+        <button id="btn-seed-skip" class="btn btn-ghost">Start Empty</button>
+        <button id="btn-seed-load" class="btn btn-primary">Load Players</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       DELETE CONFIRMATION MODAL
+  ══════════════════════════════════════════════════════════ -->
+  <div id="modal-delete" class="modal-overlay" style="display:none">
+    <div class="modal">
+      <h3>Delete Player?</h3>
+      <p>Are you sure you want to delete <strong id="modal-delete-name"></strong>? This cannot be undone.</p>
+      <div class="modal-actions">
+        <button id="btn-delete-cancel" class="btn btn-ghost">Cancel</button>
+        <button id="btn-delete-confirm" class="btn btn-danger">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       SCRIPTS
+  ══════════════════════════════════════════════════════════ -->
+  <script src="js/db.js"></script>
+  <script src="js/benchmarks.js"></script>
+  <script src="js/roster.js"></script>
+  <script src="js/profile.js"></script>
+  <script src="js/testing.js"></script>
+  <script src="js/form.js"></script>
+  <script src="js/import.js"></script>
+  <script src="js/settings.js"></script>
+  <script src="js/app.js"></script>
+
+</body>
+</html>
