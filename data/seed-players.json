@@ -5,19 +5,160 @@
     "dateOfBirth": "2007-03-14",
     "nationality": "American",
     "foot": "Right",
-    "positions": ["CM", "CAM"],
+    "positions": [
+      "CM",
+      "CAM"
+    ],
     "ageGroup": "U-19",
     "heightCm": 178,
     "weightKg": 72.5,
     "bodyFatPct": 11.2,
     "muscleRatePct": 44.8,
     "tests": {
-      "cmj": { "attempts": [38.2, 39.5, null], "best": 39.5, "unit": "cm" },
-      "broadJump": { "attempts": [232, 238, 235], "best": 238, "unit": "cm" },
-      "sprint5m": { "attempts": [1.04, 1.02, null], "best": 1.02, "unit": "s" },
-      "sprint10m": { "attempts": [1.78, 1.76, null], "best": 1.76, "unit": "s" },
-      "sprint30m": { "attempts": [4.18, 4.15, null], "best": 4.15, "unit": "s" },
-      "ift3015": { "attempts": [19.5, null, null], "best": 19.5, "unit": "km/h" }
+      "cmj": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              37.1,
+              38.4,
+              null
+            ],
+            "best": 38.4
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              38.2,
+              39.5,
+              null
+            ],
+            "best": 39.5
+          }
+        ],
+        "best": 39.5,
+        "unit": "cm"
+      },
+      "broadJump": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              225.3,
+              231.1,
+              228.2
+            ],
+            "best": 231.1
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              232,
+              238,
+              235
+            ],
+            "best": 238
+          }
+        ],
+        "best": 238,
+        "unit": "cm"
+      },
+      "sprint5m": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              1.07,
+              1.05,
+              null
+            ],
+            "best": 1.05
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              1.04,
+              1.02,
+              null
+            ],
+            "best": 1.02
+          }
+        ],
+        "best": 1.02,
+        "unit": "s"
+      },
+      "sprint10m": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              1.81,
+              1.79,
+              null
+            ],
+            "best": 1.79
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              1.78,
+              1.76,
+              null
+            ],
+            "best": 1.76
+          }
+        ],
+        "best": 1.76,
+        "unit": "s"
+      },
+      "sprint30m": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              4.21,
+              4.18,
+              null
+            ],
+            "best": 4.18
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              4.18,
+              4.15,
+              null
+            ],
+            "best": 4.15
+          }
+        ],
+        "best": 4.15,
+        "unit": "s"
+      },
+      "ift3015": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              19,
+              null,
+              null
+            ],
+            "best": 19
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              19.5,
+              null,
+              null
+            ],
+            "best": 19.5
+          }
+        ],
+        "best": 19.5,
+        "unit": "km/h"
+      }
     }
   },
   {
@@ -26,19 +167,160 @@
     "dateOfBirth": "2007-08-22",
     "nationality": "American",
     "foot": "Left",
-    "positions": ["LW", "ST"],
+    "positions": [
+      "LW",
+      "ST"
+    ],
     "ageGroup": "U-19",
     "heightCm": 175,
-    "weightKg": 69.0,
+    "weightKg": 69,
     "bodyFatPct": 10.5,
     "muscleRatePct": 45.2,
     "tests": {
-      "cmj": { "attempts": [42.1, 43.8, 41.5], "best": 43.8, "unit": "cm" },
-      "broadJump": { "attempts": [245, 250, 248], "best": 250, "unit": "cm" },
-      "sprint5m": { "attempts": [0.99, 0.98, null], "best": 0.98, "unit": "s" },
-      "sprint10m": { "attempts": [1.72, 1.70, null], "best": 1.70, "unit": "s" },
-      "sprint30m": { "attempts": [4.05, 4.02, null], "best": 4.02, "unit": "s" },
-      "ift3015": { "attempts": [20.0, null, null], "best": 20.0, "unit": "km/h" }
+      "cmj": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              41.3,
+              42.9,
+              40.7
+            ],
+            "best": 42.9
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              42.1,
+              43.8,
+              41.5
+            ],
+            "best": 43.8
+          }
+        ],
+        "best": 43.8,
+        "unit": "cm"
+      },
+      "broadJump": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              240.1,
+              245,
+              243
+            ],
+            "best": 245
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              245,
+              250,
+              248
+            ],
+            "best": 250
+          }
+        ],
+        "best": 250,
+        "unit": "cm"
+      },
+      "sprint5m": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              1.01,
+              1,
+              null
+            ],
+            "best": 1
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              0.99,
+              0.98,
+              null
+            ],
+            "best": 0.98
+          }
+        ],
+        "best": 0.98,
+        "unit": "s"
+      },
+      "sprint10m": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              1.74,
+              1.72,
+              null
+            ],
+            "best": 1.72
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              1.72,
+              1.7,
+              null
+            ],
+            "best": 1.7
+          }
+        ],
+        "best": 1.7,
+        "unit": "s"
+      },
+      "sprint30m": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              4.07,
+              4.04,
+              null
+            ],
+            "best": 4.04
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              4.05,
+              4.02,
+              null
+            ],
+            "best": 4.02
+          }
+        ],
+        "best": 4.02,
+        "unit": "s"
+      },
+      "ift3015": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              19.5,
+              null,
+              null
+            ],
+            "best": 19.5
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              20,
+              null,
+              null
+            ],
+            "best": 20
+          }
+        ],
+        "best": 20,
+        "unit": "km/h"
+      }
     }
   },
   {
@@ -47,19 +329,159 @@
     "dateOfBirth": "2006-11-05",
     "nationality": "American",
     "foot": "Right",
-    "positions": ["CB"],
+    "positions": [
+      "CB"
+    ],
     "ageGroup": "U-19",
     "heightCm": 186,
-    "weightKg": 81.0,
+    "weightKg": 81,
     "bodyFatPct": 12.8,
     "muscleRatePct": 46.1,
     "tests": {
-      "cmj": { "attempts": [35.0, 36.2, null], "best": 36.2, "unit": "cm" },
-      "broadJump": { "attempts": [228, 230, null], "best": 230, "unit": "cm" },
-      "trapBarDL": { "attempts": [110, 115, null], "best": 115, "unit": "kg" },
-      "sprint5m": { "attempts": [1.08, 1.06, null], "best": 1.06, "unit": "s" },
-      "sprint30m": { "attempts": [4.28, 4.25, null], "best": 4.25, "unit": "s" },
-      "pullUps": { "attempts": [8, null, null], "best": 8, "unit": "reps" }
+      "cmj": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              33.6,
+              34.7,
+              null
+            ],
+            "best": 34.7
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              35,
+              36.2,
+              null
+            ],
+            "best": 36.2
+          }
+        ],
+        "best": 36.2,
+        "unit": "cm"
+      },
+      "broadJump": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              218.7,
+              220.6,
+              null
+            ],
+            "best": 220.6
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              228,
+              230,
+              null
+            ],
+            "best": 230
+          }
+        ],
+        "best": 230,
+        "unit": "cm"
+      },
+      "trapBarDL": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              101,
+              105,
+              null
+            ],
+            "best": 105
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              110,
+              115,
+              null
+            ],
+            "best": 115
+          }
+        ],
+        "best": 115,
+        "unit": "kg"
+      },
+      "sprint5m": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              1.12,
+              1.1,
+              null
+            ],
+            "best": 1.1
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              1.08,
+              1.06,
+              null
+            ],
+            "best": 1.06
+          }
+        ],
+        "best": 1.06,
+        "unit": "s"
+      },
+      "sprint30m": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              4.32,
+              4.29,
+              null
+            ],
+            "best": 4.29
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              4.28,
+              4.25,
+              null
+            ],
+            "best": 4.25
+          }
+        ],
+        "best": 4.25,
+        "unit": "s"
+      },
+      "pullUps": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              7,
+              null,
+              null
+            ],
+            "best": 7
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              8,
+              null,
+              null
+            ],
+            "best": 8
+          }
+        ],
+        "best": 8,
+        "unit": "reps"
+      }
     }
   },
   {
@@ -68,17 +490,111 @@
     "dateOfBirth": "2007-01-18",
     "nationality": "American",
     "foot": "Right",
-    "positions": ["GK"],
+    "positions": [
+      "GK"
+    ],
     "ageGroup": "U-19",
     "heightCm": 188,
-    "weightKg": 82.0,
-    "bodyFatPct": 13.0,
+    "weightKg": 82,
+    "bodyFatPct": 13,
     "muscleRatePct": 44.5,
     "tests": {
-      "cmj": { "attempts": [40.5, 41.2, null], "best": 41.2, "unit": "cm" },
-      "broadJump": { "attempts": [240, 245, null], "best": 245, "unit": "cm" },
-      "sprint5m": { "attempts": [1.05, 1.04, null], "best": 1.04, "unit": "s" },
-      "sprint10m": { "attempts": [1.80, 1.78, null], "best": 1.78, "unit": "s" }
+      "cmj": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              39.2,
+              39.9,
+              null
+            ],
+            "best": 39.9
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              40.5,
+              41.2,
+              null
+            ],
+            "best": 41.2
+          }
+        ],
+        "best": 41.2,
+        "unit": "cm"
+      },
+      "broadJump": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              232.3,
+              237.2,
+              null
+            ],
+            "best": 237.2
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              240,
+              245,
+              null
+            ],
+            "best": 245
+          }
+        ],
+        "best": 245,
+        "unit": "cm"
+      },
+      "sprint5m": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              1.08,
+              1.07,
+              null
+            ],
+            "best": 1.07
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              1.05,
+              1.04,
+              null
+            ],
+            "best": 1.04
+          }
+        ],
+        "best": 1.04,
+        "unit": "s"
+      },
+      "sprint10m": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              1.83,
+              1.81,
+              null
+            ],
+            "best": 1.81
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              1.8,
+              1.78,
+              null
+            ],
+            "best": 1.78
+          }
+        ],
+        "best": 1.78,
+        "unit": "s"
+      }
     }
   },
   {
@@ -87,19 +603,160 @@
     "dateOfBirth": "2007-05-30",
     "nationality": "American",
     "foot": "Right",
-    "positions": ["RB", "RW"],
+    "positions": [
+      "RB",
+      "RW"
+    ],
     "ageGroup": "U-19",
     "heightCm": 176,
     "weightKg": 70.5,
     "bodyFatPct": 10.8,
-    "muscleRatePct": 45.0,
+    "muscleRatePct": 45,
     "tests": {
-      "cmj": { "attempts": [37.8, 39.0, null], "best": 39.0, "unit": "cm" },
-      "broadJump": { "attempts": [235, 240, null], "best": 240, "unit": "cm" },
-      "sprint5m": { "attempts": [1.01, 1.00, null], "best": 1.00, "unit": "s" },
-      "sprint10m": { "attempts": [1.73, 1.71, null], "best": 1.71, "unit": "s" },
-      "sprint30m": { "attempts": [4.12, 4.08, null], "best": 4.08, "unit": "s" },
-      "ift3015": { "attempts": [20.5, null, null], "best": 20.5, "unit": "km/h" }
+      "cmj": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              36.9,
+              38.1,
+              null
+            ],
+            "best": 38.1
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              37.8,
+              39,
+              null
+            ],
+            "best": 39
+          }
+        ],
+        "best": 39,
+        "unit": "cm"
+      },
+      "broadJump": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              229.6,
+              234.5,
+              null
+            ],
+            "best": 234.5
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              235,
+              240,
+              null
+            ],
+            "best": 240
+          }
+        ],
+        "best": 240,
+        "unit": "cm"
+      },
+      "sprint5m": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              1.03,
+              1.02,
+              null
+            ],
+            "best": 1.02
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              1.01,
+              1,
+              null
+            ],
+            "best": 1
+          }
+        ],
+        "best": 1,
+        "unit": "s"
+      },
+      "sprint10m": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              1.75,
+              1.73,
+              null
+            ],
+            "best": 1.73
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              1.73,
+              1.71,
+              null
+            ],
+            "best": 1.71
+          }
+        ],
+        "best": 1.71,
+        "unit": "s"
+      },
+      "sprint30m": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              4.14,
+              4.1,
+              null
+            ],
+            "best": 4.1
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              4.12,
+              4.08,
+              null
+            ],
+            "best": 4.08
+          }
+        ],
+        "best": 4.08,
+        "unit": "s"
+      },
+      "ift3015": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              20,
+              null,
+              null
+            ],
+            "best": 20
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              20.5,
+              null,
+              null
+            ],
+            "best": 20.5
+          }
+        ],
+        "best": 20.5,
+        "unit": "km/h"
+      }
     }
   },
   {
@@ -108,18 +765,135 @@
     "dateOfBirth": "2007-09-12",
     "nationality": "American",
     "foot": "Left",
-    "positions": ["LB"],
+    "positions": [
+      "LB"
+    ],
     "ageGroup": "U-19",
     "heightCm": 174,
     "weightKg": 68.5,
-    "bodyFatPct": 11.0,
+    "bodyFatPct": 11,
     "muscleRatePct": 44.2,
     "tests": {
-      "cmj": { "attempts": [36.5, 37.8, null], "best": 37.8, "unit": "cm" },
-      "broadJump": { "attempts": [228, 232, null], "best": 232, "unit": "cm" },
-      "sprint5m": { "attempts": [1.03, 1.02, null], "best": 1.02, "unit": "s" },
-      "sprint30m": { "attempts": [4.20, 4.18, null], "best": 4.18, "unit": "s" },
-      "ift3015": { "attempts": [19.0, null, null], "best": 19.0, "unit": "km/h" }
+      "cmj": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              34.9,
+              36.1,
+              null
+            ],
+            "best": 36.1
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              36.5,
+              37.8,
+              null
+            ],
+            "best": 37.8
+          }
+        ],
+        "best": 37.8,
+        "unit": "cm"
+      },
+      "broadJump": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              218,
+              221.8,
+              null
+            ],
+            "best": 221.8
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              228,
+              232,
+              null
+            ],
+            "best": 232
+          }
+        ],
+        "best": 232,
+        "unit": "cm"
+      },
+      "sprint5m": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              1.07,
+              1.06,
+              null
+            ],
+            "best": 1.06
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              1.03,
+              1.02,
+              null
+            ],
+            "best": 1.02
+          }
+        ],
+        "best": 1.02,
+        "unit": "s"
+      },
+      "sprint30m": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              4.24,
+              4.22,
+              null
+            ],
+            "best": 4.22
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              4.2,
+              4.18,
+              null
+            ],
+            "best": 4.18
+          }
+        ],
+        "best": 4.18,
+        "unit": "s"
+      },
+      "ift3015": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              18.5,
+              null,
+              null
+            ],
+            "best": 18.5
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              19,
+              null,
+              null
+            ],
+            "best": 19
+          }
+        ],
+        "best": 19,
+        "unit": "km/h"
+      }
     }
   },
   {
@@ -128,20 +902,184 @@
     "dateOfBirth": "2006-12-01",
     "nationality": "American",
     "foot": "Right",
-    "positions": ["CDM", "CM"],
+    "positions": [
+      "CDM",
+      "CM"
+    ],
     "ageGroup": "U-19",
     "heightCm": 180,
-    "weightKg": 75.0,
+    "weightKg": 75,
     "bodyFatPct": 11.5,
     "muscleRatePct": 45.5,
     "tests": {
-      "cmj": { "attempts": [34.5, 35.8, null], "best": 35.8, "unit": "cm" },
-      "broadJump": { "attempts": [225, 228, null], "best": 228, "unit": "cm" },
-      "trapBarDL": { "attempts": [105, 110, null], "best": 110, "unit": "kg" },
-      "sprint5m": { "attempts": [1.06, 1.05, null], "best": 1.05, "unit": "s" },
-      "sprint30m": { "attempts": [4.22, 4.20, null], "best": 4.20, "unit": "s" },
-      "pullUps": { "attempts": [10, null, null], "best": 10, "unit": "reps" },
-      "ift3015": { "attempts": [20.0, null, null], "best": 20.0, "unit": "km/h" }
+      "cmj": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              33.3,
+              34.5,
+              null
+            ],
+            "best": 34.5
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              34.5,
+              35.8,
+              null
+            ],
+            "best": 35.8
+          }
+        ],
+        "best": 35.8,
+        "unit": "cm"
+      },
+      "broadJump": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              217.1,
+              220,
+              null
+            ],
+            "best": 220
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              225,
+              228,
+              null
+            ],
+            "best": 228
+          }
+        ],
+        "best": 228,
+        "unit": "cm"
+      },
+      "trapBarDL": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              97,
+              102,
+              null
+            ],
+            "best": 102
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              105,
+              110,
+              null
+            ],
+            "best": 110
+          }
+        ],
+        "best": 110,
+        "unit": "kg"
+      },
+      "sprint5m": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              1.1,
+              1.09,
+              null
+            ],
+            "best": 1.09
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              1.06,
+              1.05,
+              null
+            ],
+            "best": 1.05
+          }
+        ],
+        "best": 1.05,
+        "unit": "s"
+      },
+      "sprint30m": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              4.26,
+              4.24,
+              null
+            ],
+            "best": 4.24
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              4.22,
+              4.2,
+              null
+            ],
+            "best": 4.2
+          }
+        ],
+        "best": 4.2,
+        "unit": "s"
+      },
+      "pullUps": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              9,
+              null,
+              null
+            ],
+            "best": 9
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              10,
+              null,
+              null
+            ],
+            "best": 10
+          }
+        ],
+        "best": 10,
+        "unit": "reps"
+      },
+      "ift3015": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              19.5,
+              null,
+              null
+            ],
+            "best": 19.5
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              20,
+              null,
+              null
+            ],
+            "best": 20
+          }
+        ],
+        "best": 20,
+        "unit": "km/h"
+      }
     }
   },
   {
@@ -150,18 +1088,136 @@
     "dateOfBirth": "2007-04-08",
     "nationality": "American",
     "foot": "Right",
-    "positions": ["ST", "RW"],
+    "positions": [
+      "ST",
+      "RW"
+    ],
     "ageGroup": "U-19",
     "heightCm": 182,
-    "weightKg": 76.0,
+    "weightKg": 76,
     "bodyFatPct": 11.8,
-    "muscleRatePct": 45.0,
+    "muscleRatePct": 45,
     "tests": {
-      "cmj": { "attempts": [41.0, 42.5, null], "best": 42.5, "unit": "cm" },
-      "broadJump": { "attempts": [248, 252, null], "best": 252, "unit": "cm" },
-      "sprint5m": { "attempts": [0.98, 0.97, null], "best": 0.97, "unit": "s" },
-      "sprint10m": { "attempts": [1.68, 1.66, null], "best": 1.66, "unit": "s" },
-      "sprint30m": { "attempts": [4.00, 3.98, null], "best": 3.98, "unit": "s" }
+      "cmj": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              39.9,
+              41.4,
+              null
+            ],
+            "best": 41.4
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              41,
+              42.5,
+              null
+            ],
+            "best": 42.5
+          }
+        ],
+        "best": 42.5,
+        "unit": "cm"
+      },
+      "broadJump": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              241.6,
+              245.4,
+              null
+            ],
+            "best": 245.4
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              248,
+              252,
+              null
+            ],
+            "best": 252
+          }
+        ],
+        "best": 252,
+        "unit": "cm"
+      },
+      "sprint5m": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              1.01,
+              1,
+              null
+            ],
+            "best": 1
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              0.98,
+              0.97,
+              null
+            ],
+            "best": 0.97
+          }
+        ],
+        "best": 0.97,
+        "unit": "s"
+      },
+      "sprint10m": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              1.71,
+              1.69,
+              null
+            ],
+            "best": 1.69
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              1.68,
+              1.66,
+              null
+            ],
+            "best": 1.66
+          }
+        ],
+        "best": 1.66,
+        "unit": "s"
+      },
+      "sprint30m": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              4.03,
+              4.01,
+              null
+            ],
+            "best": 4.01
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              4,
+              3.98,
+              null
+            ],
+            "best": 3.98
+          }
+        ],
+        "best": 3.98,
+        "unit": "s"
+      }
     }
   },
   {
@@ -170,19 +1226,160 @@
     "dateOfBirth": "2007-07-25",
     "nationality": "American",
     "foot": "Both",
-    "positions": ["CAM", "CM"],
+    "positions": [
+      "CAM",
+      "CM"
+    ],
     "ageGroup": "U-19",
     "heightCm": 173,
-    "weightKg": 67.0,
+    "weightKg": 67,
     "bodyFatPct": 10.2,
     "muscleRatePct": 43.8,
     "tests": {
-      "cmj": { "attempts": [38.5, 40.0, null], "best": 40.0, "unit": "cm" },
-      "broadJump": { "attempts": [235, 238, null], "best": 238, "unit": "cm" },
-      "sprint5m": { "attempts": [1.02, 1.01, null], "best": 1.01, "unit": "s" },
-      "sprint30m": { "attempts": [4.15, 4.12, null], "best": 4.12, "unit": "s" },
-      "dribbling": { "attempts": [12.8, 12.5, null], "best": 12.5, "unit": "s" },
-      "passingAcc": { "attempts": [8, null, null], "best": 8, "unit": "goals" }
+      "cmj": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              36.7,
+              38.1,
+              null
+            ],
+            "best": 38.1
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              38.5,
+              40,
+              null
+            ],
+            "best": 40
+          }
+        ],
+        "best": 40,
+        "unit": "cm"
+      },
+      "broadJump": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              224,
+              226.8,
+              null
+            ],
+            "best": 226.8
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              235,
+              238,
+              null
+            ],
+            "best": 238
+          }
+        ],
+        "best": 238,
+        "unit": "cm"
+      },
+      "sprint5m": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              1.07,
+              1.06,
+              null
+            ],
+            "best": 1.06
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              1.02,
+              1.01,
+              null
+            ],
+            "best": 1.01
+          }
+        ],
+        "best": 1.01,
+        "unit": "s"
+      },
+      "sprint30m": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              4.2,
+              4.17,
+              null
+            ],
+            "best": 4.17
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              4.15,
+              4.12,
+              null
+            ],
+            "best": 4.12
+          }
+        ],
+        "best": 4.12,
+        "unit": "s"
+      },
+      "dribbling": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              13.3,
+              13,
+              null
+            ],
+            "best": 13
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              12.8,
+              12.5,
+              null
+            ],
+            "best": 12.5
+          }
+        ],
+        "best": 12.5,
+        "unit": "s"
+      },
+      "passingAcc": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              7,
+              null,
+              null
+            ],
+            "best": 7
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              8,
+              null,
+              null
+            ],
+            "best": 8
+          }
+        ],
+        "best": 8,
+        "unit": "goals"
+      }
     }
   },
   {
@@ -191,17 +1388,112 @@
     "dateOfBirth": "2008-02-15",
     "nationality": "American",
     "foot": "Right",
-    "positions": ["CB", "CDM"],
+    "positions": [
+      "CB",
+      "CDM"
+    ],
     "ageGroup": "U-17",
     "heightCm": 180,
-    "weightKg": 73.0,
+    "weightKg": 73,
     "bodyFatPct": 12.5,
     "muscleRatePct": 43.5,
     "tests": {
-      "cmj": { "attempts": [33.0, 34.5, null], "best": 34.5, "unit": "cm" },
-      "broadJump": { "attempts": [218, 222, null], "best": 222, "unit": "cm" },
-      "sprint5m": { "attempts": [1.10, 1.08, null], "best": 1.08, "unit": "s" },
-      "sprint30m": { "attempts": [4.38, 4.35, null], "best": 4.35, "unit": "s" }
+      "cmj": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              31.7,
+              33.2,
+              null
+            ],
+            "best": 33.2
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              33,
+              34.5,
+              null
+            ],
+            "best": 34.5
+          }
+        ],
+        "best": 34.5,
+        "unit": "cm"
+      },
+      "broadJump": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              209.7,
+              213.6,
+              null
+            ],
+            "best": 213.6
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              218,
+              222,
+              null
+            ],
+            "best": 222
+          }
+        ],
+        "best": 222,
+        "unit": "cm"
+      },
+      "sprint5m": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              1.14,
+              1.12,
+              null
+            ],
+            "best": 1.12
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              1.1,
+              1.08,
+              null
+            ],
+            "best": 1.08
+          }
+        ],
+        "best": 1.08,
+        "unit": "s"
+      },
+      "sprint30m": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              4.42,
+              4.39,
+              null
+            ],
+            "best": 4.39
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              4.38,
+              4.35,
+              null
+            ],
+            "best": 4.35
+          }
+        ],
+        "best": 4.35,
+        "unit": "s"
+      }
     }
   },
   {
@@ -210,19 +1502,160 @@
     "dateOfBirth": "2008-06-20",
     "nationality": "American",
     "foot": "Right",
-    "positions": ["CM", "CAM"],
+    "positions": [
+      "CM",
+      "CAM"
+    ],
     "ageGroup": "U-17",
     "heightCm": 170,
     "weightKg": 62.5,
-    "bodyFatPct": 10.0,
+    "bodyFatPct": 10,
     "muscleRatePct": 42.5,
     "tests": {
-      "cmj": { "attempts": [35.5, 36.8, null], "best": 36.8, "unit": "cm" },
-      "broadJump": { "attempts": [225, 230, null], "best": 230, "unit": "cm" },
-      "sprint5m": { "attempts": [1.05, 1.04, null], "best": 1.04, "unit": "s" },
-      "sprint30m": { "attempts": [4.28, 4.25, null], "best": 4.25, "unit": "s" },
-      "dribbling": { "attempts": [13.2, 12.8, null], "best": 12.8, "unit": "s" },
-      "passingAcc": { "attempts": [7, null, null], "best": 7, "unit": "goals" }
+      "cmj": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              34.5,
+              35.7,
+              null
+            ],
+            "best": 35.7
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              35.5,
+              36.8,
+              null
+            ],
+            "best": 36.8
+          }
+        ],
+        "best": 36.8,
+        "unit": "cm"
+      },
+      "broadJump": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              218.5,
+              223.3,
+              null
+            ],
+            "best": 223.3
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              225,
+              230,
+              null
+            ],
+            "best": 230
+          }
+        ],
+        "best": 230,
+        "unit": "cm"
+      },
+      "sprint5m": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              1.08,
+              1.07,
+              null
+            ],
+            "best": 1.07
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              1.05,
+              1.04,
+              null
+            ],
+            "best": 1.04
+          }
+        ],
+        "best": 1.04,
+        "unit": "s"
+      },
+      "sprint30m": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              4.31,
+              4.28,
+              null
+            ],
+            "best": 4.28
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              4.28,
+              4.25,
+              null
+            ],
+            "best": 4.25
+          }
+        ],
+        "best": 4.25,
+        "unit": "s"
+      },
+      "dribbling": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              13.6,
+              13.2,
+              null
+            ],
+            "best": 13.2
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              13.2,
+              12.8,
+              null
+            ],
+            "best": 12.8
+          }
+        ],
+        "best": 12.8,
+        "unit": "s"
+      },
+      "passingAcc": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              6,
+              null,
+              null
+            ],
+            "best": 6
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              7,
+              null,
+              null
+            ],
+            "best": 7
+          }
+        ],
+        "best": 7,
+        "unit": "goals"
+      }
     }
   },
   {
@@ -231,18 +1664,135 @@
     "dateOfBirth": "2008-10-03",
     "nationality": "American",
     "foot": "Left",
-    "positions": ["LW"],
+    "positions": [
+      "LW"
+    ],
     "ageGroup": "U-17",
     "heightCm": 172,
-    "weightKg": 64.0,
+    "weightKg": 64,
     "bodyFatPct": 10.5,
-    "muscleRatePct": 43.0,
+    "muscleRatePct": 43,
     "tests": {
-      "cmj": { "attempts": [37.0, 38.5, null], "best": 38.5, "unit": "cm" },
-      "broadJump": { "attempts": [232, 236, null], "best": 236, "unit": "cm" },
-      "sprint5m": { "attempts": [1.02, 1.00, null], "best": 1.00, "unit": "s" },
-      "sprint10m": { "attempts": [1.72, 1.70, null], "best": 1.70, "unit": "s" },
-      "sprint30m": { "attempts": [4.15, 4.12, null], "best": 4.12, "unit": "s" }
+      "cmj": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              36.3,
+              37.7,
+              null
+            ],
+            "best": 37.7
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              37,
+              38.5,
+              null
+            ],
+            "best": 38.5
+          }
+        ],
+        "best": 38.5,
+        "unit": "cm"
+      },
+      "broadJump": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              227.4,
+              231.3,
+              null
+            ],
+            "best": 231.3
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              232,
+              236,
+              null
+            ],
+            "best": 236
+          }
+        ],
+        "best": 236,
+        "unit": "cm"
+      },
+      "sprint5m": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              1.04,
+              1.02,
+              null
+            ],
+            "best": 1.02
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              1.02,
+              1,
+              null
+            ],
+            "best": 1
+          }
+        ],
+        "best": 1,
+        "unit": "s"
+      },
+      "sprint10m": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              1.74,
+              1.72,
+              null
+            ],
+            "best": 1.72
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              1.72,
+              1.7,
+              null
+            ],
+            "best": 1.7
+          }
+        ],
+        "best": 1.7,
+        "unit": "s"
+      },
+      "sprint30m": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              4.17,
+              4.14,
+              null
+            ],
+            "best": 4.14
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              4.15,
+              4.12,
+              null
+            ],
+            "best": 4.12
+          }
+        ],
+        "best": 4.12,
+        "unit": "s"
+      }
     }
   },
   {
@@ -251,18 +1801,135 @@
     "dateOfBirth": "2008-04-17",
     "nationality": "American",
     "foot": "Right",
-    "positions": ["RB"],
+    "positions": [
+      "RB"
+    ],
     "ageGroup": "U-17",
     "heightCm": 174,
     "weightKg": 66.5,
     "bodyFatPct": 11.2,
     "muscleRatePct": 43.2,
     "tests": {
-      "cmj": { "attempts": [32.5, 34.0, null], "best": 34.0, "unit": "cm" },
-      "broadJump": { "attempts": [215, 220, null], "best": 220, "unit": "cm" },
-      "sprint5m": { "attempts": [1.08, 1.06, null], "best": 1.06, "unit": "s" },
-      "sprint30m": { "attempts": [4.32, 4.28, null], "best": 4.28, "unit": "s" },
-      "ift3015": { "attempts": [18.5, null, null], "best": 18.5, "unit": "km/h" }
+      "cmj": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              31.2,
+              32.6,
+              null
+            ],
+            "best": 32.6
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              32.5,
+              34,
+              null
+            ],
+            "best": 34
+          }
+        ],
+        "best": 34,
+        "unit": "cm"
+      },
+      "broadJump": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              206.2,
+              211,
+              null
+            ],
+            "best": 211
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              215,
+              220,
+              null
+            ],
+            "best": 220
+          }
+        ],
+        "best": 220,
+        "unit": "cm"
+      },
+      "sprint5m": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              1.12,
+              1.1,
+              null
+            ],
+            "best": 1.1
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              1.08,
+              1.06,
+              null
+            ],
+            "best": 1.06
+          }
+        ],
+        "best": 1.06,
+        "unit": "s"
+      },
+      "sprint30m": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              4.36,
+              4.32,
+              null
+            ],
+            "best": 4.32
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              4.32,
+              4.28,
+              null
+            ],
+            "best": 4.28
+          }
+        ],
+        "best": 4.28,
+        "unit": "s"
+      },
+      "ift3015": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              18,
+              null,
+              null
+            ],
+            "best": 18
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              18.5,
+              null,
+              null
+            ],
+            "best": 18.5
+          }
+        ],
+        "best": 18.5,
+        "unit": "km/h"
+      }
     }
   },
   {
@@ -271,17 +1938,111 @@
     "dateOfBirth": "2008-08-09",
     "nationality": "American",
     "foot": "Right",
-    "positions": ["ST"],
+    "positions": [
+      "ST"
+    ],
     "ageGroup": "U-17",
     "heightCm": 177,
-    "weightKg": 70.0,
+    "weightKg": 70,
     "bodyFatPct": 11.8,
-    "muscleRatePct": 44.0,
+    "muscleRatePct": 44,
     "tests": {
-      "cmj": { "attempts": [36.0, 37.5, null], "best": 37.5, "unit": "cm" },
-      "broadJump": { "attempts": [228, 232, null], "best": 232, "unit": "cm" },
-      "sprint5m": { "attempts": [1.04, 1.03, null], "best": 1.03, "unit": "s" },
-      "sprint30m": { "attempts": [4.22, 4.18, null], "best": 4.18, "unit": "s" }
+      "cmj": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              34.8,
+              36.3,
+              null
+            ],
+            "best": 36.3
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              36,
+              37.5,
+              null
+            ],
+            "best": 37.5
+          }
+        ],
+        "best": 37.5,
+        "unit": "cm"
+      },
+      "broadJump": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              220.7,
+              224.6,
+              null
+            ],
+            "best": 224.6
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              228,
+              232,
+              null
+            ],
+            "best": 232
+          }
+        ],
+        "best": 232,
+        "unit": "cm"
+      },
+      "sprint5m": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              1.07,
+              1.06,
+              null
+            ],
+            "best": 1.06
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              1.04,
+              1.03,
+              null
+            ],
+            "best": 1.03
+          }
+        ],
+        "best": 1.03,
+        "unit": "s"
+      },
+      "sprint30m": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              4.25,
+              4.21,
+              null
+            ],
+            "best": 4.21
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              4.22,
+              4.18,
+              null
+            ],
+            "best": 4.18
+          }
+        ],
+        "best": 4.18,
+        "unit": "s"
+      }
     }
   },
   {
@@ -290,17 +2051,111 @@
     "dateOfBirth": "2008-01-28",
     "nationality": "American",
     "foot": "Right",
-    "positions": ["GK"],
+    "positions": [
+      "GK"
+    ],
     "ageGroup": "U-17",
     "heightCm": 183,
-    "weightKg": 75.0,
-    "bodyFatPct": 12.0,
+    "weightKg": 75,
+    "bodyFatPct": 12,
     "muscleRatePct": 43.8,
     "tests": {
-      "cmj": { "attempts": [38.0, 39.5, null], "best": 39.5, "unit": "cm" },
-      "broadJump": { "attempts": [235, 240, null], "best": 240, "unit": "cm" },
-      "sprint5m": { "attempts": [1.06, 1.05, null], "best": 1.05, "unit": "s" },
-      "sprint10m": { "attempts": [1.80, 1.78, null], "best": 1.78, "unit": "s" }
+      "cmj": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              37.1,
+              38.6,
+              null
+            ],
+            "best": 38.6
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              38,
+              39.5,
+              null
+            ],
+            "best": 39.5
+          }
+        ],
+        "best": 39.5,
+        "unit": "cm"
+      },
+      "broadJump": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              229.6,
+              234.5,
+              null
+            ],
+            "best": 234.5
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              235,
+              240,
+              null
+            ],
+            "best": 240
+          }
+        ],
+        "best": 240,
+        "unit": "cm"
+      },
+      "sprint5m": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              1.08,
+              1.07,
+              null
+            ],
+            "best": 1.07
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              1.06,
+              1.05,
+              null
+            ],
+            "best": 1.05
+          }
+        ],
+        "best": 1.05,
+        "unit": "s"
+      },
+      "sprint10m": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              1.82,
+              1.8,
+              null
+            ],
+            "best": 1.8
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              1.8,
+              1.78,
+              null
+            ],
+            "best": 1.78
+          }
+        ],
+        "best": 1.78,
+        "unit": "s"
+      }
     }
   },
   {
@@ -309,19 +2164,159 @@
     "dateOfBirth": "2008-12-10",
     "nationality": "American",
     "foot": "Both",
-    "positions": ["CDM"],
+    "positions": [
+      "CDM"
+    ],
     "ageGroup": "U-17",
     "heightCm": 175,
-    "weightKg": 68.0,
+    "weightKg": 68,
     "bodyFatPct": 11.5,
     "muscleRatePct": 43.5,
     "tests": {
-      "cmj": { "attempts": [33.5, 35.0, null], "best": 35.0, "unit": "cm" },
-      "broadJump": { "attempts": [220, 225, null], "best": 225, "unit": "cm" },
-      "sprint5m": { "attempts": [1.07, 1.05, null], "best": 1.05, "unit": "s" },
-      "sprint30m": { "attempts": [4.30, 4.28, null], "best": 4.28, "unit": "s" },
-      "pullUps": { "attempts": [6, null, null], "best": 6, "unit": "reps" },
-      "ift3015": { "attempts": [18.0, null, null], "best": 18.0, "unit": "km/h" }
+      "cmj": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              32,
+              33.5,
+              null
+            ],
+            "best": 33.5
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              33.5,
+              35,
+              null
+            ],
+            "best": 35
+          }
+        ],
+        "best": 35,
+        "unit": "cm"
+      },
+      "broadJump": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              210.3,
+              215.1,
+              null
+            ],
+            "best": 215.1
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              220,
+              225,
+              null
+            ],
+            "best": 225
+          }
+        ],
+        "best": 225,
+        "unit": "cm"
+      },
+      "sprint5m": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              1.11,
+              1.09,
+              null
+            ],
+            "best": 1.09
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              1.07,
+              1.05,
+              null
+            ],
+            "best": 1.05
+          }
+        ],
+        "best": 1.05,
+        "unit": "s"
+      },
+      "sprint30m": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              4.34,
+              4.32,
+              null
+            ],
+            "best": 4.32
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              4.3,
+              4.28,
+              null
+            ],
+            "best": 4.28
+          }
+        ],
+        "best": 4.28,
+        "unit": "s"
+      },
+      "pullUps": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              4,
+              null,
+              null
+            ],
+            "best": 4
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              6,
+              null,
+              null
+            ],
+            "best": 6
+          }
+        ],
+        "best": 6,
+        "unit": "reps"
+      },
+      "ift3015": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              17.5,
+              null,
+              null
+            ],
+            "best": 17.5
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              18,
+              null,
+              null
+            ],
+            "best": 18
+          }
+        ],
+        "best": 18,
+        "unit": "km/h"
+      }
     }
   },
   {
@@ -330,19 +2325,160 @@
     "dateOfBirth": "2008-05-22",
     "nationality": "American",
     "foot": "Right",
-    "positions": ["RW", "CAM"],
+    "positions": [
+      "RW",
+      "CAM"
+    ],
     "ageGroup": "U-17",
     "heightCm": 168,
-    "weightKg": 60.0,
+    "weightKg": 60,
     "bodyFatPct": 9.8,
-    "muscleRatePct": 42.0,
+    "muscleRatePct": 42,
     "tests": {
-      "cmj": { "attempts": [39.0, 40.5, null], "best": 40.5, "unit": "cm" },
-      "broadJump": { "attempts": [238, 242, null], "best": 242, "unit": "cm" },
-      "sprint5m": { "attempts": [1.00, 0.99, null], "best": 0.99, "unit": "s" },
-      "sprint10m": { "attempts": [1.70, 1.68, null], "best": 1.68, "unit": "s" },
-      "sprint30m": { "attempts": [4.10, 4.08, null], "best": 4.08, "unit": "s" },
-      "dribbling": { "attempts": [12.5, 12.2, null], "best": 12.2, "unit": "s" }
+      "cmj": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              37.6,
+              39.1,
+              null
+            ],
+            "best": 39.1
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              39,
+              40.5,
+              null
+            ],
+            "best": 40.5
+          }
+        ],
+        "best": 40.5,
+        "unit": "cm"
+      },
+      "broadJump": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              229.7,
+              233.5,
+              null
+            ],
+            "best": 233.5
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              238,
+              242,
+              null
+            ],
+            "best": 242
+          }
+        ],
+        "best": 242,
+        "unit": "cm"
+      },
+      "sprint5m": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              1.03,
+              1.02,
+              null
+            ],
+            "best": 1.02
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              1,
+              0.99,
+              null
+            ],
+            "best": 0.99
+          }
+        ],
+        "best": 0.99,
+        "unit": "s"
+      },
+      "sprint10m": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              1.74,
+              1.72,
+              null
+            ],
+            "best": 1.72
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              1.7,
+              1.68,
+              null
+            ],
+            "best": 1.68
+          }
+        ],
+        "best": 1.68,
+        "unit": "s"
+      },
+      "sprint30m": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              4.14,
+              4.12,
+              null
+            ],
+            "best": 4.12
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              4.1,
+              4.08,
+              null
+            ],
+            "best": 4.08
+          }
+        ],
+        "best": 4.08,
+        "unit": "s"
+      },
+      "dribbling": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              12.9,
+              12.6,
+              null
+            ],
+            "best": 12.6
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              12.5,
+              12.2,
+              null
+            ],
+            "best": 12.2
+          }
+        ],
+        "best": 12.2,
+        "unit": "s"
+      }
     }
   },
   {
@@ -351,19 +2487,159 @@
     "dateOfBirth": "2005-03-08",
     "nationality": "American",
     "foot": "Right",
-    "positions": ["CB"],
+    "positions": [
+      "CB"
+    ],
     "ageGroup": "U-21",
     "heightCm": 189,
-    "weightKg": 84.0,
+    "weightKg": 84,
     "bodyFatPct": 12.2,
-    "muscleRatePct": 47.0,
+    "muscleRatePct": 47,
     "tests": {
-      "cmj": { "attempts": [39.5, 41.0, null], "best": 41.0, "unit": "cm" },
-      "broadJump": { "attempts": [245, 250, null], "best": 250, "unit": "cm" },
-      "trapBarDL": { "attempts": [130, 135, null], "best": 135, "unit": "kg" },
-      "sprint5m": { "attempts": [1.02, 1.00, null], "best": 1.00, "unit": "s" },
-      "sprint30m": { "attempts": [4.10, 4.08, null], "best": 4.08, "unit": "s" },
-      "pullUps": { "attempts": [12, null, null], "best": 12, "unit": "reps" }
+      "cmj": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              38.5,
+              39.9,
+              null
+            ],
+            "best": 39.9
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              39.5,
+              41,
+              null
+            ],
+            "best": 41
+          }
+        ],
+        "best": 41,
+        "unit": "cm"
+      },
+      "broadJump": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              238.6,
+              243.5,
+              null
+            ],
+            "best": 243.5
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              245,
+              250,
+              null
+            ],
+            "best": 250
+          }
+        ],
+        "best": 250,
+        "unit": "cm"
+      },
+      "trapBarDL": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              122,
+              127,
+              null
+            ],
+            "best": 127
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              130,
+              135,
+              null
+            ],
+            "best": 135
+          }
+        ],
+        "best": 135,
+        "unit": "kg"
+      },
+      "sprint5m": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              1.05,
+              1.03,
+              null
+            ],
+            "best": 1.03
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              1.02,
+              1,
+              null
+            ],
+            "best": 1
+          }
+        ],
+        "best": 1,
+        "unit": "s"
+      },
+      "sprint30m": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              4.13,
+              4.11,
+              null
+            ],
+            "best": 4.11
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              4.1,
+              4.08,
+              null
+            ],
+            "best": 4.08
+          }
+        ],
+        "best": 4.08,
+        "unit": "s"
+      },
+      "pullUps": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              10,
+              null,
+              null
+            ],
+            "best": 10
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              12,
+              null,
+              null
+            ],
+            "best": 12
+          }
+        ],
+        "best": 12,
+        "unit": "reps"
+      }
     }
   },
   {
@@ -372,19 +2648,160 @@
     "dateOfBirth": "2005-07-19",
     "nationality": "German-American",
     "foot": "Right",
-    "positions": ["CDM", "CB"],
+    "positions": [
+      "CDM",
+      "CB"
+    ],
     "ageGroup": "U-21",
     "heightCm": 184,
-    "weightKg": 79.0,
+    "weightKg": 79,
     "bodyFatPct": 11.5,
     "muscleRatePct": 46.5,
     "tests": {
-      "cmj": { "attempts": [37.0, 38.5, null], "best": 38.5, "unit": "cm" },
-      "broadJump": { "attempts": [238, 242, null], "best": 242, "unit": "cm" },
-      "trapBarDL": { "attempts": [120, 125, null], "best": 125, "unit": "kg" },
-      "sprint5m": { "attempts": [1.04, 1.03, null], "best": 1.03, "unit": "s" },
-      "sprint30m": { "attempts": [4.15, 4.12, null], "best": 4.12, "unit": "s" },
-      "ift3015": { "attempts": [21.0, null, null], "best": 21.0, "unit": "km/h" }
+      "cmj": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              35.3,
+              36.7,
+              null
+            ],
+            "best": 36.7
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              37,
+              38.5,
+              null
+            ],
+            "best": 38.5
+          }
+        ],
+        "best": 38.5,
+        "unit": "cm"
+      },
+      "broadJump": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              226.8,
+              230.6,
+              null
+            ],
+            "best": 230.6
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              238,
+              242,
+              null
+            ],
+            "best": 242
+          }
+        ],
+        "best": 242,
+        "unit": "cm"
+      },
+      "trapBarDL": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              109,
+              113,
+              null
+            ],
+            "best": 113
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              120,
+              125,
+              null
+            ],
+            "best": 125
+          }
+        ],
+        "best": 125,
+        "unit": "kg"
+      },
+      "sprint5m": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              1.09,
+              1.08,
+              null
+            ],
+            "best": 1.08
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              1.04,
+              1.03,
+              null
+            ],
+            "best": 1.03
+          }
+        ],
+        "best": 1.03,
+        "unit": "s"
+      },
+      "sprint30m": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              4.2,
+              4.17,
+              null
+            ],
+            "best": 4.17
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              4.15,
+              4.12,
+              null
+            ],
+            "best": 4.12
+          }
+        ],
+        "best": 4.12,
+        "unit": "s"
+      },
+      "ift3015": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              20.5,
+              null,
+              null
+            ],
+            "best": 20.5
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              21,
+              null,
+              null
+            ],
+            "best": 21
+          }
+        ],
+        "best": 21,
+        "unit": "km/h"
+      }
     }
   },
   {
@@ -393,18 +2810,136 @@
     "dateOfBirth": "2005-11-02",
     "nationality": "American",
     "foot": "Left",
-    "positions": ["LW", "LB"],
+    "positions": [
+      "LW",
+      "LB"
+    ],
     "ageGroup": "U-21",
     "heightCm": 179,
-    "weightKg": 74.0,
+    "weightKg": 74,
     "bodyFatPct": 10.8,
     "muscleRatePct": 45.8,
     "tests": {
-      "cmj": { "attempts": [43.0, 44.5, null], "best": 44.5, "unit": "cm" },
-      "broadJump": { "attempts": [255, 260, null], "best": 260, "unit": "cm" },
-      "sprint5m": { "attempts": [0.96, 0.95, null], "best": 0.95, "unit": "s" },
-      "sprint10m": { "attempts": [1.65, 1.63, null], "best": 1.63, "unit": "s" },
-      "sprint30m": { "attempts": [3.95, 3.92, null], "best": 3.92, "unit": "s" }
+      "cmj": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              41.4,
+              42.8,
+              null
+            ],
+            "best": 42.8
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              43,
+              44.5,
+              null
+            ],
+            "best": 44.5
+          }
+        ],
+        "best": 44.5,
+        "unit": "cm"
+      },
+      "broadJump": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              245.3,
+              250.1,
+              null
+            ],
+            "best": 250.1
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              255,
+              260,
+              null
+            ],
+            "best": 260
+          }
+        ],
+        "best": 260,
+        "unit": "cm"
+      },
+      "sprint5m": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              1,
+              0.99,
+              null
+            ],
+            "best": 0.99
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              0.96,
+              0.95,
+              null
+            ],
+            "best": 0.95
+          }
+        ],
+        "best": 0.95,
+        "unit": "s"
+      },
+      "sprint10m": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              1.69,
+              1.67,
+              null
+            ],
+            "best": 1.67
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              1.65,
+              1.63,
+              null
+            ],
+            "best": 1.63
+          }
+        ],
+        "best": 1.63,
+        "unit": "s"
+      },
+      "sprint30m": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              3.99,
+              3.96,
+              null
+            ],
+            "best": 3.96
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              3.95,
+              3.92,
+              null
+            ],
+            "best": 3.92
+          }
+        ],
+        "best": 3.92,
+        "unit": "s"
+      }
     }
   },
   {
@@ -413,18 +2948,135 @@
     "dateOfBirth": "2005-05-14",
     "nationality": "American",
     "foot": "Right",
-    "positions": ["ST"],
+    "positions": [
+      "ST"
+    ],
     "ageGroup": "U-21",
     "heightCm": 185,
-    "weightKg": 80.0,
-    "bodyFatPct": 11.0,
-    "muscleRatePct": 46.0,
+    "weightKg": 80,
+    "bodyFatPct": 11,
+    "muscleRatePct": 46,
     "tests": {
-      "cmj": { "attempts": [42.0, 43.5, null], "best": 43.5, "unit": "cm" },
-      "broadJump": { "attempts": [252, 258, null], "best": 258, "unit": "cm" },
-      "sprint5m": { "attempts": [0.97, 0.96, null], "best": 0.96, "unit": "s" },
-      "sprint30m": { "attempts": [3.98, 3.95, null], "best": 3.95, "unit": "s" },
-      "passingAcc": { "attempts": [7, null, null], "best": 7, "unit": "goals" }
+      "cmj": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              40.8,
+              42.2,
+              null
+            ],
+            "best": 42.2
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              42,
+              43.5,
+              null
+            ],
+            "best": 43.5
+          }
+        ],
+        "best": 43.5,
+        "unit": "cm"
+      },
+      "broadJump": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              244.7,
+              250.5,
+              null
+            ],
+            "best": 250.5
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              252,
+              258,
+              null
+            ],
+            "best": 258
+          }
+        ],
+        "best": 258,
+        "unit": "cm"
+      },
+      "sprint5m": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              1,
+              0.99,
+              null
+            ],
+            "best": 0.99
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              0.97,
+              0.96,
+              null
+            ],
+            "best": 0.96
+          }
+        ],
+        "best": 0.96,
+        "unit": "s"
+      },
+      "sprint30m": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              4.01,
+              3.98,
+              null
+            ],
+            "best": 3.98
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              3.98,
+              3.95,
+              null
+            ],
+            "best": 3.95
+          }
+        ],
+        "best": 3.95,
+        "unit": "s"
+      },
+      "passingAcc": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              6,
+              null,
+              null
+            ],
+            "best": 6
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              7,
+              null,
+              null
+            ],
+            "best": 7
+          }
+        ],
+        "best": 7,
+        "unit": "goals"
+      }
     }
   },
   {
@@ -433,17 +3085,111 @@
     "dateOfBirth": "2005-09-28",
     "nationality": "German-American",
     "foot": "Right",
-    "positions": ["GK"],
+    "positions": [
+      "GK"
+    ],
     "ageGroup": "U-21",
     "heightCm": 191,
-    "weightKg": 85.0,
+    "weightKg": 85,
     "bodyFatPct": 13.2,
-    "muscleRatePct": 45.0,
+    "muscleRatePct": 45,
     "tests": {
-      "cmj": { "attempts": [40.0, 41.5, null], "best": 41.5, "unit": "cm" },
-      "broadJump": { "attempts": [248, 252, null], "best": 252, "unit": "cm" },
-      "sprint5m": { "attempts": [1.03, 1.02, null], "best": 1.02, "unit": "s" },
-      "sprint10m": { "attempts": [1.76, 1.74, null], "best": 1.74, "unit": "s" }
+      "cmj": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              39.2,
+              40.7,
+              null
+            ],
+            "best": 40.7
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              40,
+              41.5,
+              null
+            ],
+            "best": 41.5
+          }
+        ],
+        "best": 41.5,
+        "unit": "cm"
+      },
+      "broadJump": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              243,
+              247,
+              null
+            ],
+            "best": 247
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              248,
+              252,
+              null
+            ],
+            "best": 252
+          }
+        ],
+        "best": 252,
+        "unit": "cm"
+      },
+      "sprint5m": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              1.05,
+              1.04,
+              null
+            ],
+            "best": 1.04
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              1.03,
+              1.02,
+              null
+            ],
+            "best": 1.02
+          }
+        ],
+        "best": 1.02,
+        "unit": "s"
+      },
+      "sprint10m": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              1.78,
+              1.76,
+              null
+            ],
+            "best": 1.76
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              1.76,
+              1.74,
+              null
+            ],
+            "best": 1.74
+          }
+        ],
+        "best": 1.74,
+        "unit": "s"
+      }
     }
   },
   {
@@ -452,20 +3198,183 @@
     "dateOfBirth": "2005-01-15",
     "nationality": "American",
     "foot": "Right",
-    "positions": ["CM"],
+    "positions": [
+      "CM"
+    ],
     "ageGroup": "U-21",
     "heightCm": 177,
-    "weightKg": 73.0,
+    "weightKg": 73,
     "bodyFatPct": 10.5,
     "muscleRatePct": 45.5,
     "tests": {
-      "cmj": { "attempts": [38.0, 39.5, null], "best": 39.5, "unit": "cm" },
-      "broadJump": { "attempts": [240, 245, null], "best": 245, "unit": "cm" },
-      "sprint5m": { "attempts": [1.02, 1.01, null], "best": 1.01, "unit": "s" },
-      "sprint30m": { "attempts": [4.08, 4.05, null], "best": 4.05, "unit": "s" },
-      "ift3015": { "attempts": [20.5, null, null], "best": 20.5, "unit": "km/h" },
-      "dribbling": { "attempts": [13.0, 12.5, null], "best": 12.5, "unit": "s" },
-      "passingAcc": { "attempts": [9, null, null], "best": 9, "unit": "goals" }
+      "cmj": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              36.4,
+              37.9,
+              null
+            ],
+            "best": 37.9
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              38,
+              39.5,
+              null
+            ],
+            "best": 39.5
+          }
+        ],
+        "best": 39.5,
+        "unit": "cm"
+      },
+      "broadJump": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              230.2,
+              235,
+              null
+            ],
+            "best": 235
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              240,
+              245,
+              null
+            ],
+            "best": 245
+          }
+        ],
+        "best": 245,
+        "unit": "cm"
+      },
+      "sprint5m": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              1.06,
+              1.05,
+              null
+            ],
+            "best": 1.05
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              1.02,
+              1.01,
+              null
+            ],
+            "best": 1.01
+          }
+        ],
+        "best": 1.01,
+        "unit": "s"
+      },
+      "sprint30m": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              4.12,
+              4.09,
+              null
+            ],
+            "best": 4.09
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              4.08,
+              4.05,
+              null
+            ],
+            "best": 4.05
+          }
+        ],
+        "best": 4.05,
+        "unit": "s"
+      },
+      "ift3015": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              20,
+              null,
+              null
+            ],
+            "best": 20
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              20.5,
+              null,
+              null
+            ],
+            "best": 20.5
+          }
+        ],
+        "best": 20.5,
+        "unit": "km/h"
+      },
+      "dribbling": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              13.4,
+              12.9,
+              null
+            ],
+            "best": 12.9
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              13,
+              12.5,
+              null
+            ],
+            "best": 12.5
+          }
+        ],
+        "best": 12.5,
+        "unit": "s"
+      },
+      "passingAcc": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              8,
+              null,
+              null
+            ],
+            "best": 8
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              9,
+              null,
+              null
+            ],
+            "best": 9
+          }
+        ],
+        "best": 9,
+        "unit": "goals"
+      }
     }
   },
   {
@@ -474,19 +3383,160 @@
     "dateOfBirth": "2005-06-03",
     "nationality": "American",
     "foot": "Right",
-    "positions": ["RB", "RW"],
+    "positions": [
+      "RB",
+      "RW"
+    ],
     "ageGroup": "U-21",
     "heightCm": 178,
     "weightKg": 74.5,
     "bodyFatPct": 10.2,
-    "muscleRatePct": 46.0,
+    "muscleRatePct": 46,
     "tests": {
-      "cmj": { "attempts": [41.5, 43.0, null], "best": 43.0, "unit": "cm" },
-      "broadJump": { "attempts": [250, 255, null], "best": 255, "unit": "cm" },
-      "sprint5m": { "attempts": [0.97, 0.96, null], "best": 0.96, "unit": "s" },
-      "sprint10m": { "attempts": [1.66, 1.64, null], "best": 1.64, "unit": "s" },
-      "sprint30m": { "attempts": [3.98, 3.95, null], "best": 3.95, "unit": "s" },
-      "ift3015": { "attempts": [21.5, null, null], "best": 21.5, "unit": "km/h" }
+      "cmj": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              40.2,
+              41.6,
+              null
+            ],
+            "best": 41.6
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              41.5,
+              43,
+              null
+            ],
+            "best": 43
+          }
+        ],
+        "best": 43,
+        "unit": "cm"
+      },
+      "broadJump": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              242,
+              246.8,
+              null
+            ],
+            "best": 246.8
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              250,
+              255,
+              null
+            ],
+            "best": 255
+          }
+        ],
+        "best": 255,
+        "unit": "cm"
+      },
+      "sprint5m": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              1,
+              0.99,
+              null
+            ],
+            "best": 0.99
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              0.97,
+              0.96,
+              null
+            ],
+            "best": 0.96
+          }
+        ],
+        "best": 0.96,
+        "unit": "s"
+      },
+      "sprint10m": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              1.69,
+              1.67,
+              null
+            ],
+            "best": 1.67
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              1.66,
+              1.64,
+              null
+            ],
+            "best": 1.64
+          }
+        ],
+        "best": 1.64,
+        "unit": "s"
+      },
+      "sprint30m": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              4.01,
+              3.98,
+              null
+            ],
+            "best": 3.98
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              3.98,
+              3.95,
+              null
+            ],
+            "best": 3.95
+          }
+        ],
+        "best": 3.95,
+        "unit": "s"
+      },
+      "ift3015": {
+        "sessions": [
+          {
+            "date": "2025-11-15",
+            "attempts": [
+              21,
+              null,
+              null
+            ],
+            "best": 21
+          },
+          {
+            "date": "2026-02-28",
+            "attempts": [
+              21.5,
+              null,
+              null
+            ],
+            "best": 21.5
+          }
+        ],
+        "best": 21.5,
+        "unit": "km/h"
+      }
     }
   }
 ]

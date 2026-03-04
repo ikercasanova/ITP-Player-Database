@@ -9,6 +9,36 @@ const BENCH_KEY = 'itp_benchmarks';
 
 const DB = {
 
+  // ── Test Format Migration ─────────────────────────────────────
+
+  /**
+   * Detect old-format test data (has `attempts` but no `sessions`)
+   * and wrap it in a single session using player.updatedAt as date.
+   */
+  migrateTestFormat(player) {
+    if (!player || !player.tests) return player;
+    let migrated = false;
+
+    for (const [key, testData] of Object.entries(player.tests)) {
+      if (!testData || typeof testData !== 'object') continue;
+      // Already new format
+      if (testData.sessions) continue;
+      // Old format: has attempts array but no sessions
+      if (Array.isArray(testData.attempts)) {
+        const date = (player.updatedAt || new Date().toISOString()).slice(0, 10);
+        testData.sessions = [
+          { date, attempts: testData.attempts, best: testData.best }
+        ];
+        delete testData.attempts;
+        // Keep top-level best intact
+        migrated = true;
+      }
+    }
+
+    if (migrated) player._needsMigrationSave = true;
+    return player;
+  },
+
   // ── Meta / Seasons ──────────────────────────────────────────
 
   getMeta() {
@@ -36,7 +66,17 @@ const DB = {
   getAll(season) {
     try {
       const raw = localStorage.getItem(DB._playerKey(season));
-      return raw ? JSON.parse(raw) : [];
+      const players = raw ? JSON.parse(raw) : [];
+      let needsSave = false;
+      for (const p of players) {
+        DB.migrateTestFormat(p);
+        if (p._needsMigrationSave) {
+          delete p._needsMigrationSave;
+          needsSave = true;
+        }
+      }
+      if (needsSave) DB._saveAll(players, season);
+      return players;
     } catch {
       return [];
     }
@@ -89,32 +129,74 @@ const DB = {
 
   // ── Test Result Updates ─────────────────────────────────────
 
-  updateTestResult(playerId, testKey, attemptIndex, value) {
+  updateTestResult(playerId, testKey, attemptIndex, value, sessionDate) {
     const player = DB.get(playerId);
     if (!player) return null;
 
     if (!player.tests) player.tests = {};
     if (!player.tests[testKey]) {
-      player.tests[testKey] = { attempts: [null, null, null], best: null, unit: '' };
+      player.tests[testKey] = { sessions: [], best: null };
     }
 
     const test = player.tests[testKey];
-    test.attempts[attemptIndex] = value;
+    // Ensure sessions array exists (handles edge cases)
+    if (!test.sessions) test.sessions = [];
 
-    // Compute best: for timed tests (lower = better), find minimum; else find maximum
-    const LOWER_IS_BETTER = ['sprint5m', 'sprint10m', 'sprint20m', 'sprint30m', 'sprint40yd', 'dribbling'];
-    const validAttempts = test.attempts.filter(v => v !== null && v !== undefined && v !== '');
+    const date = sessionDate || new Date().toISOString().slice(0, 10);
+
+    // Find or create session for this date
+    let session = test.sessions.find(s => s.date === date);
+    if (!session) {
+      session = { date, attempts: [null, null, null], best: null };
+      test.sessions.push(session);
+      // Keep sessions sorted chronologically
+      test.sessions.sort((a, b) => a.date.localeCompare(b.date));
+    }
+
+    session.attempts[attemptIndex] = value;
+
+    // Compute session best
+    const LOWER_IS_BETTER = ['sprint5m', 'sprint10m', 'sprint30m', 'sprint40yd', 'dribbling'];
+    const validAttempts = session.attempts.filter(v => v !== null && v !== undefined && v !== '');
     const nums = validAttempts.map(Number).filter(n => !isNaN(n));
 
     if (nums.length > 0) {
-      test.best = LOWER_IS_BETTER.includes(testKey)
+      session.best = LOWER_IS_BETTER.includes(testKey)
         ? Math.min(...nums)
         : Math.max(...nums);
+    } else {
+      session.best = null;
+    }
+
+    // Recompute all-time best across all sessions
+    const allBests = test.sessions
+      .map(s => s.best)
+      .filter(b => b !== null && b !== undefined);
+    const allNums = allBests.map(Number).filter(n => !isNaN(n));
+
+    if (allNums.length > 0) {
+      test.best = LOWER_IS_BETTER.includes(testKey)
+        ? Math.min(...allNums)
+        : Math.max(...allNums);
     } else {
       test.best = null;
     }
 
     return DB.save(player);
+  },
+
+  // ── Session Helpers ────────────────────────────────────────
+
+  getLatestSession(player, testKey) {
+    const sessions = player?.tests?.[testKey]?.sessions;
+    if (!sessions || sessions.length === 0) return null;
+    return sessions[sessions.length - 1];
+  },
+
+  getPreviousSession(player, testKey) {
+    const sessions = player?.tests?.[testKey]?.sessions;
+    if (!sessions || sessions.length < 2) return null;
+    return sessions[sessions.length - 2];
   },
 
   // ── Season Management ───────────────────────────────────────

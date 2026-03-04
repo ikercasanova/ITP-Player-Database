@@ -12,12 +12,36 @@ const TEST_DEFS = {
   ift3015:    { name: '30-15 IFT',        unit: 'km/h',  category: 'Endurance',       lowerIsBetter: false },
   sprint5m:   { name: '5m Sprint',        unit: 's',     category: 'Speed',           lowerIsBetter: true },
   sprint10m:  { name: '10m Sprint',       unit: 's',     category: 'Speed',           lowerIsBetter: true },
-  sprint20m:  { name: '20m Sprint',       unit: 's',     category: 'Speed',           lowerIsBetter: true },
   sprint30m:  { name: '30m Sprint',       unit: 's',     category: 'Speed',           lowerIsBetter: true },
   sprint40yd: { name: '40yd Dash',        unit: 's',     category: 'Speed',           lowerIsBetter: true },
   passingAcc: { name: 'Passing Accuracy', unit: 'goals', category: 'Technical',       lowerIsBetter: false },
   dribbling:  { name: 'Dribbling',        unit: 's',     category: 'Technical',       lowerIsBetter: true },
 };
+
+/** Test groups — bundles of related tests that share a single testing session */
+const TEST_GROUPS = {
+  speed: {
+    name: 'Speed Testing',
+    tests: ['sprint5m', 'sprint10m', 'sprint30m', 'sprint40yd'],
+    category: 'Speed'
+  }
+};
+
+function getGroupForTest(testKey) {
+  for (const [gk, group] of Object.entries(TEST_GROUPS)) {
+    if (group.tests.includes(testKey)) return gk;
+  }
+  return null;
+}
+
+function categoryIsFullyGrouped(categoryName) {
+  const cats = Benchmarks.getTestsByCategory();
+  const testsInCat = cats[categoryName] || [];
+  if (testsInCat.length === 0) return false;
+  const gk = getGroupForTest(testsInCat[0]);
+  if (!gk) return false;
+  return testsInCat.every(tk => getGroupForTest(tk) === gk);
+}
 
 // Default benchmarks per age group — thresholds for each test
 const DEFAULT_BENCHMARKS = {
@@ -29,7 +53,6 @@ const DEFAULT_BENCHMARKS = {
     ift3015:    { poor: 16.0, average: 18.0, good: 19.5, elite: 21.0 },
     sprint5m:   { poor: 1.20, average: 1.10, good: 1.03, elite: 0.98 },
     sprint10m:  { poor: 2.00, average: 1.85, good: 1.75, elite: 1.68 },
-    sprint20m:  { poor: 3.40, average: 3.20, good: 3.05, elite: 2.92 },
     sprint30m:  { poor: 4.70, average: 4.40, good: 4.20, elite: 4.02 },
     sprint40yd: { poor: 5.20, average: 4.95, good: 4.75, elite: 4.55 },
     passingAcc: { poor: 3, average: 5, good: 7, elite: 9 },
@@ -43,7 +66,6 @@ const DEFAULT_BENCHMARKS = {
     ift3015:    { poor: 17.0, average: 19.0, good: 20.5, elite: 22.0 },
     sprint5m:   { poor: 1.15, average: 1.06, good: 1.00, elite: 0.95 },
     sprint10m:  { poor: 1.92, average: 1.80, good: 1.72, elite: 1.65 },
-    sprint20m:  { poor: 3.25, average: 3.08, good: 2.95, elite: 2.84 },
     sprint30m:  { poor: 4.50, average: 4.25, good: 4.08, elite: 3.92 },
     sprint40yd: { poor: 5.05, average: 4.85, good: 4.65, elite: 4.48 },
     passingAcc: { poor: 4, average: 6, good: 8, elite: 10 },
@@ -57,7 +79,6 @@ const DEFAULT_BENCHMARKS = {
     ift3015:    { poor: 17.5, average: 19.5, good: 21.0, elite: 22.5 },
     sprint5m:   { poor: 1.12, average: 1.04, good: 0.98, elite: 0.93 },
     sprint10m:  { poor: 1.88, average: 1.77, good: 1.70, elite: 1.63 },
-    sprint20m:  { poor: 3.18, average: 3.02, good: 2.90, elite: 2.80 },
     sprint30m:  { poor: 4.40, average: 4.18, good: 4.00, elite: 3.85 },
     sprint40yd: { poor: 4.95, average: 4.78, good: 4.58, elite: 4.42 },
     passingAcc: { poor: 5, average: 7, good: 9, elite: 10 },
