@@ -428,6 +428,129 @@
   margin-top: 6px;
 }
 
+/* ── Analytics Page ─────────────────────────────────────────── */
+.analytics-page {
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.analytics-title {
+  font-family: var(--font-cond);
+  font-weight: 700;
+  font-size: 22px;
+  margin-bottom: 16px;
+}
+
+.analytics-toolbar {
+  margin-bottom: 16px;
+}
+
+.analytics-summary {
+  background: var(--white);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+  margin-bottom: 16px;
+  box-shadow: var(--shadow);
+}
+
+/* Stacked distribution bar */
+.dist-bar {
+  display: flex;
+  height: 14px;
+  border-radius: 7px;
+  overflow: hidden;
+  background: var(--gray-100);
+  margin-bottom: 10px;
+}
+.dist-bar-sm {
+  display: flex;
+  height: 8px;
+  border-radius: 4px;
+  overflow: hidden;
+  background: var(--gray-100);
+  margin-bottom: 4px;
+}
+.dist-bar-empty {
+  background: var(--gray-100);
+}
+
+.dist-segment[data-level="elite"]   { background: var(--bench-elite); }
+.dist-segment[data-level="good"]    { background: var(--bench-good); }
+.dist-segment[data-level="average"] { background: var(--bench-avg); }
+.dist-segment[data-level="poor"]    { background: var(--bench-poor); }
+
+.dist-legend {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--gray-700);
+}
+.dist-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.dist-legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.dist-legend-dot[data-level="elite"]   { background: var(--bench-elite); }
+.dist-legend-dot[data-level="good"]    { background: var(--bench-good); }
+.dist-legend-dot[data-level="average"] { background: var(--bench-avg); }
+.dist-legend-dot[data-level="poor"]    { background: var(--bench-poor); }
+
+/* Category card */
+.analytics-category {
+  background: var(--white);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+  margin-bottom: 16px;
+  box-shadow: var(--shadow);
+}
+
+/* Per-test row */
+.analytics-test-row {
+  margin-bottom: 14px;
+}
+.analytics-test-row:last-child { margin-bottom: 0; }
+
+.analytics-test-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+.analytics-test-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--dark);
+}
+.analytics-test-avg-value {
+  font-family: var(--font-cond);
+  font-weight: 700;
+  font-size: 16px;
+  color: var(--dark);
+}
+.analytics-test-unit {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--gray-500);
+}
+.analytics-test-count {
+  font-size: 11px;
+  color: var(--gray-500);
+  margin-top: 2px;
+}
+
+@media (min-width: 769px) {
+  .analytics-page { max-width: 640px; }
+}
+
 /* ── Toast Notification ─────────────────────────────────────── */
 .toast {
   position: fixed;

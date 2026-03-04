@@ -17,6 +17,7 @@ const App = {
     Roster.init();
     Profile.init();
     Testing.init();
+    Analytics.init();
     PlayerForm.init();
     Settings.init();
 
@@ -66,6 +67,9 @@ const App = {
         break;
       case 'testing':
         Testing.show();
+        break;
+      case 'analytics':
+        Analytics.show();
         break;
       case 'edit':
         PlayerForm.show(param);
