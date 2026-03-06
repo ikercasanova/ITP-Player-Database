@@ -465,7 +465,7 @@ body {
 
 /* ── Profile Page ───────────────────────────────────────────── */
 .profile-page {
-  max-width: 560px;
+  max-width: 900px;
   margin: 0 auto;
   padding: 0 0 40px;
 }
@@ -964,7 +964,10 @@ body {
   .roster-toolbar { padding: 20px 28px 14px; }
   .search-wrapper { max-width: 320px; }
 
-  .profile-page, .testing-page, .form-page, .settings-page {
+  .profile-page {
+    max-width: 900px;
+  }
+  .testing-page, .form-page, .settings-page {
     max-width: 640px;
   }
 

@@ -254,6 +254,121 @@
 }
 .bench-expand-btn:hover { color: var(--red); }
 
+/* ── Bench View Toggle ──────────────────────────────────────── */
+.profile-section-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.bench-toggle {
+  display: flex;
+  gap: 2px;
+  background: var(--gray-100);
+  border-radius: 6px;
+  padding: 2px;
+}
+.bench-toggle-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 26px;
+  border: none;
+  background: none;
+  border-radius: 4px;
+  color: var(--gray-400);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.bench-toggle-btn:hover { color: var(--gray-600); }
+.bench-toggle-btn.active {
+  background: var(--white);
+  color: var(--dark);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+}
+
+/* ── Benchmark Numbers Table ───────────────────────────────── */
+.bench-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--font-cond);
+  font-size: 13px;
+}
+.bench-table th {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--gray-500);
+  padding: 6px 8px;
+  text-align: left;
+  border-bottom: 2px solid var(--gray-100);
+  white-space: nowrap;
+}
+.bench-table td {
+  padding: 7px 8px;
+  border-bottom: 1px solid var(--gray-50);
+  white-space: nowrap;
+}
+.bench-table-cat-row td {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--gray-400);
+  padding: 12px 8px 4px;
+  border-bottom: 1px solid var(--gray-100);
+  background: none;
+}
+.bench-table-test {
+  font-weight: 700;
+  color: var(--dark);
+}
+.bench-table-unit {
+  color: var(--gray-400);
+  font-size: 11px;
+}
+.bench-table-val {
+  font-weight: 600;
+  color: var(--dark);
+  text-align: center;
+}
+.bench-table-empty {
+  color: var(--gray-300);
+  font-weight: 400;
+}
+.bench-table-dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  margin-right: 5px;
+  vertical-align: middle;
+}
+.bench-table-dot[data-level="poor"]    { background: var(--bench-poor); }
+.bench-table-dot[data-level="average"] { background: var(--bench-avg); }
+.bench-table-dot[data-level="good"]    { background: var(--bench-good); }
+.bench-table-dot[data-level="elite"]   { background: var(--bench-elite); }
+.bench-table-dot[data-level="none"]    { background: var(--gray-300); }
+
+.bench-table-level {
+  font-weight: 700;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+.bench-table-level[data-level="poor"]    { color: var(--bench-poor); }
+.bench-table-level[data-level="average"] { color: var(--bench-avg); }
+.bench-table-level[data-level="good"]    { color: var(--bench-good); }
+.bench-table-level[data-level="elite"]   { color: var(--bench-elite); }
+.bench-table-level[data-level="none"]    { color: var(--gray-300); }
+
+.bench-table-delta {
+  text-align: center;
+}
+
 /* ── Benchmark Category Group ───────────────────────────────── */
 .bench-category {
   margin-bottom: 18px;
@@ -783,68 +898,36 @@
 
 /* ── Progression Charts ───────────────────────────────────── */
 .progression-chart {
-  margin: 8px 0 4px;
+  margin: 10px 0 6px;
 }
 .progression-chart svg {
   width: 100%;
   display: block;
 }
 
-/* ── Speed Profile Card ───────────────────────────────────── */
+/* ── Speed Profile Card (Grouped Bar Chart) ──────────────── */
 .speed-profile-card {
   margin-bottom: 8px;
-}
-
-.speed-mini-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-bottom: 12px;
-  font-size: 13px;
-}
-.speed-mini-table th {
-  text-align: left;
-  font-weight: 600;
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  color: var(--gray-500);
-  padding: 4px 8px;
-  border-bottom: 2px solid var(--gray-200);
-}
-.speed-mini-table td {
-  padding: 6px 8px;
-  border-bottom: 1px solid var(--gray-100);
-  font-family: var(--font-cond);
-  font-weight: 700;
-}
-.speed-mini-table .col-distance { width: 30%; }
-.speed-mini-table .col-best { width: 22%; text-align: right; }
-.speed-mini-table .col-level { width: 24%; text-align: center; }
-.speed-mini-table .col-delta { width: 24%; text-align: right; }
-
-.sparkline-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+  display: flex;
+  flex-direction: column;
   gap: 8px;
 }
-.sparkline-item {
+
+.speed-session-card {
   border: 1px solid var(--gray-100);
   border-radius: 6px;
   overflow: hidden;
-  background: var(--gray-50);
-}
-.sparkline-label {
-  font-size: 11px;
-  font-weight: 700;
-  font-family: var(--font-cond);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  padding: 4px 8px 0;
-  color: var(--gray-600);
+  background: var(--white);
 }
 
 @media (max-width: 400px) {
-  .sparkline-grid { grid-template-columns: 1fr; }
+  .speed-session-card svg {
+    min-width: 480px;
+  }
+  .speed-session-card {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
 }
 
 /* (Old session-matrix styles removed — replaced by leaderboard table) */
