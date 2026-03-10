@@ -398,37 +398,6 @@ const Profile = {
       return `${MONTHS[parseInt(m, 10) - 1]} ${parseInt(d, 10)}`;
     };
 
-    // Assign a muted palette per session index for visual distinction
-    const sessionColors = ['#333333', '#AAAAAA', '#CCCCCC'];
-
-    // Layout constants
-    const svgW = 760;
-    const barH = 22;
-    const barGap = 4;
-    const labelW = 86;
-    const dateW = 56;
-    const barStart = labelW + dateW + 6;
-    const barMaxW = 320;
-    const valX = barStart + barMaxW + 10;
-    const badgeX = valX + 52;
-    const deltaX = badgeX + 56;
-    const groupGap = 14;
-    const padTop = 16;
-    const padBottom = 8;
-
-    const numSessions = sortedDates.length;
-    const groupH = numSessions * (barH + barGap) - barGap;
-
-    // Compute bar pct helper
-    const getBarPct = (tk, val) => {
-      const thresh = Benchmarks.getThresholds(player.ageGroup, tk);
-      if (!thresh) return 65;
-      const range = thresh.poor - thresh.elite;
-      if (range <= 0) return 65;
-      const norm = Math.max(0, Math.min(1, (val - thresh.elite) / range));
-      return 40 + norm * 50;
-    };
-
     // Badge color map
     const badgeColors = {
       poor: { bg: 'rgba(229,62,62,0.12)', fg: '#E53E3E' },
@@ -444,96 +413,215 @@ const Profile = {
       return td && td.sessions && td.sessions.some(s => s.best != null);
     });
 
-    const svgH = padTop + activeTests.length * (groupH + groupGap) - groupGap + padBottom;
+    // ── Layout constants ──
+    const svgW = 760;
+    const labelW = 90;       // distance name on left
+    const annotW = 130;      // value + badge + delta on right
+    const stripW = svgW - labelW - annotW; // zone strip width
+    const stripH = 52;       // zone strip height
+    const dateLabelH = 14;   // space for date labels below strip
+    const stripSpacing = 18; // gap between strips
+    const stripTotal = stripH + dateLabelH + stripSpacing;
+    const padTop = 12;
+    const padBottom = 8;
+
+    const svgH = padTop + activeTests.length * stripTotal - stripSpacing + padBottom;
 
     let svg = `<svg viewBox="0 0 ${svgW} ${svgH}" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block">`;
     svg += `<rect x="0" y="0" width="${svgW}" height="${svgH}" fill="#FAFAFA" rx="6"/>`;
 
-    let curY = padTop;
-
     for (let ti = 0; ti < activeTests.length; ti++) {
       const tk = activeTests[ti];
       const def = TEST_DEFS[tk];
+      const thresh = Benchmarks.getThresholds(player.ageGroup, tk);
 
-      // Separator line between distance groups
+      // Collect session data points for this test (oldest → newest for line drawing)
+      const sessions = player.tests?.[tk]?.sessions || [];
+      const points = sortedDates
+        .map(date => {
+          const s = sessions.find(s => s.date === date);
+          return s?.best != null ? { date, value: Number(s.best) } : null;
+        })
+        .filter(Boolean)
+        .reverse(); // oldest first for line drawing
+
+      if (points.length === 0) continue;
+
+      const stripY = padTop + ti * stripTotal;
+      const stripX = labelW;
+      const stripCY = stripY + stripH / 2;
+
+      // Separator line between strips
       if (ti > 0) {
-        svg += `<line x1="12" y1="${(curY - groupGap / 2).toFixed(1)}" x2="${svgW - 12}" y2="${(curY - groupGap / 2).toFixed(1)}" stroke="#E8E8E8" stroke-width="1"/>`;
+        const sepY = stripY - stripSpacing / 2;
+        svg += `<line x1="12" y1="${sepY.toFixed(1)}" x2="${svgW - 12}" y2="${sepY.toFixed(1)}" stroke="#E8E8E8" stroke-width="1"/>`;
       }
 
-      for (let si = 0; si < sortedDates.length; si++) {
-        const date = sortedDates[si];
-        const sessions = player.tests?.[tk]?.sessions || [];
-        const session = sessions.find(s => s.date === date);
-        const val = session?.best ?? null;
-        const cy = curY + barH / 2;
-        const isLatest = si === 0;
+      // ── Distance label (left) ──
+      svg += `<text x="8" y="${(stripCY + 4).toFixed(1)}" font-family="Barlow Condensed, sans-serif" font-weight="800" font-size="13" fill="#333" letter-spacing="0.3">${def.name}</text>`;
 
-        // Distance label — only on first session row
-        if (si === 0) {
-          const labelCy = curY + groupH / 2;
-          svg += `<text x="8" y="${(labelCy + 4).toFixed(1)}" font-family="Barlow Condensed, sans-serif" font-weight="800" font-size="13" fill="#333" letter-spacing="0.3">${def.name}</text>`;
-        }
+      // ── Compute axis range ──
+      // For lowerIsBetter (sprints): elite (fast) on LEFT, poor (slow) on RIGHT
+      const allValues = points.map(p => p.value);
+      let axisMin, axisMax; // min = left edge (fast), max = right edge (slow)
 
-        // Date label
-        const dateLabelColor = isLatest ? '#444' : '#999';
-        svg += `<text x="${labelW + dateW - 4}" y="${(cy + 4).toFixed(1)}" text-anchor="end" font-family="Barlow, sans-serif" font-weight="${isLatest ? '600' : '400'}" font-size="10" fill="${dateLabelColor}">${fmtDate(date)}</text>`;
+      if (thresh) {
+        axisMin = thresh.elite;
+        axisMax = thresh.poor;
+        // Extend to include any data values beyond range
+        const dataMin = Math.min(...allValues);
+        const dataMax = Math.max(...allValues);
+        if (dataMin < axisMin) axisMin = dataMin;
+        if (dataMax > axisMax) axisMax = dataMax;
+        // Add 8% margin on each side
+        const range = axisMax - axisMin || 0.1;
+        axisMin -= range * 0.08;
+        axisMax += range * 0.08;
+      } else {
+        // No thresholds — just use data range
+        axisMin = Math.min(...allValues);
+        axisMax = Math.max(...allValues);
+        const range = axisMax - axisMin || 0.1;
+        axisMin -= range * 0.15;
+        axisMax += range * 0.15;
+      }
 
-        if (val === null) {
-          svg += `<text x="${barStart + 4}" y="${(cy + 4).toFixed(1)}" font-family="Barlow, sans-serif" font-size="10" fill="#CCC">—</text>`;
-          curY += barH + barGap;
-          continue;
-        }
+      // Map time value to X position within strip (fast=left, slow=right)
+      const valueToX = (val) => {
+        const norm = (val - axisMin) / (axisMax - axisMin);
+        return stripX + norm * stripW;
+      };
 
-        const { level } = Benchmarks.evaluate(player.ageGroup, tk, val);
-        const barPct = getBarPct(tk, val);
-        const barW = barMaxW * (barPct / 100);
+      // ── Zone background rects ──
+      if (thresh) {
+        const zones = [
+          { key: 'elite',   from: axisMin,       to: thresh.elite,   color: colors.elite,   label: 'ELITE' },
+          { key: 'good',    from: thresh.elite,   to: thresh.good,    color: colors.good,    label: 'GOOD' },
+          { key: 'average', from: thresh.good,    to: thresh.average, color: colors.average,  label: 'AVG' },
+          { key: 'poor',    from: thresh.average, to: axisMax,        color: colors.poor,    label: 'POOR' },
+        ];
 
-        // Bar — latest gets full benchmark color, older sessions are muted
-        const barColor = isLatest ? (colors[level] || colors.none) : sessionColors[Math.min(si, sessionColors.length - 1)];
-        const barOpacity = isLatest ? 0.85 : 0.3;
+        for (const zone of zones) {
+          const x1 = valueToX(zone.from);
+          const x2 = valueToX(zone.to);
+          const zx = Math.min(x1, x2);
+          const zw = Math.abs(x2 - x1);
+          if (zw < 0.5) continue;
 
-        // Track
-        svg += `<rect x="${barStart}" y="${(curY).toFixed(1)}" width="${barMaxW}" height="${barH}" fill="#F0F0F0" rx="3"/>`;
-        // Fill
-        svg += `<rect x="${barStart}" y="${(curY).toFixed(1)}" width="${barW.toFixed(1)}" height="${barH}" fill="${barColor}" rx="3" opacity="${barOpacity}"/>`;
+          // Zone background
+          svg += `<rect x="${zx.toFixed(1)}" y="${stripY}" width="${zw.toFixed(1)}" height="${stripH}" fill="${zone.color}" opacity="0.10"/>`;
 
-        // Value
-        const valWeight = isLatest ? '700' : '500';
-        const valColor = isLatest ? '#333' : '#888';
-        svg += `<text x="${valX}" y="${(cy + 4).toFixed(1)}" font-family="Barlow Condensed, sans-serif" font-weight="${valWeight}" font-size="13" fill="${valColor}">${val} <tspan font-weight="400" fill="#AAA" font-size="10">s</tspan></text>`;
-
-        // Level badge — latest only
-        if (isLatest) {
-          const bc = badgeColors[level] || badgeColors.none;
-          const levelText = level === 'none' ? '—' : level.toUpperCase();
-          const bw = levelText.length * 7 + 12;
-          svg += `<rect x="${badgeX}" y="${(cy - 8).toFixed(1)}" width="${bw}" height="16" fill="${bc.bg}" rx="3"/>`;
-          svg += `<text x="${(badgeX + bw / 2).toFixed(1)}" y="${(cy + 3).toFixed(1)}" text-anchor="middle" font-family="Barlow Condensed, sans-serif" font-weight="700" font-size="10" fill="${bc.fg}" letter-spacing="0.3">${levelText}</text>`;
-
-          // Delta (compare to next oldest session)
-          if (sortedDates.length > 1) {
-            const prevDate = sortedDates[1];
-            const prevSession = sessions.find(s => s.date === prevDate);
-            if (prevSession?.best != null) {
-              const diff = val - prevSession.best;
-              if (Math.abs(diff) > 0.001) {
-                const improved = diff < 0;
-                const deltaText = (improved ? '' : '+') + diff.toFixed(2);
-                const dc = improved
-                  ? { bg: 'rgba(56,161,105,0.12)', fg: '#38A169' }
-                  : { bg: 'rgba(229,62,62,0.12)', fg: '#E53E3E' };
-                const dw = deltaText.length * 6.5 + 10;
-                svg += `<rect x="${deltaX}" y="${(cy - 8).toFixed(1)}" width="${dw.toFixed(1)}" height="16" fill="${dc.bg}" rx="3"/>`;
-                svg += `<text x="${(deltaX + dw / 2).toFixed(1)}" y="${(cy + 3).toFixed(1)}" text-anchor="middle" font-family="Barlow Condensed, sans-serif" font-weight="700" font-size="10" fill="${dc.fg}">${deltaText}</text>`;
-              }
-            }
+          // Zone label centered
+          if (zw > 28) {
+            const labelX = zx + zw / 2;
+            svg += `<text x="${labelX.toFixed(1)}" y="${(stripCY + 3).toFixed(1)}" text-anchor="middle" font-family="Barlow Condensed, sans-serif" font-weight="700" font-size="9" fill="${zone.color}" opacity="0.55" letter-spacing="0.5">${zone.label}</text>`;
           }
         }
 
-        curY += barH + barGap;
+        // Threshold boundary lines + value labels
+        const boundaries = [
+          { val: thresh.elite,   label: thresh.elite.toFixed(2) },
+          { val: thresh.good,    label: thresh.good.toFixed(2) },
+          { val: thresh.average, label: thresh.average.toFixed(2) },
+        ];
+        for (const b of boundaries) {
+          const bx = valueToX(b.val);
+          if (bx > stripX + 2 && bx < stripX + stripW - 2) {
+            svg += `<line x1="${bx.toFixed(1)}" y1="${stripY}" x2="${bx.toFixed(1)}" y2="${(stripY + stripH).toFixed(1)}" stroke="#CCC" stroke-width="0.8" stroke-dasharray="3,2"/>`;
+            svg += `<text x="${bx.toFixed(1)}" y="${(stripY - 2).toFixed(1)}" text-anchor="middle" font-family="Barlow, sans-serif" font-size="7.5" fill="#BBB">${b.label}</text>`;
+          }
+        }
+      } else {
+        // No thresholds — plain gray strip
+        svg += `<rect x="${stripX}" y="${stripY}" width="${stripW}" height="${stripH}" fill="#F0F0F0" rx="3"/>`;
       }
 
-      curY += groupGap - barGap; // gap between distance groups
+      // Strip border outline
+      svg += `<rect x="${stripX}" y="${stripY}" width="${stripW}" height="${stripH}" fill="none" stroke="#E0E0E0" stroke-width="0.5" rx="3"/>`;
+
+      // ── Connecting line between dots ──
+      if (points.length >= 2) {
+        const linePoints = points.map(p => {
+          const px = valueToX(p.value);
+          return `${px.toFixed(1)},${stripCY.toFixed(1)}`;
+        }).join(' ');
+        svg += `<polyline points="${linePoints}" fill="none" stroke="#CCCCCC" stroke-width="1.5" stroke-linecap="round"/>`;
+      }
+
+      // ── Session dots ──
+      const latest = points[points.length - 1]; // newest
+      for (let pi = 0; pi < points.length; pi++) {
+        const p = points[pi];
+        const px = valueToX(p.value);
+        const isLatest = pi === points.length - 1;
+        const { level } = Benchmarks.evaluate(player.ageGroup, tk, p.value);
+
+        if (isLatest) {
+          // Latest dot: larger, colored, white stroke
+          const dotColor = colors[level] || colors.none;
+          svg += `<circle cx="${px.toFixed(1)}" cy="${stripCY.toFixed(1)}" r="7" fill="${dotColor}" stroke="white" stroke-width="2.5"/>`;
+          // Value label above dot
+          svg += `<text x="${px.toFixed(1)}" y="${(stripY + 9).toFixed(1)}" text-anchor="middle" font-family="Barlow Condensed, sans-serif" font-weight="700" font-size="10" fill="#333">${p.value}s</text>`;
+        } else {
+          // Older dot: smaller, gray
+          svg += `<circle cx="${px.toFixed(1)}" cy="${stripCY.toFixed(1)}" r="5" fill="#BBB" stroke="white" stroke-width="1.5"/>`;
+          // Value label above dot
+          svg += `<text x="${px.toFixed(1)}" y="${(stripY + 9).toFixed(1)}" text-anchor="middle" font-family="Barlow Condensed, sans-serif" font-weight="500" font-size="9" fill="#999">${p.value}s</text>`;
+        }
+
+        // Date label below strip
+        svg += `<text x="${px.toFixed(1)}" y="${(stripY + stripH + 11).toFixed(1)}" text-anchor="middle" font-family="Barlow, sans-serif" font-weight="${isLatest ? '600' : '400'}" font-size="9" fill="${isLatest ? '#555' : '#AAA'}">${fmtDate(p.date)}</text>`;
+      }
+
+      // ── Directional arrow near latest dot (if 2+ sessions) ──
+      if (points.length >= 2) {
+        const prev = points[points.length - 2];
+        const latestX = valueToX(latest.value);
+        const prevX = valueToX(prev.value);
+        const diff = latest.value - prev.value;
+        const improved = diff < 0; // lower is better for sprints
+        const arrowColor = improved ? '#38A169' : '#E53E3E';
+
+        // Arrow pointing in direction of movement (left = faster = improved)
+        const arrowDir = latestX < prevX ? -1 : 1; // -1 = pointing left
+        const arrowBaseX = latestX + arrowDir * 12;
+        const arrowTipX = arrowBaseX + arrowDir * 7;
+        const aCY = stripCY;
+
+        svg += `<line x1="${arrowBaseX.toFixed(1)}" y1="${aCY.toFixed(1)}" x2="${arrowTipX.toFixed(1)}" y2="${aCY.toFixed(1)}" stroke="${arrowColor}" stroke-width="2" stroke-linecap="round"/>`;
+        svg += `<polyline points="${(arrowTipX - arrowDir * 3).toFixed(1)},${(aCY - 3).toFixed(1)} ${arrowTipX.toFixed(1)},${aCY.toFixed(1)} ${(arrowTipX - arrowDir * 3).toFixed(1)},${(aCY + 3).toFixed(1)}" fill="none" stroke="${arrowColor}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>`;
+      }
+
+      // ── Right-side annotations ──
+      const annotX = stripX + stripW + 10;
+      const { level: latestLevel } = Benchmarks.evaluate(player.ageGroup, tk, latest.value);
+
+      // Latest value (large)
+      svg += `<text x="${annotX}" y="${(stripCY - 6).toFixed(1)}" font-family="Barlow Condensed, sans-serif" font-weight="700" font-size="16" fill="#333">${latest.value} <tspan font-weight="400" fill="#AAA" font-size="11">s</tspan></text>`;
+
+      // Level badge
+      const bc = badgeColors[latestLevel] || badgeColors.none;
+      const levelText = latestLevel === 'none' ? '—' : latestLevel.toUpperCase();
+      const bw = levelText.length * 6.5 + 10;
+      svg += `<rect x="${annotX}" y="${(stripCY + 2).toFixed(1)}" width="${bw.toFixed(1)}" height="15" fill="${bc.bg}" rx="3"/>`;
+      svg += `<text x="${(annotX + bw / 2).toFixed(1)}" y="${(stripCY + 12).toFixed(1)}" text-anchor="middle" font-family="Barlow Condensed, sans-serif" font-weight="700" font-size="9" fill="${bc.fg}" letter-spacing="0.3">${levelText}</text>`;
+
+      // Delta badge (if 2+ sessions)
+      if (points.length >= 2) {
+        const prev = points[points.length - 2];
+        const diff = latest.value - prev.value;
+        if (Math.abs(diff) > 0.001) {
+          const improved = diff < 0;
+          const deltaText = (improved ? '' : '+') + diff.toFixed(2);
+          const dc = improved
+            ? { bg: 'rgba(56,161,105,0.12)', fg: '#38A169' }
+            : { bg: 'rgba(229,62,62,0.12)', fg: '#E53E3E' };
+          const dw = deltaText.length * 6 + 10;
+          const dx = annotX + bw + 4;
+          svg += `<rect x="${dx.toFixed(1)}" y="${(stripCY + 2).toFixed(1)}" width="${dw.toFixed(1)}" height="15" fill="${dc.bg}" rx="3"/>`;
+          svg += `<text x="${(dx + dw / 2).toFixed(1)}" y="${(stripCY + 12).toFixed(1)}" text-anchor="middle" font-family="Barlow Condensed, sans-serif" font-weight="700" font-size="9" fill="${dc.fg}">${deltaText}</text>`;
+        }
+      }
     }
 
     svg += '</svg>';
