@@ -149,26 +149,6 @@
   <!-- ══════════════════════════════════════════════════════════
        SCRIPTS
   ══════════════════════════════════════════════════════════ -->
-  <!-- One-time migration: replace fake placeholder data with real ITP players -->
-  <script>
-  (function() {
-    const key = 'itp_players_25-26';
-    const raw = localStorage.getItem(key);
-    if (raw) {
-      try {
-        const players = JSON.parse(raw);
-        const fakeNames = ['Tyler', 'Jordan', 'Anderson', 'Brooks', 'Martinez'];
-        const hasFake = players.some(p =>
-          fakeNames.includes(p.firstName) || fakeNames.includes(p.lastName)
-        );
-        if (hasFake) {
-          localStorage.removeItem(key);
-          console.log('[Migration] Cleared fake placeholder data — real players will load.');
-        }
-      } catch {}
-    }
-  })();
-  </script>
   <script src="js/db.js"></script>
   <script src="js/benchmarks.js"></script>
   <script src="js/roster.js"></script>
