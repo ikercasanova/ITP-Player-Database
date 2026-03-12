@@ -20,6 +20,7 @@ const App = {
     Analytics.init();
     PlayerForm.init();
     Settings.init();
+    Report.init();
 
     // Route on hash change
     window.addEventListener('hashchange', () => App.route());
@@ -73,6 +74,9 @@ const App = {
         break;
       case 'edit':
         PlayerForm.show(param);
+        break;
+      case 'report':
+        if (param) Report.show(param);
         break;
       case 'settings':
         Settings.show();

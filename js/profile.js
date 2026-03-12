@@ -154,6 +154,7 @@ const Profile = {
         </div>
 
         <div class="profile-actions">
+          <button class="btn btn-primary" onclick="location.hash='#report/${player.id}'">Generate Report</button>
           <button class="btn btn-outline" onclick="location.hash='#edit/${player.id}'">Edit Player</button>
           <button class="btn btn-danger" onclick="App.confirmDelete(DB.get('${player.id}'), () => { App.toast('Player deleted'); location.hash='#roster'; })">Delete</button>
         </div>
