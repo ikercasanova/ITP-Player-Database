@@ -649,7 +649,7 @@ const Testing = {
             <span class="bench-level-label" data-level="elite">Elite: ${levelCounts.elite}</span>
             <span class="bench-level-label" data-level="good">Good: ${levelCounts.good}</span>
             <span class="bench-level-label" data-level="average">Avg: ${levelCounts.average}</span>
-            <span class="bench-level-label" data-level="poor">Poor: ${levelCounts.poor}</span>
+            <span class="bench-level-label" data-level="poor">Below Avg: ${levelCounts.poor}</span>
           </div>
 
           ${results.length > 0 ? `

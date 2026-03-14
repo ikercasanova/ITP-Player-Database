@@ -2,6 +2,7 @@
 
 /* ═══════════════════════════════════════════════════════════════
    report.js — Family Report Builder: form, preview, PDF export
+   Redesigned: dynamic page flow, smart test layout, full charts
 ═══════════════════════════════════════════════════════════════ */
 
 const Report = {
@@ -72,6 +73,7 @@ const Report = {
         <!-- ── Trial Reports ──────────────────────────────── -->
         <div class="report-section">
           <div class="report-section-title">Trial Reports</div>
+          <p class="report-section-desc">Enter bullet points for each trial. Click "Generate" to create a polished narrative.</p>
           <div id="report-trials-list">${Report._renderTrialsList()}</div>
           <button class="btn btn-outline btn-sm" id="btn-add-trial">+ Add Trial</button>
         </div>
@@ -122,7 +124,7 @@ const Report = {
     return html;
   },
 
-  // ── Trials List ──────────────────────────────────────────────
+  // ── Trials List — Bullet Points + Generate ─────────────────
 
   _renderTrialsList() {
     if (Report._trials.length === 0) {
@@ -135,13 +137,11 @@ const Report = {
           <input class="trial-input trial-date" type="date" value="${t.date || ''}">
           <button class="btn-icon trial-remove" title="Remove trial">&times;</button>
         </div>
-        <div class="trial-rating-row">
-          <span class="trial-rating-label">Rating:</span>
-          ${[1,2,3,4,5].map(n => `<button class="trial-star${n <= (t.rating || 0) ? ' active' : ''}" data-n="${n}">&#9733;</button>`).join('')}
+        <textarea class="trial-input trial-bullets" placeholder="Bullet points: good pressing, strong in 1v1 duels, needs better first touch..." rows="3">${Report._esc(t.bullets || t.strengthsNoted || '')}</textarea>
+        <div class="trial-gen-row">
+          <button class="btn btn-outline btn-sm trial-generate">Generate Text</button>
         </div>
-        <textarea class="trial-input trial-strengths" placeholder="Strengths noted by club..." rows="2">${Report._esc(t.strengthsNoted || '')}</textarea>
-        <textarea class="trial-input trial-areas" placeholder="Areas to improve..." rows="2">${Report._esc(t.areasToImprove || '')}</textarea>
-        <textarea class="trial-input trial-comments" placeholder="Overall comments..." rows="2">${Report._esc(t.overallComments || '')}</textarea>
+        <textarea class="trial-input trial-generated" placeholder="Generated narrative will appear here. You can edit it." rows="3">${Report._esc(t.generatedText || '')}</textarea>
       </div>
     `).join('');
   },
@@ -194,7 +194,7 @@ const Report = {
 
     // Add trial
     container.querySelector('#btn-add-trial').addEventListener('click', () => {
-      Report._trials.push({ clubName: '', date: '', rating: 0, strengthsNoted: '', areasToImprove: '', overallComments: '' });
+      Report._trials.push({ clubName: '', date: '', bullets: '', generatedText: '' });
       container.querySelector('#report-trials-list').innerHTML = Report._renderTrialsList();
       Report._bindTrialEvents(container);
     });
@@ -239,23 +239,29 @@ const Report = {
         Report._bindTrialEvents(container);
       });
 
-      // Star rating
-      card.querySelectorAll('.trial-star').forEach(star => {
-        star.addEventListener('click', () => {
-          const n = parseInt(star.dataset.n);
-          Report._trials[idx].rating = n;
-          card.querySelectorAll('.trial-star').forEach(s => {
-            s.classList.toggle('active', parseInt(s.dataset.n) <= n);
-          });
-        });
+      // Generate button
+      card.querySelector('.trial-generate').addEventListener('click', () => {
+        const bulletsEl = card.querySelector('.trial-bullets');
+        const genEl = card.querySelector('.trial-generated');
+        const bullets = bulletsEl.value.trim();
+        if (!bullets) { genEl.value = ''; return; }
+        const trial = Report._trials[idx];
+        trial.bullets = bullets;
+        const text = ReportNarrative.generateTrialNarrative(Report._player, trial);
+        genEl.value = text;
+        trial.generatedText = text;
       });
 
       // Text inputs
-      const map = { 'trial-club': 'clubName', 'trial-date': 'date', 'trial-strengths': 'strengthsNoted', 'trial-areas': 'areasToImprove', 'trial-comments': 'overallComments' };
-      for (const [cls, key] of Object.entries(map)) {
-        const el = card.querySelector(`.${cls}`);
-        if (el) el.addEventListener('input', () => { Report._trials[idx][key] = el.value; });
-      }
+      const clubEl = card.querySelector('.trial-club');
+      const dateEl = card.querySelector('.trial-date');
+      const bulletsEl = card.querySelector('.trial-bullets');
+      const genEl = card.querySelector('.trial-generated');
+
+      if (clubEl) clubEl.addEventListener('input', () => { Report._trials[idx].clubName = clubEl.value; });
+      if (dateEl) dateEl.addEventListener('input', () => { Report._trials[idx].date = dateEl.value; });
+      if (bulletsEl) bulletsEl.addEventListener('input', () => { Report._trials[idx].bullets = bulletsEl.value; });
+      if (genEl) genEl.addEventListener('input', () => { Report._trials[idx].generatedText = genEl.value; });
     });
   },
 
@@ -289,7 +295,7 @@ const Report = {
   },
 
   // ══════════════════════════════════════════════════════════════
-  //  REPORT PREVIEW — 4-Page A4 Render
+  //  REPORT PREVIEW — Dynamic Flow (no fixed page count)
   // ══════════════════════════════════════════════════════════════
 
   _showPreview(player) {
@@ -302,10 +308,22 @@ const Report = {
       </div>
       <div class="report-preview-scroll">
         <div id="report-pages" class="report-pages">
-          ${Report._renderPage1(player)}
-          ${Report._renderPage2(player)}
-          ${Report._renderPage3(player)}
-          ${Report._renderPage4(player)}
+          <div class="rpt-page">
+            ${Report._renderHeader(player)}
+            ${Report._renderPlayerHero(player)}
+            <hr class="rpt-divider">
+            ${Report._renderPhysicalAnalysis(player)}
+            ${Report._renderDevelopmentReview(player)}
+            <hr class="rpt-divider">
+            ${Report._renderPerformanceTests(player)}
+            ${Report._renderStrengthsAndOpportunities(player)}
+            ${Report._renderProgressionCharts(player)}
+            ${Report._renderSeasonHighlights(player)}
+            ${Report._renderTrials(player)}
+            ${Report._renderCoachEvaluation(player)}
+            ${Report._renderMedia()}
+            ${Report._renderFooter(player)}
+          </div>
         </div>
       </div>`;
 
@@ -320,15 +338,52 @@ const Report = {
     area.scrollIntoView({ behavior: 'smooth' });
   },
 
-  // ── Page 1: Player Info + Physical + Dev Review (Tech + Tactical) ──
+  // ── Header — Gradient Banner ───────────────────────────────
 
-  _renderPage1(player) {
-    const age = App.computeAge(player.dateOfBirth);
-    const heightFt = App.cmToFeetInches(player.heightCm);
-    const dob = player.dateOfBirth ? new Date(player.dateOfBirth).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : '—';
+  _renderHeader(player) {
     const today = new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+    return `
+      <div class="rpt-header-banner">
+        <img src="assets/logos/koln-fs.webp" alt="" class="rpt-logo">
+        <div class="rpt-header-banner-text">
+          <div class="rpt-title">ITP Family Report</div>
+          <div class="rpt-subtitle">1. FC K&ouml;ln Football School &middot; International Talent Pathway</div>
+        </div>
+        <div class="rpt-date">${today}</div>
+      </div>`;
+  },
 
-    // Body composition grid
+  // ── Player Hero — Photo + Info ─────────────────────────────
+
+  _renderPlayerHero(player) {
+    const age = App.computeAge(player.dateOfBirth);
+    const dob = player.dateOfBirth ? new Date(player.dateOfBirth).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : '—';
+    const positions = (player.positions || []).map(p => typeof p === 'string' ? p : p.code).join(' / ') || '—';
+    const initials = (player.firstName?.[0] || '') + (player.lastName?.[0] || '');
+
+    const photoHTML = player.photoBase64
+      ? `<img src="${player.photoBase64}" alt="" class="rpt-player-photo">`
+      : `<div class="rpt-player-initials">${initials}</div>`;
+
+    return `
+      <div class="rpt-player-hero">
+        ${photoHTML}
+        <div class="rpt-player-details">
+          <div class="rpt-player-name">${player.firstName} ${player.lastName}</div>
+          <div class="rpt-player-meta">${player.ageGroup || '—'} &middot; ${positions} &middot; ${player.nationality || '—'}</div>
+          <div class="rpt-info-grid">
+            <div class="rpt-info-row"><span class="rpt-info-label">Date of Birth</span><span class="rpt-info-value">${dob}</span></div>
+            <div class="rpt-info-row"><span class="rpt-info-label">Age</span><span class="rpt-info-value">${age || '—'}</span></div>
+            <div class="rpt-info-row"><span class="rpt-info-label">Foot</span><span class="rpt-info-value">${player.foot || '—'}</span></div>
+          </div>
+        </div>
+      </div>`;
+  },
+
+  // ── Physical Analysis ──────────────────────────────────────
+
+  _renderPhysicalAnalysis(player) {
+    const heightFt = App.cmToFeetInches(player.heightCm);
     const bodyItems = [];
     if (player.heightCm) bodyItems.push({ label: 'Height', value: `${player.heightCm} cm`, sub: heightFt });
     if (player.weightKg) bodyItems.push({ label: 'Weight', value: `${player.weightKg} kg`, sub: `${App.kgToLbs(player.weightKg)} lbs` });
@@ -336,326 +391,274 @@ const Report = {
     if (player.bmi) bodyItems.push({ label: 'BMI', value: player.bmi.toFixed(1) });
     if (player.muscleRatePct) bodyItems.push({ label: 'Muscle Rate', value: `${player.muscleRatePct}%` });
 
-    const bodyHTML = bodyItems.length > 0 ? `
+    if (bodyItems.length === 0) return '';
+
+    return `
       <div class="rpt-physical">
-        <div class="rpt-heading">Physical Analysis</div>
+        <div class="rpt-heading">Physical Profile</div>
         <div class="rpt-body-grid">
           ${bodyItems.map(b => `<div class="rpt-body-cell"><div class="rpt-body-val">${b.value}</div>${b.sub ? `<div class="rpt-body-sub">${b.sub}</div>` : ''}<div class="rpt-body-label">${b.label}</div></div>`).join('')}
         </div>
-      </div>` : '';
-
-    // Development review — Technical + Tactical
-    const techReview = ReportNarrative.generatePillarReview('technical', Report._review.technical, player);
-    const tactReview = ReportNarrative.generatePillarReview('tactical', Report._review.tactical, player);
-
-    const positions = (player.positions || []).map(p => typeof p === 'string' ? p : p.code).join(' / ') || '—';
-
-    return `
-      <div class="rpt-page">
-        <div class="rpt-page-header">
-          <img src="assets/logos/koln-fs.webp" alt="" class="rpt-logo">
-          <div class="rpt-page-header-text">
-            <div class="rpt-title">ITP Family Report</div>
-            <div class="rpt-subtitle">1. FC Koln Football School</div>
-          </div>
-          <div class="rpt-date">${today}</div>
-        </div>
-
-        <div class="rpt-section">
-          <div class="rpt-heading">Player Information</div>
-          <div class="rpt-info-grid">
-            <div class="rpt-info-row"><span class="rpt-info-label">Name</span><span class="rpt-info-value">${player.firstName} ${player.lastName}</span></div>
-            <div class="rpt-info-row"><span class="rpt-info-label">Date of Birth</span><span class="rpt-info-value">${dob}</span></div>
-            <div class="rpt-info-row"><span class="rpt-info-label">Age</span><span class="rpt-info-value">${age || '—'}</span></div>
-            <div class="rpt-info-row"><span class="rpt-info-label">Nationality</span><span class="rpt-info-value">${player.nationality || '—'}</span></div>
-            <div class="rpt-info-row"><span class="rpt-info-label">Position</span><span class="rpt-info-value">${positions}</span></div>
-            <div class="rpt-info-row"><span class="rpt-info-label">Age Group</span><span class="rpt-info-value">${player.ageGroup || '—'}</span></div>
-          </div>
-        </div>
-
-        ${bodyHTML}
-
-        <div class="rpt-section">
-          <div class="rpt-heading">Development Review</div>
-          <div class="rpt-pillar">
-            <div class="rpt-pillar-title">Technical</div>
-            <p class="rpt-pillar-text">${techReview || '<em>No traits selected.</em>'}</p>
-          </div>
-          <div class="rpt-pillar">
-            <div class="rpt-pillar-title">Tactical</div>
-            <p class="rpt-pillar-text">${tactReview || '<em>No traits selected.</em>'}</p>
-          </div>
-        </div>
-
-        <div class="rpt-page-footer">
-          <span>ITP Family Report — ${player.firstName} ${player.lastName}</span>
-          <span>Page 1 of 4</span>
-        </div>
       </div>`;
   },
 
-  // ── Page 2: Dev Review (Physical + Mental) + Performance Tests ──
+  // ── Development Review — All 4 Pillars ─────────────────────
 
-  _renderPage2(player) {
-    const physReview = ReportNarrative.generatePillarReview('physical', Report._review.physical, player);
-    const mentReview = ReportNarrative.generatePillarReview('mental', Report._review.mental, player);
+  _renderDevelopmentReview(player) {
+    const pillars = ['technical', 'tactical', 'physical', 'mental'];
+    const reviews = pillars.map(pk => ({
+      key: pk,
+      label: REPORT_TRAITS[pk].label,
+      text: ReportNarrative.generatePillarReview(pk, Report._review[pk], player)
+    })).filter(r => r.text);
 
-    // Performance test table — all sessions
-    const testsHTML = Report._renderTestTable(player);
+    if (reviews.length === 0) return '';
 
     return `
-      <div class="rpt-page">
-        <div class="rpt-page-header rpt-page-header-cont">
-          <div class="rpt-title-sm">ITP Family Report</div>
-          <div class="rpt-subtitle-sm">${player.firstName} ${player.lastName}</div>
-        </div>
-
-        <div class="rpt-section">
+      <div class="rpt-section">
+        <div class="rpt-heading">Development Review</div>
+        ${reviews.map(r => `
           <div class="rpt-pillar">
-            <div class="rpt-pillar-title">Physical</div>
-            <p class="rpt-pillar-text">${physReview || '<em>No traits selected.</em>'}</p>
+            <div class="rpt-pillar-title">${r.label}</div>
+            <p class="rpt-pillar-text">${r.text}</p>
           </div>
-          <div class="rpt-pillar">
-            <div class="rpt-pillar-title">Mental</div>
-            <p class="rpt-pillar-text">${mentReview || '<em>No traits selected.</em>'}</p>
-          </div>
-        </div>
-
-        <div class="rpt-section">
-          <div class="rpt-heading">Performance Tests</div>
-          ${testsHTML}
-          <div class="rpt-bench-legend">
-            <span class="rpt-bench-key" data-level="poor">NI</span>
-            <span class="rpt-bench-key" data-level="average">Average</span>
-            <span class="rpt-bench-key" data-level="good">Good</span>
-            <span class="rpt-bench-key" data-level="elite">Elite</span>
-          </div>
-        </div>
-
-        <div class="rpt-page-footer">
-          <span>ITP Family Report — ${player.firstName} ${player.lastName}</span>
-          <span>Page 2 of 4</span>
-        </div>
+        `).join('')}
       </div>`;
   },
 
-  // ── Page 3: Key Strengths + Progression Charts + Improvements ──
+  // ── Performance Tests — Smart Card Layout ──────────────────
 
-  _renderPage3(player) {
-    const strengths = ReportNarrative.getStrengthLabels(Report._review);
-    const weaknesses = ReportNarrative.getWeaknessLabels(Report._review);
-    const improvements = ReportNarrative.getBiggestImprovements(player);
-
-    // Pick up to 3 tests with most sessions for progression charts
-    const chartTests = Report._pickChartTests(player, 3);
-    const chartsHTML = chartTests.map(tk => {
-      const def = TEST_DEFS[tk];
-      return `<div class="rpt-chart-block">
-        <div class="rpt-chart-label">${def.name} (${def.unit})</div>
-        ${Profile.renderProgressionChart(player, tk, 440, 140)}
-      </div>`;
-    }).join('');
-
-    return `
-      <div class="rpt-page">
-        <div class="rpt-page-header rpt-page-header-cont">
-          <div class="rpt-title-sm">ITP Family Report</div>
-          <div class="rpt-subtitle-sm">${player.firstName} ${player.lastName}</div>
-        </div>
-
-        <div class="rpt-two-col">
-          <div class="rpt-col">
-            <div class="rpt-heading">Key Strengths</div>
-            ${strengths.length > 0
-              ? `<ul class="rpt-bullet-list">${strengths.map(s => `<li>${s}</li>`).join('')}</ul>`
-              : '<p class="rpt-muted">No strengths selected.</p>'}
-          </div>
-          <div class="rpt-col">
-            <div class="rpt-heading">Areas of Opportunity</div>
-            ${weaknesses.length > 0
-              ? `<ul class="rpt-bullet-list">${weaknesses.map(w => `<li>${w}</li>`).join('')}</ul>`
-              : '<p class="rpt-muted">No areas selected.</p>'}
-          </div>
-        </div>
-
-        ${chartsHTML ? `<div class="rpt-section">
-          <div class="rpt-heading">Season Progression</div>
-          <div class="rpt-charts-grid">${chartsHTML}</div>
-        </div>` : ''}
-
-        ${improvements.length > 0 ? `<div class="rpt-section">
-          <div class="rpt-heading">Biggest Improvements This Season</div>
-          <ul class="rpt-bullet-list rpt-improvements">
-            ${improvements.map(imp => {
-              const arrow = imp.lowerIsBetter ? '' : '';
-              return `<li>${imp.name}: ${imp.from}${imp.unit} → ${imp.to}${imp.unit} (${imp.lowerIsBetter ? '-' : '+'}${imp.pctChange})</li>`;
-            }).join('')}
-          </ul>
-        </div>` : ''}
-
-        <div class="rpt-page-footer">
-          <span>ITP Family Report — ${player.firstName} ${player.lastName}</span>
-          <span>Page 3 of 4</span>
-        </div>
-      </div>`;
-  },
-
-  // ── Page 4: Trials + Head Coach Evaluation + Media ──
-
-  _renderPage4(player) {
-    // Trials
-    const trialsHTML = Report._trials.length > 0
-      ? Report._trials.map(t => {
-          const stars = '&#9733;'.repeat(t.rating || 0) + '&#9734;'.repeat(5 - (t.rating || 0));
-          const dateStr = t.date ? new Date(t.date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : '';
-          return `<div class="rpt-trial">
-            <div class="rpt-trial-header">
-              <strong>${t.clubName || 'Unknown Club'}</strong>
-              ${dateStr ? `<span class="rpt-trial-date">(${dateStr})</span>` : ''}
-              <span class="rpt-trial-stars">${stars}</span>
-            </div>
-            ${t.strengthsNoted ? `<div class="rpt-trial-row"><span class="rpt-trial-label">Strengths:</span> ${t.strengthsNoted}</div>` : ''}
-            ${t.areasToImprove ? `<div class="rpt-trial-row"><span class="rpt-trial-label">Areas to Improve:</span> ${t.areasToImprove}</div>` : ''}
-            ${t.overallComments ? `<div class="rpt-trial-row"><span class="rpt-trial-label">Notes:</span> ${t.overallComments}</div>` : ''}
-          </div>`;
-        }).join('')
-      : '<p class="rpt-muted">No trial reports recorded.</p>';
-
-    // Head Coach Evaluation
-    const coachEval = ReportNarrative.generateCoachEvaluation(
-      player, Report._review, Report._coachNotes, Report._trials
-    );
-
-    // Media
-    const mediaHTML = Report._mediaLinks.filter(m => m.url).length > 0
-      ? Report._mediaLinks.filter(m => m.url).map(m =>
-          `<div class="rpt-media-row">
-            <span class="rpt-media-icon">&#9654;</span>
-            <a href="${m.url}" target="_blank" rel="noopener">${m.label || m.url}</a>
-          </div>`
-        ).join('')
-      : '';
-
-    return `
-      <div class="rpt-page">
-        <div class="rpt-page-header rpt-page-header-cont">
-          <div class="rpt-title-sm">ITP Family Report</div>
-          <div class="rpt-subtitle-sm">${player.firstName} ${player.lastName}</div>
-        </div>
-
-        <div class="rpt-section">
-          <div class="rpt-heading">Soccer Tryout Reports</div>
-          ${trialsHTML}
-        </div>
-
-        <div class="rpt-section">
-          <div class="rpt-heading">Head Coach Evaluation</div>
-          <div class="rpt-coach-eval">${coachEval}</div>
-        </div>
-
-        ${mediaHTML ? `<div class="rpt-section">
-          <div class="rpt-heading">Media</div>
-          ${mediaHTML}
-        </div>` : ''}
-
-        <div class="rpt-page-footer rpt-page-footer-final">
-          <img src="assets/logos/koln-fs.webp" alt="" class="rpt-footer-logo">
-          <span>ITP Family Report — ${player.firstName} ${player.lastName} — Page 4 of 4</span>
-        </div>
-      </div>`;
-  },
-
-  // ── Test Results Table ───────────────────────────────────────
-
-  _renderTestTable(player) {
-    if (!player.tests || !player.ageGroup) {
-      return '<p class="rpt-muted">No test data recorded.</p>';
-    }
+  _renderPerformanceTests(player) {
+    if (!player.tests || !player.ageGroup) return '';
 
     const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
     const fmtDate = (iso) => {
       const [y, m, d] = iso.split('-');
-      return `${MONTHS[parseInt(m, 10) - 1]}`;
+      return `${MONTHS[parseInt(m, 10) - 1]} '${y.slice(2)}`;
     };
 
-    // Collect all session dates
-    const allDates = new Set();
     const categories = Benchmarks.getTestsByCategory();
-    for (const testKeys of Object.values(categories)) {
-      for (const tk of testKeys) {
-        const sessions = player.tests?.[tk]?.sessions || [];
-        for (const s of sessions) { if (s.best != null) allDates.add(s.date); }
-      }
-    }
-    const sortedDates = [...allDates].sort((a, b) => a.localeCompare(b));
-    if (sortedDates.length === 0) return '<p class="rpt-muted">No test data recorded.</p>';
+    let html = '';
+    let hasAnyData = false;
 
-    const dateHeaders = sortedDates.map(d => `<th>${fmtDate(d)}</th>`).join('');
-
-    let rows = '';
     for (const [catName, testKeys] of Object.entries(categories)) {
-      let catHasData = false;
-      let catRows = '';
+      let catCards = '';
       for (const tk of testKeys) {
         const testData = player.tests?.[tk];
         if (!testData || testData.best == null) continue;
-        catHasData = true;
+        hasAnyData = true;
+
         const def = TEST_DEFS[tk];
         const latest = DB.getLatestSession(player, tk);
         const { level } = Benchmarks.evaluate(player.ageGroup, tk, latest?.best ?? testData.best);
+        const levelLabel = level === 'none' ? '—' : level === 'poor' ? 'Below Avg' : level.charAt(0).toUpperCase() + level.slice(1);
 
-        let sessionCells = '';
-        for (const date of sortedDates) {
-          const session = (testData.sessions || []).find(s => s.date === date);
-          const val = session?.best ?? null;
-          if (val !== null) {
-            const { level: cellLevel } = Benchmarks.evaluate(player.ageGroup, tk, val);
-            sessionCells += `<td class="rpt-test-val" data-level="${cellLevel}">${val}</td>`;
-          } else {
-            sessionCells += `<td class="rpt-test-val rpt-test-empty">—</td>`;
-          }
+        // Only show sessions that have data
+        const sessions = (testData.sessions || []).filter(s => s.best != null);
+
+        let sessionsHTML = '';
+        if (sessions.length > 0) {
+          sessionsHTML = sessions.map(s => {
+            const { level: sLevel } = Benchmarks.evaluate(player.ageGroup, tk, s.best);
+            return `<div class="rpt-test-card-session">
+              <div class="rpt-test-card-session-val" data-level="${sLevel}">${s.best}</div>
+              <div class="rpt-test-card-session-date">${fmtDate(s.date)}</div>
+            </div>`;
+          }).join('');
         }
 
-        const levelLabel = level === 'none' ? '—' : level.toUpperCase();
-        catRows += `<tr>
-          <td class="rpt-test-name">${def.name}</td>
-          ${sessionCells}
-          <td class="rpt-test-level" data-level="${level}">${levelLabel}</td>
-        </tr>`;
+        catCards += `
+          <div class="rpt-test-card">
+            <div class="rpt-test-card-name">
+              ${def.name} <span class="rpt-test-card-level" data-level="${level}">${levelLabel}</span>
+            </div>
+            <div class="rpt-test-card-sessions">${sessionsHTML}</div>
+          </div>`;
       }
-      if (catHasData) {
-        rows += `<tr class="rpt-test-cat"><td colspan="${sortedDates.length + 2}">${catName}</td></tr>`;
-        rows += catRows;
+
+      if (catCards) {
+        html += `<div class="rpt-test-cat-label">${catName}</div>`;
+        html += `<div class="rpt-test-cards">${catCards}</div>`;
       }
     }
 
-    return `<table class="rpt-test-table">
-      <thead><tr>
-        <th class="rpt-test-th-name">Test</th>
-        ${dateHeaders}
-        <th>Level</th>
-      </tr></thead>
-      <tbody>${rows}</tbody>
-    </table>`;
+    if (!hasAnyData) return '';
+
+    return `
+      <div class="rpt-section">
+        <div class="rpt-heading">Performance Tests</div>
+        ${html}
+        <div class="rpt-bench-legend">
+          <span class="rpt-bench-key" data-level="poor">Below Avg</span>
+          <span class="rpt-bench-key" data-level="average">Average</span>
+          <span class="rpt-bench-key" data-level="good">Good</span>
+          <span class="rpt-bench-key" data-level="elite">Elite</span>
+        </div>
+      </div>`;
   },
 
-  // ── Helpers ──────────────────────────────────────────────────
+  // ── Key Strengths + Areas of Opportunity ───────────────────
 
-  _pickChartTests(player, count) {
-    if (!player.tests) return [];
-    const scored = [];
+  _renderStrengthsAndOpportunities(player) {
+    const strengths = ReportNarrative.getStrengthLabels(Report._review);
+    const weaknesses = ReportNarrative.getWeaknessLabels(Report._review);
+
+    if (strengths.length === 0 && weaknesses.length === 0) return '';
+
+    return `
+      <div class="rpt-two-col">
+        <div class="rpt-col-card">
+          <div class="rpt-heading">Key Strengths</div>
+          ${strengths.length > 0
+            ? `<ul class="rpt-bullet-list">${strengths.map(s => `<li>${s}</li>`).join('')}</ul>`
+            : '<p class="rpt-muted">No strengths selected.</p>'}
+        </div>
+        <div class="rpt-col-card">
+          <div class="rpt-heading">Areas of Opportunity</div>
+          ${weaknesses.length > 0
+            ? `<ul class="rpt-bullet-list">${weaknesses.map(w => `<li>${w}</li>`).join('')}</ul>`
+            : '<p class="rpt-muted">No areas selected.</p>'}
+        </div>
+      </div>`;
+  },
+
+  // ── Progression Charts — ALL tests with ≥2 sessions ────────
+
+  _renderProgressionCharts(player) {
+    if (!player.tests) return '';
+
+    const chartTests = [];
     for (const [tk, td] of Object.entries(player.tests)) {
       const sessions = td?.sessions || [];
-      const validSessions = sessions.filter(s => s.best != null);
-      if (validSessions.length >= 2) {
-        scored.push({ tk, count: validSessions.length });
-      }
+      const valid = sessions.filter(s => s.best != null);
+      if (valid.length >= 2) chartTests.push(tk);
     }
-    scored.sort((a, b) => b.count - a.count);
-    return scored.slice(0, count).map(s => s.tk);
+
+    if (chartTests.length === 0) return '';
+
+    const chartsHTML = chartTests.map(tk => {
+      const def = TEST_DEFS[tk];
+      return `<div class="rpt-chart-block">
+        <div class="rpt-chart-label">${def.name} (${def.unit})</div>
+        ${Profile.renderProgressionChart(player, tk, 540, 180)}
+      </div>`;
+    }).join('');
+
+    return `
+      <div class="rpt-section">
+        <div class="rpt-heading">Season Progression</div>
+        <div class="rpt-charts-stack">${chartsHTML}</div>
+      </div>`;
   },
 
-  // ── PDF Export ───────────────────────────────────────────────
+  // ── Season Highlights — Test Improvements + Improved Traits ──
+
+  _renderSeasonHighlights(player) {
+    const testImprovements = ReportNarrative.getBiggestImprovements(player);
+    const traitImprovements = ReportNarrative.getImprovedTraitLabels(Report._review);
+
+    if (testImprovements.length === 0 && traitImprovements.length === 0) return '';
+
+    let html = '';
+
+    // Performance improvements
+    if (testImprovements.length > 0) {
+      html += `<div class="rpt-highlights-group-label">Performance</div>`;
+      html += `<ul class="rpt-bullet-list rpt-improvements">`;
+      html += testImprovements.map(imp =>
+        `<li>${imp.name}: ${imp.from}${imp.unit} &rarr; ${imp.to}${imp.unit} (${imp.lowerIsBetter ? '&minus;' : '+'}${imp.pctChange})</li>`
+      ).join('');
+      html += `</ul>`;
+    }
+
+    // Development trait improvements
+    if (traitImprovements.length > 0) {
+      html += `<div class="rpt-highlights-group-label">Development</div>`;
+      html += `<ul class="rpt-bullet-list rpt-improvements">`;
+      html += traitImprovements.map(t => `<li>${t}</li>`).join('');
+      html += `</ul>`;
+    }
+
+    return `
+      <div class="rpt-section rpt-highlights">
+        <div class="rpt-heading">Season Highlights</div>
+        ${html}
+      </div>`;
+  },
+
+  // ── Trials Section ─────────────────────────────────────────
+
+  _renderTrials(player) {
+    if (Report._trials.length === 0) return '';
+
+    const trialsHTML = Report._trials.map(t => {
+      const dateStr = t.date ? new Date(t.date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : '';
+      const text = t.generatedText || t.bullets || '';
+      if (!t.clubName && !text) return '';
+
+      return `<div class="rpt-trial">
+        <div class="rpt-trial-header">
+          <strong>${t.clubName || 'Club Trial'}</strong>
+          ${dateStr ? `<span class="rpt-trial-date">&middot; ${dateStr}</span>` : ''}
+        </div>
+        ${text ? `<div class="rpt-trial-text">${text}</div>` : ''}
+      </div>`;
+    }).filter(Boolean).join('');
+
+    if (!trialsHTML) return '';
+
+    return `
+      <div class="rpt-section">
+        <div class="rpt-heading">Trial Reports</div>
+        ${trialsHTML}
+      </div>`;
+  },
+
+  // ── Head Coach Evaluation ──────────────────────────────────
+
+  _renderCoachEvaluation(player) {
+    const coachEval = ReportNarrative.generateCoachEvaluation(
+      player, Report._review, Report._coachNotes, Report._trials
+    );
+
+    if (!coachEval) return '';
+
+    return `
+      <div class="rpt-section">
+        <div class="rpt-heading">Head Coach Evaluation</div>
+        <div class="rpt-coach-eval">${coachEval}</div>
+      </div>`;
+  },
+
+  // ── Media ──────────────────────────────────────────────────
+
+  _renderMedia() {
+    const links = Report._mediaLinks.filter(m => m.url);
+    if (links.length === 0) return '';
+
+    return `
+      <div class="rpt-section">
+        <div class="rpt-heading">Media</div>
+        ${links.map(m =>
+          `<div class="rpt-media-row">
+            <span class="rpt-media-icon">&#9654;</span>
+            <a href="${m.url}" target="_blank" rel="noopener">${m.label || m.url}</a>
+          </div>`
+        ).join('')}
+      </div>`;
+  },
+
+  // ── Footer ─────────────────────────────────────────────────
+
+  _renderFooter(player) {
+    return `
+      <div class="rpt-footer">
+        <img src="assets/logos/koln-fs.webp" alt="" class="rpt-footer-logo">
+        <span class="rpt-footer-text">ITP Family Report &mdash; ${player.firstName} ${player.lastName} &mdash; 1. FC K&ouml;ln Football School</span>
+      </div>`;
+  },
+
+  // ── PDF Export ─────────────────────────────────────────────
 
   _exportPDF() {
     const pages = document.getElementById('report-pages');
@@ -683,7 +686,7 @@ const Report = {
         image: { type: 'jpeg', quality: 0.95 },
         html2canvas: { scale: 2, useCORS: true, logging: false },
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-        pagebreak: { mode: ['css', 'legacy'], before: '.rpt-page' }
+        pagebreak: { mode: ['css', 'legacy'], avoid: '.rpt-section' }
       })
       .from(element)
       .save()

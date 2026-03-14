@@ -177,36 +177,20 @@
 .trial-club { flex: 1; margin-bottom: 0; }
 .trial-date { width: 140px; margin-bottom: 0; }
 
-.trial-rating-row {
-  display: flex;
-  align-items: center;
-  gap: 2px;
-  margin-bottom: 8px;
-}
-
-.trial-rating-label {
-  font-size: 13px;
-  color: var(--gray-500);
-  margin-right: 6px;
-}
-
-.trial-star {
-  background: none;
-  border: none;
-  font-size: 20px;
-  color: var(--gray-300);
-  cursor: pointer;
-  padding: 0 1px;
-  line-height: 1;
-}
-
-.trial-star.active {
-  color: #ECC94B;
-}
-
 .trial-remove {
   font-size: 18px;
   color: var(--gray-500);
+}
+
+.trial-gen-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-top: 4px;
+}
+
+.trial-gen-row .btn-sm {
+  white-space: nowrap;
 }
 
 /* ── Media Rows ──────────────────────────────────────────────── */
@@ -289,155 +273,142 @@
   gap: 24px;
 }
 
-/* ── A4 Page ─────────────────────────────────────────────────── */
+/* ── A4 Page — Dynamic Flow ──────────────────────────────────── */
 
 .rpt-page {
   width: 210mm;
-  min-height: 297mm;
   background: #fff;
   box-shadow: 0 2px 16px rgba(0,0,0,0.12);
-  padding: 18mm 16mm 14mm 16mm;
+  padding: 0 16mm 16mm 16mm;
   font-family: var(--font);
-  font-size: 11px;
+  font-size: 13px;
   color: #222;
-  line-height: 1.5;
+  line-height: 1.6;
   position: relative;
-  page-break-before: always;
   overflow: hidden;
 }
 
-.rpt-page:first-child {
-  page-break-before: auto;
-}
+/* ── Page Header — Gradient Banner ───────────────────────────── */
 
-/* ── Page Header ─────────────────────────────────────────────── */
-
-.rpt-page-header {
+.rpt-header-banner {
+  background: linear-gradient(110deg, #111 0%, #2a0005 42%, #E3000F 100%);
+  margin: 0 -16mm 0 -16mm;
+  padding: 22px 16mm 18px 16mm;
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding-bottom: 10px;
-  border-bottom: 2.5px solid var(--red);
-  margin-bottom: 14px;
+  gap: 16px;
+  color: #fff;
 }
 
-.rpt-logo {
-  height: 36px;
+.rpt-header-banner .rpt-logo {
+  height: 44px;
   width: auto;
+  filter: brightness(10);
 }
 
-.rpt-page-header-text {
+.rpt-header-banner-text {
   flex: 1;
 }
 
-.rpt-title {
+.rpt-header-banner .rpt-title {
   font-family: var(--font-cond);
   font-weight: 900;
-  font-size: 20px;
+  font-size: 22px;
   text-transform: uppercase;
-  letter-spacing: 2px;
-  color: var(--dark);
+  letter-spacing: 3px;
+  color: #fff;
 }
 
-.rpt-subtitle {
+.rpt-header-banner .rpt-subtitle {
   font-family: var(--font-cond);
   font-weight: 600;
-  font-size: 11px;
-  color: var(--gray-500);
-  text-transform: uppercase;
-  letter-spacing: 1.5px;
-}
-
-.rpt-date {
-  font-size: 10px;
-  color: var(--gray-500);
-}
-
-/* Continuation header (pages 2-4) */
-.rpt-page-header-cont {
-  padding-bottom: 8px;
-  border-bottom: 2px solid var(--gray-200);
-  margin-bottom: 12px;
-}
-
-.rpt-title-sm {
-  font-family: var(--font-cond);
-  font-weight: 800;
-  font-size: 13px;
-  text-transform: uppercase;
-  letter-spacing: 1.5px;
-  color: var(--gray-500);
-}
-
-.rpt-subtitle-sm {
-  font-family: var(--font-cond);
-  font-weight: 700;
-  font-size: 15px;
-  color: var(--dark);
-}
-
-/* ── Page Footer ─────────────────────────────────────────────── */
-
-.rpt-page-footer {
-  position: absolute;
-  bottom: 10mm;
-  left: 16mm;
-  right: 16mm;
-  display: flex;
-  justify-content: space-between;
-  font-size: 9px;
-  color: var(--gray-500);
-  border-top: 1px solid var(--gray-200);
-  padding-top: 6px;
-}
-
-.rpt-page-footer-final {
-  align-items: center;
-}
-
-.rpt-footer-logo {
-  height: 20px;
-  width: auto;
-}
-
-/* ── Sections & Headings ─────────────────────────────────────── */
-
-.rpt-section {
-  margin-bottom: 14px;
-}
-
-.rpt-heading {
-  font-family: var(--font-cond);
-  font-weight: 800;
   font-size: 12px;
+  color: rgba(255,255,255,0.7);
   text-transform: uppercase;
-  letter-spacing: 2px;
-  color: var(--dark);
-  border-left: 3px solid var(--red);
-  padding-left: 8px;
-  margin-bottom: 8px;
+  letter-spacing: 1.5px;
 }
 
-/* ── Player Info Grid ────────────────────────────────────────── */
+.rpt-header-banner .rpt-date {
+  font-size: 11px;
+  color: rgba(255,255,255,0.6);
+  text-align: right;
+}
+
+/* ── Player Hero Section ─────────────────────────────────────── */
+
+.rpt-player-hero {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+  margin: 18px 0 16px 0;
+}
+
+.rpt-player-photo {
+  width: 90px;
+  height: 90px;
+  border-radius: 10px;
+  object-fit: cover;
+  object-position: center top;
+  border: 3px solid #E3000F;
+  flex-shrink: 0;
+}
+
+.rpt-player-initials {
+  width: 90px;
+  height: 90px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #222 0%, #444 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-cond);
+  font-weight: 900;
+  font-size: 32px;
+  color: #fff;
+  flex-shrink: 0;
+  border: 3px solid #E3000F;
+}
+
+.rpt-player-details {
+  flex: 1;
+}
+
+.rpt-player-name {
+  font-family: var(--font-cond);
+  font-weight: 900;
+  font-size: 24px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--dark);
+  margin-bottom: 2px;
+}
+
+.rpt-player-meta {
+  font-size: 13px;
+  color: var(--gray-500);
+  margin-bottom: 10px;
+}
+
+/* ── Info Grid (inside hero) ─────────────────────────────────── */
 
 .rpt-info-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 4px 24px;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 4px 20px;
 }
 
 .rpt-info-row {
   display: flex;
   gap: 8px;
-  padding: 3px 0;
+  padding: 4px 0;
   border-bottom: 1px solid #f0f0f0;
 }
 
 .rpt-info-label {
   font-weight: 600;
   color: var(--gray-500);
-  min-width: 90px;
-  font-size: 10px;
+  min-width: 80px;
+  font-size: 11px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -445,42 +416,74 @@
 .rpt-info-value {
   font-weight: 600;
   color: var(--dark);
+  font-size: 13px;
+}
+
+/* ── Section Separator ───────────────────────────────────────── */
+
+.rpt-divider {
+  border: none;
+  border-top: 1.5px solid #E3000F;
+  opacity: 0.2;
+  margin: 16px 0;
+}
+
+/* ── Sections & Headings ─────────────────────────────────────── */
+
+.rpt-section {
+  margin-bottom: 18px;
+  page-break-inside: avoid;
+}
+
+.rpt-heading {
+  font-family: var(--font-cond);
+  font-weight: 800;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--dark);
+  border-left: 3px solid var(--red);
+  padding: 4px 0 4px 10px;
+  margin-bottom: 10px;
+  background: linear-gradient(90deg, #f5f5f5 0%, transparent 100%);
 }
 
 /* ── Physical Analysis ───────────────────────────────────────── */
 
 .rpt-physical {
-  margin-bottom: 14px;
+  margin-bottom: 18px;
+  page-break-inside: avoid;
 }
 
 .rpt-body-grid {
   display: flex;
-  gap: 16px;
+  gap: 12px;
   flex-wrap: wrap;
 }
 
 .rpt-body-cell {
   text-align: center;
-  min-width: 70px;
-  background: #f8f8f8;
-  border-radius: 6px;
-  padding: 8px 14px;
+  min-width: 80px;
+  background: #f5f5f5;
+  border-radius: 8px;
+  padding: 10px 16px;
+  border: 1px solid #eee;
 }
 
 .rpt-body-val {
   font-family: var(--font-cond);
   font-weight: 700;
-  font-size: 16px;
+  font-size: 18px;
   color: var(--dark);
 }
 
 .rpt-body-sub {
-  font-size: 9px;
+  font-size: 10px;
   color: var(--gray-500);
 }
 
 .rpt-body-label {
-  font-size: 9px;
+  font-size: 10px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   color: var(--gray-500);
@@ -490,22 +493,22 @@
 /* ── Development Pillar Reviews ──────────────────────────────── */
 
 .rpt-pillar {
-  margin-bottom: 12px;
+  margin-bottom: 14px;
 }
 
 .rpt-pillar-title {
   font-family: var(--font-cond);
   font-weight: 700;
-  font-size: 11px;
+  font-size: 12px;
   text-transform: uppercase;
   letter-spacing: 1px;
   color: var(--red);
-  margin-bottom: 3px;
+  margin-bottom: 4px;
 }
 
 .rpt-pillar-text {
-  font-size: 11px;
-  line-height: 1.6;
+  font-size: 13px;
+  line-height: 1.7;
   color: #333;
 }
 
@@ -513,97 +516,111 @@
   color: var(--gray-500);
 }
 
-/* ── Performance Test Table ──────────────────────────────────── */
+/* ── Performance Test Cards ──────────────────────────────────── */
 
-.rpt-test-table {
-  width: 100%;
-  border-collapse: collapse;
+.rpt-test-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.rpt-test-card {
+  background: #f8f8f8;
+  border-radius: 8px;
+  padding: 10px 12px;
+  border: 1px solid #eee;
+  page-break-inside: avoid;
+}
+
+.rpt-test-card-name {
+  font-family: var(--font-cond);
+  font-weight: 700;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--dark);
+  margin-bottom: 6px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.rpt-test-card-level {
   font-size: 10px;
-}
-
-.rpt-test-table th {
-  font-family: var(--font-cond);
   font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 3px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  padding: 5px 6px;
-  background: var(--dark);
-  color: #fff;
+}
+
+.rpt-test-card-level[data-level="poor"]    { background: rgba(229, 62, 62, 0.12); color: var(--bench-poor); }
+.rpt-test-card-level[data-level="average"] { background: rgba(237, 137, 54, 0.12); color: var(--bench-avg); }
+.rpt-test-card-level[data-level="good"]    { background: rgba(56, 161, 105, 0.12); color: var(--bench-good); }
+.rpt-test-card-level[data-level="elite"]   { background: rgba(49, 130, 206, 0.12); color: var(--bench-elite); }
+
+.rpt-test-card-sessions {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.rpt-test-card-session {
   text-align: center;
+  flex: 1;
+  min-width: 50px;
+}
+
+.rpt-test-card-session-val {
+  font-family: var(--font-cond);
+  font-weight: 700;
+  font-size: 16px;
+}
+
+.rpt-test-card-session-val[data-level="poor"]    { color: var(--bench-poor); }
+.rpt-test-card-session-val[data-level="average"] { color: var(--bench-avg); }
+.rpt-test-card-session-val[data-level="good"]    { color: var(--bench-good); }
+.rpt-test-card-session-val[data-level="elite"]   { color: var(--bench-elite); }
+
+.rpt-test-card-session-date {
   font-size: 9px;
+  color: var(--gray-500);
+  text-transform: uppercase;
 }
 
-.rpt-test-th-name {
-  text-align: left !important;
-  min-width: 100px;
-}
-
-.rpt-test-table td {
-  padding: 4px 6px;
-  border-bottom: 1px solid #f0f0f0;
-}
-
-.rpt-test-cat td {
+.rpt-test-cat-label {
   font-family: var(--font-cond);
   font-weight: 700;
-  font-size: 10px;
+  font-size: 11px;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  color: var(--gray-700);
-  background: #f5f5f5;
-  padding: 5px 6px;
+  letter-spacing: 1px;
+  color: var(--gray-500);
+  margin-bottom: 6px;
+  margin-top: 10px;
+  padding-left: 2px;
 }
 
-.rpt-test-name {
-  font-weight: 600;
+.rpt-test-cat-label:first-child {
+  margin-top: 0;
 }
-
-.rpt-test-val {
-  text-align: center;
-  font-family: var(--font-cond);
-  font-weight: 600;
-}
-
-.rpt-test-val[data-level="poor"]    { color: var(--bench-poor); }
-.rpt-test-val[data-level="average"] { color: var(--bench-avg); }
-.rpt-test-val[data-level="good"]    { color: var(--bench-good); }
-.rpt-test-val[data-level="elite"]   { color: var(--bench-elite); }
-
-.rpt-test-empty {
-  color: var(--gray-300) !important;
-}
-
-.rpt-test-level {
-  text-align: center;
-  font-family: var(--font-cond);
-  font-weight: 700;
-  font-size: 9px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.rpt-test-level[data-level="poor"]    { color: var(--bench-poor); }
-.rpt-test-level[data-level="average"] { color: var(--bench-avg); }
-.rpt-test-level[data-level="good"]    { color: var(--bench-good); }
-.rpt-test-level[data-level="elite"]   { color: var(--bench-elite); }
 
 /* ── Benchmark Legend ────────────────────────────────────────── */
 
 .rpt-bench-legend {
   display: flex;
-  gap: 12px;
-  margin-top: 6px;
+  gap: 10px;
+  margin-top: 10px;
   justify-content: flex-end;
 }
 
 .rpt-bench-key {
-  font-size: 9px;
+  font-size: 10px;
   font-family: var(--font-cond);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  padding: 2px 8px;
-  border-radius: 3px;
+  padding: 3px 10px;
+  border-radius: 4px;
 }
 
 .rpt-bench-key[data-level="poor"]    { background: rgba(229, 62, 62, 0.12); color: var(--bench-poor); }
@@ -611,31 +628,40 @@
 .rpt-bench-key[data-level="good"]    { background: rgba(56, 161, 105, 0.12); color: var(--bench-good); }
 .rpt-bench-key[data-level="elite"]   { background: rgba(49, 130, 206, 0.12); color: var(--bench-elite); }
 
-/* ── Two Column Layout (Page 3) ──────────────────────────────── */
+/* ── Two Column Layout ───────────────────────────────────────── */
 
 .rpt-two-col {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 16px;
-  margin-bottom: 14px;
+  gap: 20px;
+  margin-bottom: 18px;
+}
+
+.rpt-col-card {
+  background: #f8f8f8;
+  border-radius: 8px;
+  padding: 14px 16px;
+  border: 1px solid #eee;
 }
 
 .rpt-bullet-list {
   list-style: none;
   padding: 0;
+  margin: 0;
 }
 
 .rpt-bullet-list li {
-  padding: 3px 0 3px 14px;
+  padding: 4px 0 4px 16px;
   position: relative;
-  font-size: 11px;
+  font-size: 13px;
+  line-height: 1.5;
 }
 
 .rpt-bullet-list li::before {
   content: '';
   position: absolute;
   left: 0;
-  top: 9px;
+  top: 11px;
   width: 6px;
   height: 6px;
   border-radius: 50%;
@@ -647,84 +673,98 @@
 }
 
 .rpt-muted {
-  font-size: 11px;
+  font-size: 13px;
   color: var(--gray-500);
   font-style: italic;
 }
 
-/* ── Progression Charts Grid ─────────────────────────────────── */
+/* ── Progression Charts ──────────────────────────────────────── */
 
-.rpt-charts-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 12px;
+.rpt-charts-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
 }
 
 .rpt-chart-block {
-  background: #fafafa;
-  border-radius: 6px;
-  padding: 8px;
+  background: #f8f8f8;
+  border-radius: 8px;
+  padding: 10px 12px;
+  border: 1px solid #eee;
+  page-break-inside: avoid;
 }
 
 .rpt-chart-label {
   font-family: var(--font-cond);
   font-weight: 700;
-  font-size: 10px;
+  font-size: 12px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   color: var(--gray-700);
+  margin-bottom: 6px;
+}
+
+/* ── Season Highlights ───────────────────────────────────────── */
+
+.rpt-highlights {
+  page-break-inside: avoid;
+}
+
+.rpt-highlights-group-label {
+  font-family: var(--font-cond);
+  font-weight: 700;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--gray-500);
   margin-bottom: 4px;
+  margin-top: 10px;
+}
+
+.rpt-highlights-group-label:first-child {
+  margin-top: 0;
 }
 
 /* ── Trial Report Cards (Preview) ────────────────────────────── */
 
 .rpt-trial {
+  background: #f8f8f8;
   border: 1px solid #eee;
-  border-radius: 6px;
-  padding: 10px 12px;
-  margin-bottom: 8px;
+  border-radius: 8px;
+  padding: 12px 14px;
+  margin-bottom: 10px;
+  page-break-inside: avoid;
 }
 
 .rpt-trial-header {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 6px;
+  margin-bottom: 8px;
   flex-wrap: wrap;
 }
 
 .rpt-trial-header strong {
   font-family: var(--font-cond);
   font-weight: 700;
-  font-size: 12px;
+  font-size: 14px;
 }
 
 .rpt-trial-date {
-  font-size: 10px;
+  font-size: 12px;
   color: var(--gray-500);
 }
 
-.rpt-trial-stars {
+.rpt-trial-text {
   font-size: 13px;
-  color: #ECC94B;
-  margin-left: auto;
-}
-
-.rpt-trial-row {
-  font-size: 10px;
-  margin-bottom: 3px;
-  line-height: 1.5;
-}
-
-.rpt-trial-label {
-  font-weight: 600;
-  color: var(--gray-700);
+  line-height: 1.7;
+  color: #333;
 }
 
 /* ── Head Coach Evaluation ───────────────────────────────────── */
 
 .rpt-coach-eval {
-  font-size: 11px;
+  font-size: 13px;
   line-height: 1.7;
   color: #333;
   white-space: pre-line;
@@ -735,23 +775,44 @@
 .rpt-media-row {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 4px 0;
+  gap: 8px;
+  padding: 5px 0;
 }
 
 .rpt-media-icon {
   color: var(--red);
-  font-size: 10px;
+  font-size: 12px;
 }
 
 .rpt-media-row a {
   color: #3182CE;
   text-decoration: none;
-  font-size: 11px;
+  font-size: 13px;
 }
 
 .rpt-media-row a:hover {
   text-decoration: underline;
+}
+
+/* ── Footer ──────────────────────────────────────────────────── */
+
+.rpt-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 24px;
+  padding-top: 10px;
+  border-top: 1.5px solid #eee;
+}
+
+.rpt-footer-logo {
+  height: 22px;
+  width: auto;
+}
+
+.rpt-footer-text {
+  font-size: 10px;
+  color: var(--gray-500);
 }
 
 /* ── Print / PDF Overrides ───────────────────────────────────── */
@@ -763,7 +824,5 @@
   .rpt-page {
     box-shadow: none;
     margin: 0;
-    page-break-before: always;
   }
-  .rpt-page:first-child { page-break-before: auto; }
 }

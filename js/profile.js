@@ -271,7 +271,7 @@ const Profile = {
         { key: 'elite', label: 'Elite', color: colors.elite },
         { key: 'good', label: 'Good', color: colors.good },
         { key: 'average', label: 'Avg', color: colors.average },
-        { key: 'poor', label: 'Poor', color: colors.poor }
+        { key: 'poor', label: 'Below Avg', color: colors.poor }
       ];
 
       const bandEdges = [

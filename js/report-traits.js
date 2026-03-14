@@ -620,7 +620,7 @@ const ReportNarrative = {
       const { level } = Benchmarks.evaluate(player.ageGroup, key, last.best);
       if (level === 'none') continue;
 
-      const levelLabel = level.charAt(0).toUpperCase() + level.slice(1);
+      const levelLabel = level === 'poor' ? 'developing' : level.charAt(0).toUpperCase() + level.slice(1);
       refs.push(`his ${label} progressed from ${first.best} to ${last.best} ${unit} (${levelLabel} range)`);
 
       if (refs.length >= 2) break;
@@ -842,6 +842,85 @@ const ReportNarrative = {
       return bPct - aPct;
     });
 
-    return improvements.slice(0, 5);
+    return improvements;
+  },
+
+  /**
+   * Get all traits marked as "improved" as readable labels.
+   */
+  getImprovedTraitLabels(review) {
+    const labels = [];
+    if (!review) return labels;
+    for (const pillar of ['technical', 'tactical', 'physical', 'mental']) {
+      for (const key of (review[pillar]?.improved || [])) {
+        const label = REPORT_TRAITS[pillar]?.traits[key];
+        if (label) labels.push(label);
+      }
+    }
+    return labels;
+  },
+
+  /**
+   * Generate a polished trial narrative from bullet points.
+   * @param {object} player — player object
+   * @param {object} trial — { clubName, date, bullets }
+   * @returns {string} narrative paragraph
+   */
+  generateTrialNarrative(player, trial) {
+    const name = player.firstName || 'The player';
+    const club = trial.clubName || 'the club';
+    const raw = (trial.bullets || '').trim();
+    if (!raw) return '';
+
+    // Split bullets: comma-separated, newline-separated, or bullet-point separated
+    const items = raw
+      .split(/[,\n]+/)
+      .map(s => s.replace(/^[-•*]\s*/, '').trim())
+      .filter(Boolean);
+
+    if (items.length === 0) return '';
+
+    // Separate positive vs areas-to-improve (look for keywords)
+    const negativeKeywords = ['needs', 'needs to', 'improve', 'lack', 'weak', 'struggle', 'work on', 'develop', 'inconsistent', 'limited'];
+    const positives = [];
+    const areas = [];
+
+    for (const item of items) {
+      const lower = item.toLowerCase();
+      if (negativeKeywords.some(kw => lower.includes(kw))) {
+        areas.push(item);
+      } else {
+        positives.push(item);
+      }
+    }
+
+    // Build narrative
+    const sentences = [];
+    const dateStr = trial.date
+      ? new Date(trial.date).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+      : null;
+
+    // Opening
+    const timeRef = dateStr ? ` in ${dateStr}` : '';
+    if (positives.length > 0) {
+      if (positives.length === 1) {
+        sentences.push(`During his trial at ${club}${timeRef}, ${name} demonstrated ${positives[0].toLowerCase()}, earning positive feedback from the coaching staff.`);
+      } else if (positives.length === 2) {
+        sentences.push(`During his trial at ${club}${timeRef}, ${name} demonstrated ${positives[0].toLowerCase()} as well as ${positives[1].toLowerCase()}, making a positive impression on the coaching staff.`);
+      } else {
+        const last = positives.pop();
+        sentences.push(`During his trial at ${club}${timeRef}, ${name} showcased several notable qualities including ${positives.map(p => p.toLowerCase()).join(', ')}, and ${last.toLowerCase()}.`);
+      }
+    } else {
+      sentences.push(`${name} participated in a trial at ${club}${timeRef}.`);
+    }
+
+    // Areas
+    if (areas.length > 0) {
+      const areaText = areas.map(a => a.toLowerCase()).join(' and ');
+      sentences.push(`The coaching staff identified ${areaText} as areas for continued development, which aligns with the focus areas in his current training plan.`);
+    }
+
+    return sentences.join(' ');
   },
 };

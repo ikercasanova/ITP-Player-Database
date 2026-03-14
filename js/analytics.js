@@ -355,7 +355,7 @@ const Analytics = {
   // ══════════════════════════════════════════════════════════════
 
   buildOverviewTab(stats, players) {
-    const levelLabels = { poor: 'Poor', average: 'Average', good: 'Good', elite: 'Elite' };
+    const levelLabels = { poor: 'Below Avg', average: 'Average', good: 'Good', elite: 'Elite' };
     const levelOrder = ['elite', 'good', 'average', 'poor'];
 
     // Summary cards
@@ -588,7 +588,7 @@ const Analytics = {
         { key: 'elite', label: 'Elite', color: colors.elite },
         { key: 'good', label: 'Good', color: colors.good },
         { key: 'average', label: 'Avg', color: colors.average },
-        { key: 'poor', label: 'Poor', color: colors.poor }
+        { key: 'poor', label: 'Below Avg', color: colors.poor }
       ];
 
       const bandEdges = [
@@ -716,7 +716,7 @@ const Analytics = {
 
     // Session summary cards
     const testsRun = Object.values(sessionStats.tests).filter(t => t.count > 0).length;
-    const levelLabels = { poor: 'Poor', average: 'Average', good: 'Good', elite: 'Elite' };
+    const levelLabels = { poor: 'Below Avg', average: 'Average', good: 'Good', elite: 'Elite' };
     const levelOrder = ['elite', 'good', 'average', 'poor'];
 
     let sessionDominant = 'average';

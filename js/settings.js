@@ -94,7 +94,7 @@ const Settings = {
           <thead>
             <tr>
               <th>Test</th>
-              <th style="color:var(--bench-poor)">Poor</th>
+              <th style="color:var(--bench-poor)">Below Avg</th>
               <th style="color:var(--bench-avg)">Avg</th>
               <th style="color:var(--bench-good)">Good</th>
               <th style="color:var(--bench-elite)">Elite</th>
