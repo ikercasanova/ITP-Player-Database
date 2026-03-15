@@ -79,9 +79,13 @@
 
 /* ── Trait Legend ─────────────────────────────────────────────── */
 
-.trait-legend-s { color: #38A169; font-weight: 600; }
-.trait-legend-w { color: #E53E3E; font-weight: 600; }
-.trait-legend-i { color: #3182CE; font-weight: 600; }
+.trait-legend-s  { color: #38A169; font-weight: 600; }
+.trait-legend-si { color: #38A169; font-weight: 600; }
+.trait-legend-si::after { content: ' \2191'; color: #3182CE; }
+.trait-legend-w  { color: #E53E3E; font-weight: 600; }
+.trait-legend-wi { color: #E53E3E; font-weight: 600; }
+.trait-legend-wi::after { content: ' \2191'; color: #3182CE; }
+.trait-legend-i  { color: #3182CE; font-weight: 600; }
 
 /* ── Trait Pillar & Grid ─────────────────────────────────────── */
 
@@ -143,6 +147,44 @@
   color: #2B6CB0;
 }
 
+.trait-chip[data-mode="strength-improved"] {
+  background: rgba(56, 161, 105, 0.12);
+  border-color: #38A169;
+  color: #276749;
+  padding-right: 26px;
+  position: relative;
+}
+
+.trait-chip[data-mode="strength-improved"]::after {
+  content: '\2191';
+  position: absolute;
+  right: 7px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #3182CE;
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.trait-chip[data-mode="weakness-improved"] {
+  background: rgba(229, 62, 62, 0.12);
+  border-color: #E53E3E;
+  color: #C53030;
+  padding-right: 26px;
+  position: relative;
+}
+
+.trait-chip[data-mode="weakness-improved"]::after {
+  content: '\2191';
+  position: absolute;
+  right: 7px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #3182CE;
+  font-weight: 700;
+  font-size: 13px;
+}
+
 /* ── Trial Cards ─────────────────────────────────────────────── */
 
 .trial-card {
@@ -174,8 +216,34 @@
   border-color: var(--red);
 }
 
-.trial-club { flex: 1; margin-bottom: 0; }
-.trial-date { width: 140px; margin-bottom: 0; }
+.trial-club  { flex: 1; margin-bottom: 0; }
+.trial-coach { flex: 0.7; margin-bottom: 0; }
+.trial-date  { width: 140px; margin-bottom: 0; }
+
+.trial-card-meta {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.trial-level { flex: 1; margin-bottom: 0; }
+.trial-tier  { width: 100px; margin-bottom: 0; }
+
+.report-toggle-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--gray-700);
+  margin-bottom: 10px;
+  cursor: pointer;
+}
+
+.report-toggle-row input[type="checkbox"] {
+  accent-color: var(--red);
+  width: 16px;
+  height: 16px;
+}
 
 .trial-remove {
   font-size: 18px;
@@ -514,6 +582,16 @@
 
 .rpt-pillar-text em {
   color: var(--gray-500);
+}
+
+/* ── Benchmark Reference ─────────────────────────────────────── */
+
+.rpt-bench-ref {
+  font-size: 11px;
+  color: var(--gray-500);
+  font-style: italic;
+  margin-bottom: 10px;
+  padding-left: 13px;
 }
 
 /* ── Performance Test Cards ──────────────────────────────────── */

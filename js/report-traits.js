@@ -639,7 +639,7 @@ const ReportNarrative = {
    * @param {Array} trials — trial report objects
    * @returns {string} comprehensive evaluation narrative
    */
-  generateCoachEvaluation(player, developmentReview, coachNotes, trials) {
+  generateCoachEvaluation(player, developmentReview, coachNotes, trials, endOfSeason = false) {
     const name = player.firstName || 'The player';
     const seed = _hashName(name + 'eval');
     const paragraphs = [];
@@ -663,8 +663,8 @@ const ReportNarrative = {
       if (trialRef) paragraphs.push(trialRef);
     }
 
-    // 5. Forward-looking closer
-    const closer = ReportNarrative._buildCloser(player, developmentReview, seed);
+    // 5. Closer (forward-looking or end-of-season farewell)
+    const closer = ReportNarrative._buildCloser(player, developmentReview, seed, endOfSeason);
     if (closer) paragraphs.push(closer);
 
     return paragraphs.join('\n\n');
@@ -701,7 +701,7 @@ const ReportNarrative = {
     if (improvements.length === 0) return null;
 
     improvements.sort((a, b) => b.improvement - a.improvement);
-    const top = improvements.slice(0, 3);
+    const top = improvements.slice(0, 4);
 
     const parts = top.map(t => `${t.name} (${t.from} → ${t.to} ${t.unit})`);
     if (parts.length === 1) {
@@ -721,11 +721,11 @@ const ReportNarrative = {
       }
     }
     if (allStrengths.length === 0) return null;
-    if (allStrengths.length <= 3) {
-      return `${name}'s key strengths — ${allStrengths.join(', ')} — make him a valuable contributor to the team.`;
+    if (allStrengths.length <= 4) {
+      return `${name}'s key strengths — ${allStrengths.join(', ')} — make him a valuable and well-rounded contributor to the team.`;
     }
-    const shown = allStrengths.slice(0, 4);
-    return `${name}'s key strengths — ${shown.slice(0, -1).join(', ')}, and ${shown[shown.length - 1]} — make him a well-rounded and valuable contributor.`;
+    const shown = allStrengths.slice(0, 5);
+    return `${name}'s key strengths — ${shown.slice(0, -1).join(', ')}, and ${shown[shown.length - 1]} — highlight his multifaceted development and make him a well-rounded contributor.`;
   },
 
   _buildTrialReferences(trials, name) {
@@ -745,7 +745,7 @@ const ReportNarrative = {
     return `${name} has been on trial at ${clubNames.join(' and ')}, receiving positive feedback from coaching staff at both clubs.`;
   },
 
-  _buildCloser(player, review, seed) {
+  _buildCloser(player, review, seed, endOfSeason = false) {
     const name = player.firstName || 'The player';
 
     // Check for weaknesses to reference growth areas
@@ -758,6 +758,20 @@ const ReportNarrative = {
           if (label) allWeaknesses.push(label.toLowerCase());
         }
       }
+    }
+
+    if (endOfSeason) {
+      const eosClosers = [
+        `It was exciting to see ${name} grow both on and off the field this season. With continued dedication and the right development environment, ${name} has strong potential to reach the next level of his career.`,
+        `It was a pleasure working with ${name} this season. His commitment to the program has been outstanding, and we are excited about his future development.`,
+        `${name} has had a remarkable season of growth. We look forward to seeing him continue to develop and reach new heights in the seasons ahead.`,
+      ];
+
+      if (allWeaknesses.length > 0) {
+        const area = allWeaknesses[0];
+        return `Continued focus on ${area} will further elevate ${name}'s game. ` + eosClosers[seed % eosClosers.length];
+      }
+      return eosClosers[seed % eosClosers.length];
     }
 
     const closers = [
@@ -799,6 +813,55 @@ const ReportNarrative = {
       for (const key of (review[pillar]?.weaknesses || [])) {
         const label = REPORT_TRAITS[pillar]?.traits[key];
         if (label) labels.push(label);
+      }
+    }
+    return labels;
+  },
+
+  /**
+   * Get strengths + standalone improved traits for the Key Strengths section.
+   * Traits that are both strength+improved appear once (as strengths).
+   * Standalone improved traits get an "(Improved)" suffix.
+   */
+  getStrengthAndImprovedLabels(review) {
+    const labels = [];
+    const seen = new Set();
+    if (!review) return labels;
+
+    // First: all strength traits (includes strength-improved)
+    for (const pillar of ['technical', 'tactical', 'physical', 'mental']) {
+      for (const key of (review[pillar]?.strengths || [])) {
+        const label = REPORT_TRAITS[pillar]?.traits[key];
+        if (label) { labels.push(label); seen.add(key); }
+      }
+    }
+
+    // Then: standalone improved traits not already a strength
+    for (const pillar of ['technical', 'tactical', 'physical', 'mental']) {
+      for (const key of (review[pillar]?.improved || [])) {
+        if (seen.has(key)) continue;
+        const label = REPORT_TRAITS[pillar]?.traits[key];
+        if (label) { labels.push(`${label} (Improved)`); seen.add(key); }
+      }
+    }
+
+    return labels;
+  },
+
+  /**
+   * Get test-derived strengths for tests rated "good" or "elite".
+   * Used to pad Key Strengths when trait-based items are insufficient.
+   */
+  getTestDerivedStrengths(player) {
+    const labels = [];
+    if (!player.tests || !player.ageGroup) return labels;
+
+    for (const [key, testData] of Object.entries(player.tests)) {
+      if (!testData?.best) continue;
+      const { level } = Benchmarks.evaluate(player.ageGroup, key, testData.best);
+      if (level === 'good' || level === 'elite') {
+        const def = TEST_DEFS[key];
+        if (def) labels.push(`${def.name} (${level === 'elite' ? 'Elite' : 'Good'})`);
       }
     }
     return labels;
@@ -902,17 +965,25 @@ const ReportNarrative = {
 
     // Opening
     const timeRef = dateStr ? ` in ${dateStr}` : '';
+    const levelRef = trial.competitionLevel
+      ? ` at the ${trial.competitionLevel}${trial.tier ? ' Tier ' + trial.tier : ''} level`
+      : '';
     if (positives.length > 0) {
       if (positives.length === 1) {
-        sentences.push(`During his trial at ${club}${timeRef}, ${name} demonstrated ${positives[0].toLowerCase()}, earning positive feedback from the coaching staff.`);
+        sentences.push(`During his trial at ${club}${levelRef}${timeRef}, ${name} demonstrated ${positives[0].toLowerCase()}, earning positive feedback from the coaching staff.`);
       } else if (positives.length === 2) {
-        sentences.push(`During his trial at ${club}${timeRef}, ${name} demonstrated ${positives[0].toLowerCase()} as well as ${positives[1].toLowerCase()}, making a positive impression on the coaching staff.`);
+        sentences.push(`During his trial at ${club}${levelRef}${timeRef}, ${name} demonstrated ${positives[0].toLowerCase()} as well as ${positives[1].toLowerCase()}, making a positive impression on the coaching staff.`);
       } else {
         const last = positives.pop();
-        sentences.push(`During his trial at ${club}${timeRef}, ${name} showcased several notable qualities including ${positives.map(p => p.toLowerCase()).join(', ')}, and ${last.toLowerCase()}.`);
+        sentences.push(`During his trial at ${club}${levelRef}${timeRef}, ${name} showcased several notable qualities including ${positives.map(p => p.toLowerCase()).join(', ')}, and ${last.toLowerCase()}.`);
       }
     } else {
-      sentences.push(`${name} participated in a trial at ${club}${timeRef}.`);
+      sentences.push(`${name} participated in a trial at ${club}${levelRef}${timeRef}.`);
+    }
+
+    // Coach reference
+    if (trial.coachName) {
+      sentences.push(`Coach ${trial.coachName} evaluated ${name} across multiple training sessions and match situations.`);
     }
 
     // Areas

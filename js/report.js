@@ -12,6 +12,7 @@ const Report = {
   _trials: [],
   _coachNotes: '',
   _mediaLinks: [],
+  _endOfSeason: false,
 
   init() {},
 
@@ -28,6 +29,7 @@ const Report = {
     Report._trials = player.trials ? JSON.parse(JSON.stringify(player.trials)) : [];
     Report._coachNotes = player.coachNotes || '';
     Report._mediaLinks = player.mediaLinks ? JSON.parse(JSON.stringify(player.mediaLinks)) : [];
+    Report._endOfSeason = player.endOfSeason || false;
 
     const container = document.getElementById('report-content');
     container.innerHTML = Report._renderBuilder(player);
@@ -66,7 +68,7 @@ const Report = {
         <!-- ── Trait Selectors ─────────────────────────────── -->
         <div class="report-section">
           <div class="report-section-title">Development Review</div>
-          <p class="report-section-desc">Click a trait to cycle: <span class="trait-legend-s">Strength</span> <span class="trait-legend-w">Weakness</span> <span class="trait-legend-i">Improved</span></p>
+          <p class="report-section-desc">Click to cycle: <span class="trait-legend-s">Strength</span> <span class="trait-legend-si">Str+Improved</span> <span class="trait-legend-w">Weakness</span> <span class="trait-legend-wi">Weak+Improved</span> <span class="trait-legend-i">Improved</span></p>
           ${Report._renderTraitSelectors()}
         </div>
 
@@ -81,7 +83,11 @@ const Report = {
         <!-- ── Coach Notes ────────────────────────────────── -->
         <div class="report-section">
           <div class="report-section-title">Coach Notes</div>
-          <p class="report-section-desc">Personal observations to weave into the Head Coach evaluation.</p>
+          <p class="report-section-desc">Personal observations to weave into the Coaching Staff evaluation.</p>
+          <label class="report-toggle-row">
+            <input type="checkbox" id="report-end-of-season" ${Report._endOfSeason ? 'checked' : ''}>
+            <span>End-of-season report</span>
+          </label>
           <textarea id="report-coach-notes" class="report-textarea" rows="4" placeholder="e.g. William has shown tremendous growth this season. His attitude in training has been exemplary...">${Report._coachNotes}</textarea>
         </div>
 
@@ -113,10 +119,15 @@ const Report = {
         <div class="trait-pillar-label">${pillar.label}</div>
         <div class="trait-grid">`;
       for (const [traitKey, traitLabel] of Object.entries(pillar.traits)) {
+        const inStr = rev.strengths.includes(traitKey);
+        const inWeak = rev.weaknesses.includes(traitKey);
+        const inImp = rev.improved.includes(traitKey);
         let mode = 'none';
-        if (rev.strengths.includes(traitKey)) mode = 'strength';
-        else if (rev.weaknesses.includes(traitKey)) mode = 'weakness';
-        else if (rev.improved.includes(traitKey)) mode = 'improved';
+        if (inStr && inImp) mode = 'strength-improved';
+        else if (inWeak && inImp) mode = 'weakness-improved';
+        else if (inStr) mode = 'strength';
+        else if (inWeak) mode = 'weakness';
+        else if (inImp) mode = 'improved';
         html += `<button class="trait-chip" data-pillar="${pillarKey}" data-trait="${traitKey}" data-mode="${mode}">${traitLabel}</button>`;
       }
       html += `</div></div>`;
@@ -134,8 +145,21 @@ const Report = {
       <div class="trial-card" data-index="${i}">
         <div class="trial-card-header">
           <input class="trial-input trial-club" placeholder="Club name" value="${Report._esc(t.clubName || '')}">
+          <input class="trial-input trial-coach" placeholder="Coach name" value="${Report._esc(t.coachName || '')}">
           <input class="trial-input trial-date" type="date" value="${t.date || ''}">
           <button class="btn-icon trial-remove" title="Remove trial">&times;</button>
+        </div>
+        <div class="trial-card-meta">
+          <select class="trial-input trial-level">
+            <option value="">Competition Level</option>
+            <option value="U-17" ${t.competitionLevel === 'U-17' ? 'selected' : ''}>U-17</option>
+            <option value="U-19" ${t.competitionLevel === 'U-19' ? 'selected' : ''}>U-19</option>
+            <option value="Senior" ${t.competitionLevel === 'Senior' ? 'selected' : ''}>Senior</option>
+          </select>
+          <select class="trial-input trial-tier">
+            <option value="">Tier</option>
+            ${[1,2,3,4,5,6,7,8].map(n => `<option value="${n}" ${t.tier == n ? 'selected' : ''}>Tier ${n}</option>`).join('')}
+          </select>
         </div>
         <textarea class="trial-input trial-bullets" placeholder="Bullet points: good pressing, strong in 1v1 duels, needs better first touch..." rows="3">${Report._esc(t.bullets || t.strengthsNoted || '')}</textarea>
         <div class="trial-gen-row">
@@ -166,7 +190,7 @@ const Report = {
   // ── Event Binding ────────────────────────────────────────────
 
   _bindEvents(container, player) {
-    // Trait chip clicks — cycle: none → strength → weakness → improved → none
+    // Trait chip clicks — 6-state cycle: none → strength → strength-improved → weakness → weakness-improved → improved → none
     container.querySelectorAll('.trait-chip').forEach(chip => {
       chip.addEventListener('click', () => {
         const pillar = chip.dataset.pillar;
@@ -180,13 +204,22 @@ const Report = {
         rev.improved = rev.improved.filter(t => t !== trait);
 
         // Cycle to next mode
-        const next = mode === 'none' ? 'strength'
-                   : mode === 'strength' ? 'weakness'
-                   : mode === 'weakness' ? 'improved'
-                   : 'none';
-        if (next === 'strength') rev.strengths.push(trait);
-        else if (next === 'weakness') rev.weaknesses.push(trait);
-        else if (next === 'improved') rev.improved.push(trait);
+        let next;
+        switch (mode) {
+          case 'none':              next = 'strength'; break;
+          case 'strength':          next = 'strength-improved'; break;
+          case 'strength-improved': next = 'weakness'; break;
+          case 'weakness':          next = 'weakness-improved'; break;
+          case 'weakness-improved': next = 'improved'; break;
+          case 'improved':          next = 'none'; break;
+          default:                  next = 'none';
+        }
+
+        if (next === 'strength')          rev.strengths.push(trait);
+        if (next === 'strength-improved') { rev.strengths.push(trait); rev.improved.push(trait); }
+        if (next === 'weakness')          rev.weaknesses.push(trait);
+        if (next === 'weakness-improved') { rev.weaknesses.push(trait); rev.improved.push(trait); }
+        if (next === 'improved')          rev.improved.push(trait);
 
         chip.dataset.mode = next;
       });
@@ -194,7 +227,7 @@ const Report = {
 
     // Add trial
     container.querySelector('#btn-add-trial').addEventListener('click', () => {
-      Report._trials.push({ clubName: '', date: '', bullets: '', generatedText: '' });
+      Report._trials.push({ clubName: '', coachName: '', competitionLevel: '', tier: '', date: '', bullets: '', generatedText: '' });
       container.querySelector('#report-trials-list').innerHTML = Report._renderTrialsList();
       Report._bindTrialEvents(container);
     });
@@ -208,9 +241,12 @@ const Report = {
     });
     Report._bindMediaEvents(container);
 
-    // Coach notes
+    // Coach notes + end-of-season toggle
     container.querySelector('#report-coach-notes').addEventListener('input', (e) => {
       Report._coachNotes = e.target.value;
+    });
+    container.querySelector('#report-end-of-season').addEventListener('change', (e) => {
+      Report._endOfSeason = e.target.checked;
     });
 
     // Save draft
@@ -254,12 +290,18 @@ const Report = {
 
       // Text inputs
       const clubEl = card.querySelector('.trial-club');
+      const coachEl = card.querySelector('.trial-coach');
       const dateEl = card.querySelector('.trial-date');
+      const levelEl = card.querySelector('.trial-level');
+      const tierEl = card.querySelector('.trial-tier');
       const bulletsEl = card.querySelector('.trial-bullets');
       const genEl = card.querySelector('.trial-generated');
 
       if (clubEl) clubEl.addEventListener('input', () => { Report._trials[idx].clubName = clubEl.value; });
+      if (coachEl) coachEl.addEventListener('input', () => { Report._trials[idx].coachName = coachEl.value; });
       if (dateEl) dateEl.addEventListener('input', () => { Report._trials[idx].date = dateEl.value; });
+      if (levelEl) levelEl.addEventListener('change', () => { Report._trials[idx].competitionLevel = levelEl.value; });
+      if (tierEl) tierEl.addEventListener('change', () => { Report._trials[idx].tier = tierEl.value; });
       if (bulletsEl) bulletsEl.addEventListener('input', () => { Report._trials[idx].bullets = bulletsEl.value; });
       if (genEl) genEl.addEventListener('input', () => { Report._trials[idx].generatedText = genEl.value; });
     });
@@ -291,6 +333,7 @@ const Report = {
     player.trials = Report._trials;
     player.coachNotes = Report._coachNotes;
     player.mediaLinks = Report._mediaLinks;
+    player.endOfSeason = Report._endOfSeason;
     DB.save(player);
   },
 
@@ -487,6 +530,7 @@ const Report = {
     return `
       <div class="rpt-section">
         <div class="rpt-heading">Performance Tests</div>
+        <div class="rpt-bench-ref">Benchmarks: German Top Academy Standards for ${player.ageGroup}</div>
         ${html}
         <div class="rpt-bench-legend">
           <span class="rpt-bench-key" data-level="poor">Below Avg</span>
@@ -500,7 +544,17 @@ const Report = {
   // ── Key Strengths + Areas of Opportunity ───────────────────
 
   _renderStrengthsAndOpportunities(player) {
-    const strengths = ReportNarrative.getStrengthLabels(Report._review);
+    const strengths = ReportNarrative.getStrengthAndImprovedLabels(Report._review);
+
+    // Pad to minimum 5 using test-derived strengths if needed
+    if (strengths.length < 5) {
+      const testStrengths = ReportNarrative.getTestDerivedStrengths(player);
+      for (const ts of testStrengths) {
+        if (strengths.length >= 5) break;
+        if (!strengths.includes(ts)) strengths.push(ts);
+      }
+    }
+
     const weaknesses = ReportNarrative.getWeaknessLabels(Report._review);
 
     if (strengths.length === 0 && weaknesses.length === 0) return '';
@@ -596,9 +650,15 @@ const Report = {
       const text = t.generatedText || t.bullets || '';
       if (!t.clubName && !text) return '';
 
+      const levelStr = t.competitionLevel
+        ? `<span class="rpt-trial-date">&middot; ${t.competitionLevel}${t.tier ? ' Tier ' + t.tier : ''}</span>`
+        : '';
+
       return `<div class="rpt-trial">
         <div class="rpt-trial-header">
           <strong>${t.clubName || 'Club Trial'}</strong>
+          ${levelStr}
+          ${t.coachName ? `<span class="rpt-trial-date">&middot; Coach: ${t.coachName}</span>` : ''}
           ${dateStr ? `<span class="rpt-trial-date">&middot; ${dateStr}</span>` : ''}
         </div>
         ${text ? `<div class="rpt-trial-text">${text}</div>` : ''}
@@ -614,18 +674,18 @@ const Report = {
       </div>`;
   },
 
-  // ── Head Coach Evaluation ──────────────────────────────────
+  // ── Coaching Staff Evaluation ───────────────────────────────
 
   _renderCoachEvaluation(player) {
     const coachEval = ReportNarrative.generateCoachEvaluation(
-      player, Report._review, Report._coachNotes, Report._trials
+      player, Report._review, Report._coachNotes, Report._trials, Report._endOfSeason
     );
 
     if (!coachEval) return '';
 
     return `
       <div class="rpt-section">
-        <div class="rpt-heading">Head Coach Evaluation</div>
+        <div class="rpt-heading">Coaching Staff Evaluation</div>
         <div class="rpt-coach-eval">${coachEval}</div>
       </div>`;
   },
