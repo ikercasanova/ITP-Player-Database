@@ -69,8 +69,9 @@ const Roster = {
   renderTile(player) {
     const initials = (player.firstName?.[0] || '') + (player.lastName?.[0] || '');
 
+    const posY = player.photoPositionY ?? 25;
     const photoHTML = player.photoBase64
-      ? `<img class="tile-photo" src="${player.photoBase64}" alt="">`
+      ? `<img class="tile-photo" src="${player.photoBase64}" alt="" style="object-position: center ${posY}%">`
       : `<div class="tile-initials">${initials}</div>`;
 
     const positions = (player.positions || []).slice(0, 3);

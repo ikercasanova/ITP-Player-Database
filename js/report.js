@@ -359,9 +359,8 @@ const Report = {
             ${Report._renderDevelopmentReview(player)}
             <hr class="rpt-divider">
             ${Report._renderPerformanceTests(player)}
-            ${Report._renderStrengthsAndOpportunities(player)}
+            ${Report._renderDevelopedAreasAndOpportunities(player)}
             ${Report._renderProgressionCharts(player)}
-            ${Report._renderSeasonHighlights(player)}
             ${Report._renderTrials(player)}
             ${Report._renderCoachEvaluation(player)}
             ${Report._renderMedia()}
@@ -385,6 +384,9 @@ const Report = {
 
   _renderHeader(player) {
     const today = new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+    const meta = DB.getMeta();
+    const season = meta.activeSeason || '25-26';
+    const seasonDisplay = `Season 20${season.split('-')[0]}/20${season.split('-')[1]}`;
     return `
       <div class="rpt-header-banner">
         <img src="assets/logos/koln-fs.webp" alt="" class="rpt-logo">
@@ -392,7 +394,10 @@ const Report = {
           <div class="rpt-title">ITP Family Report</div>
           <div class="rpt-subtitle">1. FC K&ouml;ln Football School &middot; International Talent Pathway</div>
         </div>
-        <div class="rpt-date">${today}</div>
+        <div class="rpt-header-right">
+          <div class="rpt-season">${seasonDisplay}</div>
+          <div class="rpt-date">${today}</div>
+        </div>
       </div>`;
   },
 
@@ -404,20 +409,23 @@ const Report = {
     const positions = (player.positions || []).map(p => typeof p === 'string' ? p : p.code).join(' / ') || '—';
     const initials = (player.firstName?.[0] || '') + (player.lastName?.[0] || '');
 
+    const posY = player.photoPositionY ?? 25;
     const photoHTML = player.photoBase64
-      ? `<img src="${player.photoBase64}" alt="" class="rpt-player-photo">`
+      ? `<img src="${player.photoBase64}" alt="" class="rpt-player-photo" style="object-position: center ${posY}%">`
       : `<div class="rpt-player-initials">${initials}</div>`;
 
     return `
       <div class="rpt-player-hero">
-        ${photoHTML}
-        <div class="rpt-player-details">
-          <div class="rpt-player-name">${player.firstName} ${player.lastName}</div>
-          <div class="rpt-player-meta">${player.ageGroup || '—'} &middot; ${positions} &middot; ${player.nationality || '—'}</div>
-          <div class="rpt-info-grid">
-            <div class="rpt-info-row"><span class="rpt-info-label">Date of Birth</span><span class="rpt-info-value">${dob}</span></div>
-            <div class="rpt-info-row"><span class="rpt-info-label">Age</span><span class="rpt-info-value">${age || '—'}</span></div>
-            <div class="rpt-info-row"><span class="rpt-info-label">Foot</span><span class="rpt-info-value">${player.foot || '—'}</span></div>
+        <div class="rpt-player-hero-inner">
+          ${photoHTML}
+          <div class="rpt-player-details">
+            <div class="rpt-player-name">${player.firstName} <span class="rpt-player-surname">${player.lastName}</span></div>
+            <div class="rpt-player-meta">${player.ageGroup || '—'} &middot; ${positions} &middot; ${player.nationality || '—'}</div>
+            <div class="rpt-info-grid">
+              <div class="rpt-info-row"><span class="rpt-info-label">Date of Birth</span><span class="rpt-info-value">${dob}</span></div>
+              <div class="rpt-info-row"><span class="rpt-info-label">Age</span><span class="rpt-info-value">${age || '—'}</span></div>
+              <div class="rpt-info-row"><span class="rpt-info-label">Foot</span><span class="rpt-info-value">${player.foot || '—'}</span></div>
+            </div>
           </div>
         </div>
       </div>`;
@@ -510,12 +518,30 @@ const Report = {
           }).join('');
         }
 
+        // Benchmark threshold scale
+        const thresh = Benchmarks.getThresholds(player.ageGroup, tk);
+        let threshHTML = '';
+        if (thresh) {
+          const dirLabel = def.lowerIsBetter ? '\u2193 better' : '\u2191 better';
+          threshHTML = `
+            <div class="rpt-test-thresholds">
+              <div class="rpt-thresh-scale">
+                <span class="rpt-thresh-mark" data-level="poor">${thresh.poor}</span>
+                <span class="rpt-thresh-mark" data-level="average">${thresh.average}</span>
+                <span class="rpt-thresh-mark" data-level="good">${thresh.good}</span>
+                <span class="rpt-thresh-mark" data-level="elite">${thresh.elite}</span>
+              </div>
+              <div class="rpt-thresh-direction">${dirLabel}</div>
+            </div>`;
+        }
+
         catCards += `
-          <div class="rpt-test-card">
+          <div class="rpt-test-card" data-level="${level}">
             <div class="rpt-test-card-name">
               ${def.name} <span class="rpt-test-card-level" data-level="${level}">${levelLabel}</span>
             </div>
             <div class="rpt-test-card-sessions">${sessionsHTML}</div>
+            ${threshHTML}
           </div>`;
       }
 
@@ -543,7 +569,7 @@ const Report = {
 
   // ── Key Strengths + Areas of Opportunity ───────────────────
 
-  _renderStrengthsAndOpportunities(player) {
+  _renderDevelopedAreasAndOpportunities(player) {
     const strengths = ReportNarrative.getStrengthAndImprovedLabels(Report._review);
 
     // Pad to minimum 5 using test-derived strengths if needed
@@ -555,17 +581,33 @@ const Report = {
       }
     }
 
+    // Absorb test improvement metrics from Season Highlights
+    const testImprovements = ReportNarrative.getBiggestImprovements(player);
+    const improvementItems = testImprovements.slice(0, 3).map(imp => {
+      const arrow = imp.lowerIsBetter ? '\u2212' : '+';
+      return `${imp.name}: ${imp.from} \u2192 ${imp.to}${imp.unit} (${arrow}${imp.pctChange})`;
+    });
+
     const weaknesses = ReportNarrative.getWeaknessLabels(Report._review);
 
-    if (strengths.length === 0 && weaknesses.length === 0) return '';
+    if (strengths.length === 0 && weaknesses.length === 0 && improvementItems.length === 0) return '';
+
+    // Build left card: traits first, then improvement metrics
+    let leftHTML = '';
+    if (strengths.length > 0) {
+      leftHTML += `<ul class="rpt-bullet-list">${strengths.map(s => `<li>${s}</li>`).join('')}</ul>`;
+    }
+    if (improvementItems.length > 0) {
+      leftHTML += `<div class="rpt-improvement-divider"></div>`;
+      leftHTML += `<ul class="rpt-bullet-list rpt-improvement-list">${improvementItems.map(item => `<li class="rpt-improvement-metric">${item}</li>`).join('')}</ul>`;
+    }
+    if (!leftHTML) leftHTML = '<p class="rpt-muted">No areas selected.</p>';
 
     return `
       <div class="rpt-two-col">
         <div class="rpt-col-card">
-          <div class="rpt-heading">Key Strengths</div>
-          ${strengths.length > 0
-            ? `<ul class="rpt-bullet-list">${strengths.map(s => `<li>${s}</li>`).join('')}</ul>`
-            : '<p class="rpt-muted">No strengths selected.</p>'}
+          <div class="rpt-heading">Key Developed Areas</div>
+          ${leftHTML}
         </div>
         <div class="rpt-col-card">
           <div class="rpt-heading">Areas of Opportunity</div>
@@ -684,9 +726,11 @@ const Report = {
     if (!coachEval) return '';
 
     return `
-      <div class="rpt-section">
+      <div class="rpt-section rpt-coach-section">
         <div class="rpt-heading">Coaching Staff Evaluation</div>
-        <div class="rpt-coach-eval">${coachEval}</div>
+        <div class="rpt-coach-eval-frame">
+          <div class="rpt-coach-eval">${coachEval}</div>
+        </div>
       </div>`;
   },
 
@@ -715,7 +759,8 @@ const Report = {
       <div class="rpt-footer">
         <img src="assets/logos/koln-fs.webp" alt="" class="rpt-footer-logo">
         <span class="rpt-footer-text">ITP Family Report &mdash; ${player.firstName} ${player.lastName} &mdash; 1. FC K&ouml;ln Football School</span>
-      </div>`;
+      </div>
+      <div class="rpt-page-accent"></div>`;
   },
 
   // ── PDF Export ─────────────────────────────────────────────

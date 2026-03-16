@@ -41,6 +41,20 @@ const Profile = {
       });
     });
 
+    // Photo framing slider
+    const slider = container.querySelector('#photo-position-slider');
+    if (slider) {
+      const headerPhoto = container.querySelector('.profile-header-photo');
+      slider.addEventListener('input', (e) => {
+        if (headerPhoto) headerPhoto.style.objectPosition = `center ${e.target.value}%`;
+      });
+      slider.addEventListener('change', (e) => {
+        player.photoPositionY = parseInt(e.target.value, 10);
+        DB.save(player);
+        App.toast('Photo position saved');
+      });
+    }
+
     // Bench view toggle
     Profile._initBenchToggle(player);
   },
@@ -51,9 +65,17 @@ const Profile = {
     const weightLbs = App.kgToLbs(player.weightKg);
 
     // Photo header
+    const posY = player.photoPositionY ?? 25;
     const photoCSS = player.photoBase64
-      ? `<img class="profile-header-photo" src="${player.photoBase64}" alt="">`
+      ? `<img class="profile-header-photo" src="${player.photoBase64}" alt="" style="object-position: center ${posY}%">`
       : '';
+
+    const framingControl = player.photoBase64 ? `
+      <div class="photo-framing-control">
+        <input type="range" id="photo-position-slider" min="0" max="100"
+               value="${posY}" class="photo-position-slider">
+        <span class="photo-framing-label">Adjust</span>
+      </div>` : '';
 
     // Position pills
     const positions = (player.positions || []).map((p, i) => {
@@ -139,6 +161,7 @@ const Profile = {
             <div class="profile-name">${player.firstName}<br>${player.lastName}</div>
             ${player.ageGroup ? `<span class="profile-age-group">${player.ageGroup}</span>` : ''}
           </div>
+          ${framingControl}
         </div>
 
         <div class="profile-body">
