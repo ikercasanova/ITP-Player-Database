@@ -994,4 +994,104 @@ const ReportNarrative = {
 
     return sentences.join(' ');
   },
+
+  /**
+   * Generate a polished trial evaluation narrative from trait chips.
+   * @param {object} player — player object
+   * @param {object} evaluation — { traits: { technical: { strengths:[], weaknesses:[] }, ... }, generalNotes }
+   * @returns {string} narrative paragraph(s)
+   */
+  generateTrialEvaluation(player, evaluation) {
+    if (!evaluation?.traits) return '';
+
+    const name = player.firstName || 'The player';
+    const pillarOrder = ['technical', 'tactical', 'physical', 'mental'];
+    const sentences = [];
+
+    // Collect all strengths and weaknesses with phrases
+    const strengthSentences = [];
+    const weaknessSentences = [];
+
+    for (const pillar of pillarOrder) {
+      const data = evaluation.traits[pillar];
+      if (!data) continue;
+
+      const pillarLabel = REPORT_TRAITS[pillar]?.label || pillar;
+
+      // Strengths
+      if (data.strengths?.length > 0) {
+        const phrases = [];
+        for (const traitKey of data.strengths) {
+          const pool = TRAIT_PHRASES[traitKey]?.strength;
+          if (pool && pool.length > 0) {
+            // Pick deterministically based on trait key hash
+            const idx = traitKey.length % pool.length;
+            phrases.push(pool[idx]);
+          } else {
+            const label = REPORT_TRAITS[pillar]?.traits[traitKey];
+            if (label) phrases.push(label.toLowerCase());
+          }
+        }
+
+        if (phrases.length === 1) {
+          strengthSentences.push(`${pillarLabel.toLowerCase()} qualities, demonstrating ${phrases[0]}`);
+        } else if (phrases.length === 2) {
+          strengthSentences.push(`${pillarLabel.toLowerCase()} ability, showing ${phrases[0]} as well as ${phrases[1]}`);
+        } else {
+          const last = phrases.pop();
+          strengthSentences.push(`${pillarLabel.toLowerCase()} quality, including ${phrases.join(', ')}, and ${last}`);
+        }
+      }
+
+      // Weaknesses
+      if (data.weaknesses?.length > 0) {
+        const phrases = [];
+        for (const traitKey of data.weaknesses) {
+          const pool = TRAIT_PHRASES[traitKey]?.weakness;
+          if (pool && pool.length > 0) {
+            const idx = traitKey.length % pool.length;
+            phrases.push(pool[idx]);
+          } else {
+            const label = REPORT_TRAITS[pillar]?.traits[traitKey];
+            if (label) phrases.push(label.toLowerCase());
+          }
+        }
+        weaknessSentences.push(...phrases);
+      }
+    }
+
+    // Build opening paragraph with trial period context
+    const trialDates = player.trialDates;
+    let periodRef = '';
+    if (trialDates?.start && trialDates?.end) {
+      const fmtDate = (iso) => new Date(iso + 'T12:00:00').toLocaleDateString('en-US', { month: 'long', day: 'numeric' });
+      periodRef = ` from ${fmtDate(trialDates.start)} to ${fmtDate(trialDates.end)}`;
+    } else if (trialDates?.start) {
+      const fmtDate = (iso) => new Date(iso + 'T12:00:00').toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+      periodRef = ` on ${fmtDate(trialDates.start)}`;
+    }
+
+    if (strengthSentences.length > 0) {
+      sentences.push(`During his trial${periodRef}, ${name} made a positive impression on the coaching staff. He displayed strong ${strengthSentences.join('. He also showed notable ')}.`);
+    } else {
+      sentences.push(`${name} participated in a trial${periodRef} with the ITP program.`);
+    }
+
+    // Areas for development paragraph
+    if (weaknessSentences.length > 0) {
+      if (weaknessSentences.length === 1) {
+        sentences.push(`The coaching staff identified ${weaknessSentences[0]} as an area for continued development.`);
+      } else {
+        const lastArea = weaknessSentences.pop();
+        sentences.push(`Areas identified for continued development include ${weaknessSentences.join(', ')}, and ${lastArea}.`);
+      }
+    }
+
+    // General notes
+    if (evaluation.generalNotes?.trim()) {
+      sentences.push(evaluation.generalNotes.trim());
+    }
+
+    return sentences.join(' ');
+  },
 };

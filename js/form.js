@@ -81,6 +81,25 @@ const PlayerForm = {
             <div class="form-section-title">Basic Info</div>
             <div class="form-row">
               <div class="form-field">
+                <label class="form-label">Player Type</label>
+                <div class="player-type-toggle" id="player-type-toggle">
+                  <button type="button" class="type-btn ${(p.playerType || 'registered') === 'registered' ? 'active' : ''}" data-type="registered">Registered</button>
+                  <button type="button" class="type-btn ${p.playerType === 'trial' ? 'active' : ''}" data-type="trial">Trial</button>
+                </div>
+              </div>
+            </div>
+            <div class="form-row trial-dates-row" id="trial-dates-row" style="${p.playerType === 'trial' ? '' : 'display:none'}">
+              <div class="form-field">
+                <label class="form-label" for="f-trialStart">Trial Start</label>
+                <input class="form-input" type="date" id="f-trialStart" value="${p.trialDates?.start || ''}">
+              </div>
+              <div class="form-field">
+                <label class="form-label" for="f-trialEnd">Trial End</label>
+                <input class="form-input" type="date" id="f-trialEnd" value="${p.trialDates?.end || ''}">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-field">
                 <label class="form-label" for="f-firstName">First Name</label>
                 <input class="form-input" type="text" id="f-firstName" value="${p.firstName || ''}" autocomplete="off">
               </div>
@@ -206,6 +225,19 @@ const PlayerForm = {
       });
     }
 
+    // Player type toggle
+    const typeToggle = container.querySelector('#player-type-toggle');
+    if (typeToggle) {
+      typeToggle.addEventListener('click', e => {
+        const btn = e.target.closest('.type-btn');
+        if (!btn) return;
+        typeToggle.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const trialRow = container.querySelector('#trial-dates-row');
+        trialRow.style.display = btn.dataset.type === 'trial' ? '' : 'none';
+      });
+    }
+
     // Pitch selector
     PlayerForm.buildPitchSelector(container);
     PlayerForm.renderSelectedPositions(container);
@@ -220,6 +252,9 @@ const PlayerForm = {
   savePlayer(container) {
     const g = id => container.querySelector('#' + id)?.value.trim() || '';
     const n = id => { const v = parseFloat(container.querySelector('#' + id)?.value); return isNaN(v) ? null : v; };
+
+    const activeType = container.querySelector('#player-type-toggle .type-btn.active');
+    const playerType = activeType?.dataset.type || 'registered';
 
     const data = {
       firstName:     g('f-firstName'),
@@ -236,7 +271,12 @@ const PlayerForm = {
       fullGameUrl:   g('f-fullGameUrl'),
       positions:     PlayerForm.selectedPositions.map(p => p.code),
       photoBase64:   PlayerForm.photoBase64,
+      playerType,
     };
+
+    if (playerType === 'trial') {
+      data.trialDates = { start: g('f-trialStart'), end: g('f-trialEnd') };
+    }
 
     // Compute BMI
     if (data.heightCm && data.weightKg) {
@@ -251,9 +291,16 @@ const PlayerForm = {
 
     if (PlayerForm.editingId) {
       data.id = PlayerForm.editingId;
-      // Preserve existing tests
+      // Preserve existing data not in the form
       const existing = DB.get(PlayerForm.editingId);
-      if (existing && existing.tests) data.tests = existing.tests;
+      if (existing) {
+        if (existing.tests) data.tests = existing.tests;
+        if (existing.trialEvaluation) data.trialEvaluation = existing.trialEvaluation;
+        if (existing.developmentReview) data.developmentReview = existing.developmentReview;
+        if (existing.trials) data.trials = existing.trials;
+        if (existing.coachNotes) data.coachNotes = existing.coachNotes;
+        if (existing.mediaLinks) data.mediaLinks = existing.mediaLinks;
+      }
     }
 
     const saved = DB.save(data);

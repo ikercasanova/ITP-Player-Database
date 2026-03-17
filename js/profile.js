@@ -160,6 +160,7 @@ const Profile = {
           <div class="profile-header-info">
             <div class="profile-name">${player.firstName}<br>${player.lastName}</div>
             ${player.ageGroup ? `<span class="profile-age-group">${player.ageGroup}</span>` : ''}
+            ${player.playerType === 'trial' ? '<span class="profile-trial-badge">TRIAL</span>' : ''}
           </div>
           ${framingControl}
         </div>
@@ -177,7 +178,9 @@ const Profile = {
         </div>
 
         <div class="profile-actions">
-          <button class="btn btn-primary" onclick="location.hash='#report/${player.id}'">Generate Report</button>
+          ${player.playerType === 'trial'
+            ? `<button class="btn btn-primary" onclick="location.hash='#trial-report/${player.id}'">Trial Report</button>`
+            : `<button class="btn btn-primary" onclick="location.hash='#report/${player.id}'">Generate Report</button>`}
           <button class="btn btn-outline" onclick="location.hash='#edit/${player.id}'">Edit Player</button>
           <button class="btn btn-danger" onclick="App.confirmDelete(DB.get('${player.id}'), () => { App.toast('Player deleted'); location.hash='#roster'; })">Delete</button>
         </div>

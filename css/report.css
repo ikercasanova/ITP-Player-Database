@@ -1162,6 +1162,220 @@
   background: linear-gradient(90deg, #E3000F 0%, #E3000F 30%, transparent 100%);
 }
 
+/* ═══════════════════════════════════════════════════════════════
+   TRIAL EVALUATION REPORT
+═══════════════════════════════════════════════════════════════ */
+
+/* ── Builder: Trait Legend ────────────────────────────────────── */
+
+.trl-legend-s { color: #38A169; font-weight: 600; }
+.trl-legend-w { color: #E53E3E; font-weight: 600; }
+
+/* ── Builder: Recommendation Toggle ──────────────────────────── */
+
+.trl-rec-toggle {
+  display: flex;
+  gap: 8px;
+}
+
+.trl-rec-btn {
+  flex: 1;
+  padding: 10px 16px;
+  border: 2px solid var(--gray-200);
+  border-radius: var(--radius);
+  background: var(--white);
+  font-family: var(--font-cond);
+  font-weight: 700;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  color: var(--gray-500);
+}
+
+.trl-rec-btn:hover { border-color: var(--gray-300); }
+
+.trl-rec-offer.active {
+  background: rgba(56, 161, 105, 0.12);
+  border-color: #38A169;
+  color: #276749;
+}
+
+.trl-rec-revisit.active {
+  background: rgba(237, 179, 54, 0.12);
+  border-color: #D69E2E;
+  color: #975A16;
+}
+
+.trl-rec-pass.active {
+  background: rgba(229, 62, 62, 0.12);
+  border-color: #E53E3E;
+  color: #C53030;
+}
+
+/* ── Preview: Test Results Table ─────────────────────────────── */
+
+.trl-test-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12.5px;
+}
+
+.trl-test-table thead th {
+  font-family: var(--font-cond);
+  font-weight: 700;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--gray-500);
+  text-align: left;
+  padding: 8px 10px;
+  border-bottom: 2px solid var(--dark);
+}
+
+.trl-test-table tbody td {
+  padding: 7px 10px;
+  border-bottom: 1px solid var(--rpt-warm-200, #ECEAE4);
+}
+
+.trl-test-cat-row td {
+  font-family: var(--font-cond);
+  font-weight: 700;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--gray-500);
+  padding-top: 14px !important;
+  border-bottom: none !important;
+}
+
+.trl-test-name {
+  font-weight: 600;
+}
+
+.trl-test-value {
+  font-family: var(--font-cond);
+  font-weight: 800;
+  font-size: 15px;
+}
+
+.trl-test-unit {
+  color: var(--gray-500);
+  font-size: 11px;
+}
+
+.trl-test-level {
+  font-family: var(--font-cond);
+  font-weight: 800;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.trl-test-level[data-level="poor"]    { color: var(--bench-poor); }
+.trl-test-level[data-level="average"] { color: var(--bench-avg); }
+.trl-test-level[data-level="good"]    { color: var(--bench-good); }
+.trl-test-level[data-level="elite"]   { color: var(--bench-elite); }
+
+/* ── Preview: Recommendation Banner ──────────────────────────── */
+
+.trl-rec-banner {
+  font-family: var(--font-cond);
+  font-weight: 900;
+  font-size: 18px;
+  text-align: center;
+  padding: 14px 20px;
+  border-radius: 6px;
+  letter-spacing: 4px;
+  margin-bottom: 12px;
+}
+
+.trl-rec-banner-offer {
+  background: linear-gradient(110deg, #276749 0%, #38A169 100%);
+  color: #fff;
+}
+
+.trl-rec-banner-revisit {
+  background: linear-gradient(110deg, #975A16 0%, #D69E2E 100%);
+  color: #fff;
+}
+
+.trl-rec-banner-pass {
+  background: linear-gradient(110deg, #9B2C2C 0%, #E53E3E 100%);
+  color: #fff;
+}
+
+.trl-rec-text {
+  font-size: 12.5px;
+  line-height: 1.75;
+  color: #333;
+}
+
+/* ── Roster & Profile: Trial Badge ───────────────────────────── */
+
+.tile-trial-badge {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  background: rgba(227, 0, 15, 0.12);
+  color: var(--red);
+  font-family: var(--font-cond);
+  font-weight: 800;
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  border: 1.5px solid var(--red);
+  z-index: 2;
+}
+
+.profile-trial-badge {
+  display: inline-block;
+  background: rgba(227, 0, 15, 0.12);
+  color: var(--red);
+  font-family: var(--font-cond);
+  font-weight: 800;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  padding: 3px 12px;
+  border-radius: 12px;
+  border: 1.5px solid var(--red);
+  margin-top: 6px;
+}
+
+/* ── Form: Player Type Toggle ────────────────────────────────── */
+
+.player-type-toggle {
+  display: flex;
+  gap: 0;
+  border-radius: var(--radius);
+  overflow: hidden;
+  border: 1.5px solid var(--gray-200);
+}
+
+.player-type-toggle .type-btn {
+  flex: 1;
+  padding: 8px 16px;
+  border: none;
+  background: var(--white);
+  font-family: var(--font-cond);
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  color: var(--gray-500);
+}
+
+.player-type-toggle .type-btn.active {
+  background: var(--dark);
+  color: #fff;
+}
+
+.player-type-toggle .type-btn:first-child { border-right: 1px solid var(--gray-200); }
+
 /* ── Print / PDF Overrides ───────────────────────────────────── */
 
 @media print {

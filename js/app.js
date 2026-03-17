@@ -21,6 +21,7 @@ const App = {
     PlayerForm.init();
     Settings.init();
     Report.init();
+    TrialReport.init();
 
     // Route on hash change
     window.addEventListener('hashchange', () => App.route());
@@ -77,6 +78,9 @@ const App = {
         break;
       case 'report':
         if (param) Report.show(param);
+        break;
+      case 'trial-report':
+        if (param) TrialReport.show(param);
         break;
       case 'settings':
         Settings.show();

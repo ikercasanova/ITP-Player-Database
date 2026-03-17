@@ -31,8 +31,10 @@ const Roster = {
     const empty = document.getElementById('roster-empty');
     let players = DB.getAll();
 
-    // Filter by age group
-    if (Roster.activeGroup !== 'all') {
+    // Filter by age group or trial status
+    if (Roster.activeGroup === 'trials') {
+      players = players.filter(p => p.playerType === 'trial');
+    } else if (Roster.activeGroup !== 'all') {
       players = players.filter(p => p.ageGroup === Roster.activeGroup);
     }
 
@@ -91,6 +93,7 @@ const Roster = {
         <div class="tile-photo-wrap">
           ${photoHTML}
           ${player.ageGroup ? `<span class="tile-age-badge">${player.ageGroup}</span>` : ''}
+          ${player.playerType === 'trial' ? '<span class="tile-trial-badge">TRIAL</span>' : ''}
         </div>
         <div class="tile-info">
           <div class="tile-name">${player.firstName} ${player.lastName}</div>
