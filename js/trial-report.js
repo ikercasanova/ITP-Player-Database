@@ -55,7 +55,7 @@ const TrialReport = {
       coachNotesRaw: '',
       coachAssessment: '',
       recommendation: '',
-      recommendationSummary: ''
+      decisionSummary: ''
     };
   },
 
@@ -105,13 +105,11 @@ const TrialReport = {
 
         <!-- ── Recommendation ─────────────────────────────── -->
         <div class="report-section">
-          <div class="report-section-title">Recommendation</div>
+          <div class="report-section-title">Decision</div>
           <div class="trl-rec-toggle" id="trl-rec-toggle">
-            <button type="button" class="trl-rec-btn trl-rec-offer ${ev.recommendation === 'offer' ? 'active' : ''}" data-rec="offer">Offer</button>
-            <button type="button" class="trl-rec-btn trl-rec-revisit ${ev.recommendation === 'revisit' ? 'active' : ''}" data-rec="revisit">Revisit</button>
-            <button type="button" class="trl-rec-btn trl-rec-pass ${ev.recommendation === 'pass' ? 'active' : ''}" data-rec="pass">Pass</button>
+            <button type="button" class="trl-rec-btn trl-rec-offer ${ev.recommendation === 'accepted' ? 'active' : ''}" data-rec="accepted">Accepted</button>
+            <button type="button" class="trl-rec-btn trl-rec-pass ${ev.recommendation === 'not-accepted' ? 'active' : ''}" data-rec="not-accepted">Not Accepted</button>
           </div>
-          <textarea class="report-textarea" id="trl-rec-summary" rows="3" placeholder="Summary / reasoning..." style="margin-top:10px">${TrialReport._esc(ev.recommendationSummary)}</textarea>
         </div>
 
         <!-- ── Actions ────────────────────────────────────── -->
@@ -224,7 +222,7 @@ const TrialReport = {
     const ev = TrialReport._evaluation;
     ev.coachNotesRaw = container.querySelector('#trl-coach-notes')?.value || '';
     ev.coachAssessment = container.querySelector('#trl-coach-assessment')?.value || '';
-    ev.recommendationSummary = container.querySelector('#trl-rec-summary')?.value || '';
+    ev.decisionSummary = container.querySelector('#trl-rec-summary')?.value || '';
   },
 
   _saveDraft() {
@@ -280,13 +278,14 @@ const TrialReport = {
       </div>
       <div class="report-preview-scroll">
         <div class="report-pages" id="trl-report-pages">
-          <div class="rpt-page">
+          <div class="rpt-page rpt-page-watermark">
             ${TrialReport._renderHeader(seasonLabel)}
             ${TrialReport._renderPlayerHero(player)}
             <hr class="rpt-divider">
-            ${TrialReport._renderStrengths(ev)}
-            ${TrialReport._renderAreas(ev)}
+            ${TrialReport._renderTwoColEval(ev)}
+            <hr class="rpt-divider">
             ${TrialReport._renderCoachAssessment(ev)}
+            <hr class="rpt-divider">
             ${TrialReport._renderRecommendation(ev)}
             ${TrialReport._renderFooter(player)}
           </div>
@@ -312,7 +311,7 @@ const TrialReport = {
         <img src="assets/logos/koln-fs.webp" alt="" class="rpt-logo">
         <div class="rpt-header-banner-text">
           <div class="rpt-title">Trial Evaluation</div>
-          <div class="rpt-subtitle">International Talent Program</div>
+          <div class="rpt-subtitle">International Talent Pathway</div>
         </div>
         <div class="rpt-header-right">
           <div class="rpt-season">${seasonLabel}</div>
@@ -327,12 +326,6 @@ const TrialReport = {
     const age = App.computeAge(player.dateOfBirth);
     const dob = player.dateOfBirth ? new Date(player.dateOfBirth + 'T12:00:00').toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : '—';
     const positions = (player.positions || []).map(p => typeof p === 'string' ? p : p.code).join(' / ') || '—';
-    const initials = (player.firstName?.[0] || '') + (player.lastName?.[0] || '');
-
-    const posY = player.photoPositionY ?? 25;
-    const photoHTML = player.photoBase64
-      ? `<img src="${player.photoBase64}" alt="" class="rpt-player-photo" style="object-position: center ${posY}%">`
-      : `<div class="rpt-player-initials">${initials}</div>`;
 
     let trialPeriod = '—';
     if (player.trialDates?.start && player.trialDates?.end) {
@@ -344,74 +337,75 @@ const TrialReport = {
 
     return `
       <div class="rpt-player-hero">
-        <div class="rpt-player-hero-inner">
-          ${photoHTML}
-          <div class="rpt-player-details">
-            <div class="rpt-player-name">${player.firstName} <span class="rpt-player-surname">${player.lastName}</span></div>
-            <div class="rpt-player-meta">${player.ageGroup || '—'} &middot; ${positions} &middot; ${player.nationality || '—'}</div>
-            <div class="rpt-info-grid">
-              <div class="rpt-info-row"><span class="rpt-info-label">Date of Birth</span><span class="rpt-info-value">${dob}</span></div>
-              <div class="rpt-info-row"><span class="rpt-info-label">Age</span><span class="rpt-info-value">${age || '—'}</span></div>
-              <div class="rpt-info-row"><span class="rpt-info-label">Foot</span><span class="rpt-info-value">${player.foot || '—'}</span></div>
-              <div class="rpt-info-row"><span class="rpt-info-label">Trial Period</span><span class="rpt-info-value">${trialPeriod}</span></div>
-            </div>
-          </div>
+        <div class="rpt-player-name">${player.firstName} <span class="rpt-player-surname">${player.lastName}</span></div>
+        <div class="rpt-player-meta">${player.ageGroup || '—'} &middot; ${positions} &middot; ${player.nationality || '—'}</div>
+        <div class="rpt-info-grid">
+          <div class="rpt-info-row"><span class="rpt-info-label">Date of Birth</span><span class="rpt-info-value">${dob}</span></div>
+          <div class="rpt-info-row"><span class="rpt-info-label">Age</span><span class="rpt-info-value">${age || '—'}</span></div>
+          <div class="rpt-info-row"><span class="rpt-info-label">Foot</span><span class="rpt-info-value">${player.foot || '—'}</span></div>
+          <div class="rpt-info-row"><span class="rpt-info-label">Trial Period</span><span class="rpt-info-value">${trialPeriod}</span></div>
         </div>
       </div>`;
   },
 
-  // ── Strengths ─────────────────────────────────────────────
+  // ── Two-Column Strengths & Areas ────────────────────────────
 
-  _renderStrengths(ev) {
-    if (!ev.strengths || ev.strengths.length === 0) return '';
+  _renderTwoColEval(ev) {
+    const hasStrengths = ev.strengths && ev.strengths.length > 0;
+    const hasAreas = ev.areasOfOpportunity && ev.areasOfOpportunity.length > 0;
+    if (!hasStrengths && !hasAreas) return '';
 
-    const sentences = ev.strengthsSentences || [];
-    let html = '<div class="rpt-section"><div class="rpt-heading">Strengths</div><ul class="rpt-bullet-list">';
+    let html = '';
 
-    if (sentences.length > 0) {
-      for (const s of sentences) html += `<li>${TrialReport._esc(s)}</li>`;
-    } else {
-      const groups = TrialReport._groupTraitsByPillar(ev.strengths);
-      for (const [pillar, traits] of Object.entries(groups)) {
-        html += `<li><strong>${pillar}:</strong> ${traits.join(', ')}</li>`;
+    // Strengths
+    if (hasStrengths) {
+      html += '<div class="rpt-eval-section"><div class="rpt-eval-card strengths-card">';
+      html += '<div class="rpt-heading">Strengths</div>';
+      const sentences = ev.strengthsSentences || [];
+      html += '<ul class="rpt-bullet-list">';
+      if (sentences.length > 0) {
+        for (const s of sentences) html += `<li>${TrialReport._esc(s)}</li>`;
+      } else {
+        const groups = TrialReport._groupTraitsByPillar(ev.strengths);
+        for (const [pillar, traits] of Object.entries(groups)) {
+          html += `<li><strong>${pillar}:</strong> ${traits.join(', ')}</li>`;
+        }
       }
+      html += '</ul></div></div>';
     }
 
-    html += '</ul></div>';
+    // Areas of Opportunity
+    if (hasAreas) {
+      html += '<div class="rpt-eval-section"><div class="rpt-eval-card areas-card">';
+      html += '<div class="rpt-heading">Areas of Opportunity</div>';
+      const sentences = ev.areasSentences || [];
+      html += '<ul class="rpt-bullet-list">';
+      if (sentences.length > 0) {
+        for (const s of sentences) html += `<li>${TrialReport._esc(s)}</li>`;
+      } else {
+        const groups = TrialReport._groupTraitsByPillar(ev.areasOfOpportunity);
+        for (const [pillar, traits] of Object.entries(groups)) {
+          html += `<li><strong>${pillar}:</strong> ${traits.join(', ')}</li>`;
+        }
+      }
+      html += '</ul></div></div>';
+    }
+
     return html;
   },
 
-  // ── Areas of Opportunity ──────────────────────────────────
-
-  _renderAreas(ev) {
-    if (!ev.areasOfOpportunity || ev.areasOfOpportunity.length === 0) return '';
-
-    const sentences = ev.areasSentences || [];
-    let html = '<div class="rpt-section"><div class="rpt-heading">Areas of Opportunity</div><ul class="rpt-bullet-list">';
-
-    if (sentences.length > 0) {
-      for (const s of sentences) html += `<li>${TrialReport._esc(s)}</li>`;
-    } else {
-      const groups = TrialReport._groupTraitsByPillar(ev.areasOfOpportunity);
-      for (const [pillar, traits] of Object.entries(groups)) {
-        html += `<li><strong>${pillar}:</strong> ${traits.join(', ')}</li>`;
-      }
-    }
-
-    html += '</ul></div>';
-    return html;
-  },
-
-  // ── Coaching Staff Assessment ─────────────────────────────────────
+  // ── Coaching Staff Assessment (framed band) ───────────────
 
   _renderCoachAssessment(ev) {
     const text = ev.coachAssessment || ev.coachNotesRaw || '';
     if (!text) return '';
 
     return `
-      <div class="rpt-section">
+      <div class="rpt-coach-band">
         <div class="rpt-heading">Coaching Staff Assessment</div>
-        <p class="rpt-text-fallback">${TrialReport._esc(text)}</p>
+        <div class="rpt-coach-quote">
+          <p class="rpt-coach-text">${TrialReport._esc(text)}</p>
+        </div>
       </div>`;
   },
 
@@ -464,10 +458,12 @@ Given a player's position, their strengths, and their areas of opportunity, writ
 - For areas of opportunity, frame positively. Focus on what the player can improve, not what they lack
 - Use the player's first name instead of "he", "the player", or "you"
 
-Return a JSON object with two arrays: {"strengths": ["sentence1", ...], "areas": ["sentence1", ...]}. No markdown.`,
+Also write a "decisionSummary": one short sentence (max 20 words) explaining the decision. Focus on the player's personality, character, attitude, and their potential to be developed. Do not focus on current skill level.
+
+Return a JSON object: {"strengths": ["sentence1", ...], "areas": ["sentence1", ...], "decisionSummary": "sentence"}. No markdown.`,
           messages: [{
             role: 'user',
-            content: `Player name: ${player.firstName}\nPosition: ${positions}\nStrengths: ${strengthLabels.join(', ') || 'none'}\nAreas of Opportunity: ${areaLabels.join(', ') || 'none'}`
+            content: `Player name: ${player.firstName}\nPosition: ${positions}\nStrengths: ${strengthLabels.join(', ') || 'none'}\nAreas of Opportunity: ${areaLabels.join(', ') || 'none'}\nDecision: ${ev.recommendation === 'accepted' ? 'Accepted' : ev.recommendation === 'not-accepted' ? 'Not Accepted' : 'pending'}\nCoach assessment: ${ev.coachAssessment || ev.coachNotesRaw || 'none'}`
           }]
         })
       });
@@ -484,6 +480,7 @@ Return a JSON object with two arrays: {"strengths": ["sentence1", ...], "areas":
 
       if (result.strengths) ev.strengthsSentences = result.strengths;
       if (result.areas) ev.areasSentences = result.areas;
+      if (result.decisionSummary) ev.decisionSummary = result.decisionSummary;
     } catch (err) {
       console.error('Trait sentence generation error:', err);
     }
@@ -523,7 +520,7 @@ Return a JSON object with two arrays: {"strengths": ["sentence1", ...], "areas":
           max_tokens: 512,
           system: `You are a football (soccer) youth development coach writing a "Coaching Staff Assessment" paragraph for a player evaluation report. This report is shared with the player and their parents.
 
-Take the coach's rough notes and turn them into one concise paragraph (3-4 sentences). Rules:
+Take the coach's rough notes and turn them into one short paragraph (2-3 sentences). Rules:
 - Use the coach's own observations as the main content — don't invent things they didn't say
 - Weave in the player's strengths and areas of opportunity naturally where they fit
 - Use simple, clear language that a teenager and their parents can understand
@@ -580,16 +577,19 @@ Coach's notes: ${rawNotes}`
   // ── Recommendation Banner ──────────────────────────────────
 
   _renderRecommendation(ev) {
-    if (!ev.recommendation && !ev.recommendationSummary) return '';
+    if (!ev.recommendation && !ev.decisionSummary) return '';
 
-    const labels = { offer: 'OFFER', revisit: 'REVISIT', pass: 'PASS' };
+    const labels = { accepted: 'ACCEPTED', 'not-accepted': 'NOT ACCEPTED' };
     const label = labels[ev.recommendation] || '';
+    const bannerClass = ev.recommendation === 'accepted' ? 'trl-rec-banner-accepted' : ev.recommendation === 'not-accepted' ? 'trl-rec-banner-not-accepted' : '';
 
     return `
-      <div class="rpt-section">
-        <div class="rpt-heading">Recommendation</div>
-        ${label ? `<div class="trl-rec-banner trl-rec-banner-${ev.recommendation}">${label}</div>` : ''}
-        ${ev.recommendationSummary ? `<p class="trl-rec-text">${TrialReport._esc(ev.recommendationSummary)}</p>` : ''}
+      <div class="rpt-rec-section">
+        <div class="rpt-section">
+          <div class="rpt-heading">Decision</div>
+          ${label ? `<div class="trl-rec-banner ${bannerClass}">${label}</div>` : ''}
+          ${ev.decisionSummary ? `<p class="trl-rec-text">${TrialReport._esc(ev.decisionSummary)}</p>` : ''}
+        </div>
       </div>`;
   },
 
@@ -599,7 +599,7 @@ Coach's notes: ${rawNotes}`
     return `
       <div class="rpt-footer">
         <img src="assets/logos/koln-fs.webp" alt="" class="rpt-footer-logo">
-        <span class="rpt-footer-text">ITP Trial Evaluation &mdash; ${player.firstName} ${player.lastName} &mdash; 1. FC K&ouml;ln Football School</span>
+        <span class="rpt-footer-text">ITP Trial Evaluation &mdash; ${player.firstName} ${player.lastName} &mdash; 1. FC K&ouml;ln International Talent Pathway</span>
       </div>
       <div class="rpt-page-accent"></div>`;
   },

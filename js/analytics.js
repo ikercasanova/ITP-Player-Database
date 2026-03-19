@@ -253,9 +253,10 @@ const Analytics = {
           const sessions = p.tests?.[testKey]?.sessions || [];
           if (sessions.length < 2) continue;
 
+          const first = sessions[0];
           const latest = sessions[sessions.length - 1];
           const previous = sessions[sessions.length - 2];
-          if (latest.best === null || previous.best === null) continue;
+          if (latest.best === null || first.best === null) continue;
 
           const def = TEST_DEFS[testKey];
           const thresh = Benchmarks.getThresholds(p.ageGroup, testKey);
@@ -264,9 +265,17 @@ const Analytics = {
           const range = Math.abs(thresh.poor - thresh.elite);
           if (range === 0) continue;
 
-          const diff = latest.best - previous.best;
-          const improvement = def.lowerIsBetter ? -diff : diff;
-          const normalizedPct = (improvement / range) * 100;
+          // Total improvement (first → latest)
+          const totalDiff = latest.best - first.best;
+          const totalImprovement = def.lowerIsBetter ? -totalDiff : totalDiff;
+          const normalizedPct = (totalImprovement / range) * 100;
+
+          // Latest change (previous → latest)
+          let latestDiff = null;
+          if (previous && previous.best !== null) {
+            const ld = latest.best - previous.best;
+            latestDiff = def.lowerIsBetter ? -ld : ld;
+          }
 
           if (normalizedPct > 0) {
             improvers.push({
@@ -274,9 +283,12 @@ const Analytics = {
               testKey,
               testName: def.name,
               unit: def.unit,
-              from: previous.best,
+              from: first.best,
               to: latest.best,
-              improvement,
+              totalImprovement,
+              latestDiff,
+              rawTotalDiff: totalDiff,
+              rawLatestDiff: previous ? (latest.best - previous.best) : null,
               normalizedPct
             });
           }
@@ -358,31 +370,37 @@ const Analytics = {
     const levelLabels = { poor: 'Below Avg', average: 'Average', good: 'Good', elite: 'Elite' };
     const levelOrder = ['elite', 'good', 'average', 'poor'];
 
-    // Summary cards
-    const summaryHTML = `
-      <div class="stat-highlights">
-        <div class="stat-card">
-          <div class="stat-card-value">${stats.totalPlayers}</div>
-          <div class="stat-card-label">Players</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-card-value">${stats.testedPlayers}</div>
-          <div class="stat-card-label">Tested</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-card-value">
-            <span class="bench-level-label" data-level="${stats.dominantLevel}" style="font-size:14px;padding:3px 12px">
-              ${levelLabels[stats.dominantLevel] || '\u2014'}
-            </span>
+    // Count total sessions
+    const sessionDates = new Set();
+    for (const p of players) {
+      if (!p.tests) continue;
+      for (const td of Object.values(p.tests)) {
+        for (const s of (td?.sessions || [])) {
+          if (s.date) sessionDates.add(s.date);
+        }
+      }
+    }
+
+    // 1. Team Snapshot — dark gradient banner
+    const snapshotHTML = `
+      <div class="overview-snapshot">
+        <div class="overview-snapshot-label">Team Snapshot</div>
+        <div class="overview-snapshot-row">
+          <div class="overview-snapshot-stat"><span class="overview-snapshot-value">${stats.totalPlayers}</span> <span class="overview-snapshot-unit">players</span></div>
+          <div class="overview-snapshot-stat"><span class="overview-snapshot-value">${stats.testedPlayers}</span> <span class="overview-snapshot-unit">tested</span></div>
+          <div class="overview-snapshot-stat"><span class="overview-snapshot-value">${sessionDates.size}</span> <span class="overview-snapshot-unit">sessions</span></div>
+          <div class="overview-snapshot-level">
+            <div class="overview-snapshot-level-label">Most Common Level</div>
+            <div class="overview-snapshot-level-value" data-level="${stats.dominantLevel}">${levelLabels[stats.dominantLevel] || '\u2014'}</div>
           </div>
-          <div class="stat-card-label">Dominant Level</div>
         </div>
       </div>`;
 
-    // Overall distribution bar
-    const overallBarHTML = stats.overallTotal > 0
+    // 2. Where Does the Team Stand?
+    const standingHTML = stats.overallTotal > 0
       ? `<div class="analytics-summary">
-          <h3 class="profile-section-title">Overall Distribution</h3>
+          <div class="overview-section-title">Where Does the Team Stand?</div>
+          <div class="overview-section-desc">How all test results compare to German Top Academy benchmarks. Each test result is classified into a level — this bar shows the overall spread.</div>
           ${Analytics.renderStackedBar(stats.overallDistribution, false)}
           <div class="dist-legend">
             ${levelOrder.map(l => {
@@ -397,24 +415,26 @@ const Analytics = {
         </div>`
       : '';
 
-    // Benchmark breakdown
+    // 3. Test-by-Test Breakdown
     const breakdownHTML = Analytics.renderBenchmarkBreakdown(stats);
 
-    // Biggest improvers
+    // 4. Who's Improving?
     const improvers = Analytics.computeImprovers(players);
     const improversHTML = Analytics.renderImprovers(improvers);
 
-    // Team progression chart
-    const progressionHTML = Analytics.renderTeamProgression(players);
+    // 5. Team Trends
+    const trendsHTML = Analytics.renderTeamProgression(players);
 
-    return summaryHTML + overallBarHTML + breakdownHTML + improversHTML + progressionHTML;
+    return snapshotHTML + standingHTML + breakdownHTML + improversHTML + trendsHTML;
   },
 
   renderBenchmarkBreakdown(stats) {
     const categories = Benchmarks.getTestsByCategory();
-    let rows = '';
+    let html = '';
+    let hasAny = false;
 
     for (const [catName, testKeys] of Object.entries(categories)) {
+      let catRows = '';
       for (const testKey of testKeys) {
         const testStats = stats.categories[catName]?.tests[testKey];
         if (!testStats || testStats.count === 0) continue;
@@ -422,92 +442,199 @@ const Analytics = {
         const total = testStats.distribution.poor + testStats.distribution.average +
                       testStats.distribution.good + testStats.distribution.elite;
         if (total === 0) continue;
+        hasAny = true;
 
-        rows += `
+        catRows += `
           <div class="breakdown-row">
             <div class="breakdown-label">${testStats.name}</div>
             <div class="breakdown-bar">${Analytics.renderStackedBar(testStats.distribution, true)}</div>
             <div class="breakdown-count">${testStats.count}</div>
           </div>`;
       }
+
+      if (catRows) {
+        html += `<div class="breakdown-cat-label">${catName}</div>${catRows}`;
+      }
     }
 
-    if (!rows) return '';
+    if (!hasAny) return '';
 
     return `
       <div class="analytics-summary">
-        <h3 class="profile-section-title">Benchmark Breakdown</h3>
+        <div class="overview-section-title">Test-by-Test Breakdown</div>
+        <div class="overview-section-desc">Player distribution per test — quickly spot where the team is strong and where it needs work. Each bar shows how many players fall into each benchmark level.</div>
         <div class="breakdown-header">
           <span></span><span></span><span class="breakdown-count-label">Tested</span>
         </div>
-        ${rows}
+        ${html}
       </div>`;
   },
 
   renderImprovers(improvers) {
     if (improvers.length === 0) return '';
 
+    const fmtDelta = (val, def) => {
+      if (val === null || val === undefined) return '\u2014';
+      const abs = Math.abs(val);
+      const formatted = abs < 1 ? abs.toFixed(2) : abs.toFixed(1);
+      const sign = val > 0 ? '+' : val < 0 ? '-' : '';
+      return `${sign}${formatted}`;
+    };
+
+    const rows = improvers.map((imp, i) => {
+      const def = TEST_DEFS[imp.testKey];
+      const fromVal = imp.from < 10 ? imp.from.toFixed(2) : imp.from;
+      const toVal = imp.to < 10 ? imp.to.toFixed(2) : imp.to;
+      const totalStr = fmtDelta(imp.rawTotalDiff, def);
+      const latestStr = imp.rawLatestDiff !== null ? fmtDelta(imp.rawLatestDiff, def) : '\u2014';
+
+      // Determine if latest is positive improvement
+      const latestGood = imp.latestDiff !== null && imp.latestDiff > 0;
+      const latestBad = imp.latestDiff !== null && imp.latestDiff < 0;
+      const latestCls = latestGood ? 'improver-latest-up' : latestBad ? 'improver-latest-down' : '';
+
+      return `
+        <div class="improver-row">
+          <span class="improver-rank">${i + 1}</span>
+          <div class="improver-info">
+            <a class="analytics-player-link" href="#profile/${imp.player.id}">${imp.player.firstName} ${imp.player.lastName}</a>
+          </div>
+          <span class="improver-test">${imp.testName}</span>
+          <span class="improver-progress">${fromVal} \u2192 ${toVal} ${imp.unit}</span>
+          <span class="improver-total"><span class="delta-badge delta-up">${totalStr}</span></span>
+          <span class="improver-latest ${latestCls}">${latestStr}</span>
+        </div>`;
+    }).join('');
+
     return `
       <div class="analytics-summary">
-        <h3 class="profile-section-title">Biggest Improvers</h3>
-        <div class="improvers-list">
-          ${improvers.map((imp, i) => {
-            const def = TEST_DEFS[imp.testKey];
-            const absDiff = Math.abs(imp.improvement);
-            const formatted = absDiff < 1 ? absDiff.toFixed(2) : absDiff.toFixed(1);
-            const sign = def.lowerIsBetter ? '-' : '+';
-            return `
-              <div class="improver-item">
-                <span class="improver-rank">${i + 1}</span>
-                <div class="improver-info">
-                  <a class="analytics-player-link" href="#profile/${imp.player.id}">${imp.player.firstName} ${imp.player.lastName}</a>
-                  <span class="improver-test">${imp.testName}</span>
-                </div>
-                <div class="improver-delta">
-                  <span class="delta-badge delta-up">${sign}${formatted} ${imp.unit}</span>
-                </div>
-              </div>`;
-          }).join('')}
+        <div class="overview-section-title">Who's Improving?</div>
+        <div class="overview-section-desc">Players with the biggest performance gains. "Total" shows growth from first to latest session. "Latest" shows change from the previous session.</div>
+        <div class="improver-header">
+          <span class="improver-rank-h"></span>
+          <span class="improver-info-h">Player</span>
+          <span class="improver-test-h">Test</span>
+          <span class="improver-progress-h">Progress</span>
+          <span class="improver-total-h">Total</span>
+          <span class="improver-latest-h">Latest</span>
         </div>
+        ${rows}
       </div>`;
   },
 
   renderTeamProgression(players) {
     const categories = Benchmarks.getTestsByCategory();
-    const allTestKeys = [];
-    for (const testKeys of Object.values(categories)) {
-      for (const tk of testKeys) allTestKeys.push(tk);
+    let html = '';
+    let hasAny = false;
+
+    for (const [catName, testKeys] of Object.entries(categories)) {
+      let sparklines = '';
+
+      for (const tk of testKeys) {
+        const data = Analytics.computeTeamAverages(players, tk);
+        if (data.length < 2) continue;
+        hasAny = true;
+
+        const def = TEST_DEFS[tk];
+        const sparkHTML = Analytics.renderSparkline(data, def, tk, players);
+        sparklines += `
+          <div class="trend-spark-card">
+            <div class="trend-spark-label">${def.name} (${def.unit})</div>
+            ${sparkHTML}
+          </div>`;
+      }
+
+      if (sparklines) {
+        html += `<div class="trend-cat-label">${catName}</div>
+          <div class="trend-spark-grid">${sparklines}</div>`;
+      }
     }
 
-    const testOptions = allTestKeys.filter(tk => {
-      const data = Analytics.computeTeamAverages(players, tk);
-      return data.length > 0;
-    });
-
-    if (testOptions.length === 0) return '';
-
-    if (!Analytics._progressionTest || !testOptions.includes(Analytics._progressionTest)) {
-      Analytics._progressionTest = testOptions[0];
-    }
-    const activeTest = Analytics._progressionTest;
-
-    const selectHTML = `
-      <select class="category-select" data-role="progression-test-select">
-        ${testOptions.map(tk =>
-          `<option value="${tk}" ${tk === activeTest ? 'selected' : ''}>${TEST_DEFS[tk].name}</option>`
-        ).join('')}
-      </select>`;
-
-    const chartHTML = Analytics.renderTeamProgressionChart(players, activeTest);
+    if (!hasAny) return '';
 
     return `
       <div class="analytics-summary">
-        <div class="progression-header">
-          <h3 class="profile-section-title" style="margin-bottom:0">Team Progression</h3>
-          ${selectHTML}
-        </div>
-        ${chartHTML}
+        <div class="overview-section-title">Team Trends</div>
+        <div class="overview-section-desc">Team average performance across testing sessions — grouped by category. Are we getting better over time?</div>
+        ${html}
       </div>`;
+  },
+
+  renderSparkline(data, def, testKey, players) {
+    const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const width = 280;
+    const height = 80;
+    const padLeft = 8;
+    const padRight = 8;
+    const padTop = 8;
+    const padBottom = 18;
+
+    const plotLeft = padLeft;
+    const plotRight = width - padRight;
+    const plotTop = padTop;
+    const plotBottom = height - padBottom;
+    const plotWidth = plotRight - plotLeft;
+    const plotHeight = plotBottom - plotTop;
+
+    const values = data.map(d => d.avg);
+    let yMin = Math.min(...values);
+    let yMax = Math.max(...values);
+    const range = yMax - yMin || 1;
+    yMin -= range * 0.1;
+    yMax += range * 0.1;
+
+    const valueToY = (v) => {
+      if (def.lowerIsBetter) return plotTop + ((v - yMin) / (yMax - yMin)) * plotHeight;
+      return plotBottom - ((v - yMin) / (yMax - yMin)) * plotHeight;
+    };
+
+    const xPositions = data.map((_, i) => {
+      if (data.length === 1) return plotLeft + plotWidth / 2;
+      return plotLeft + (i / (data.length - 1)) * plotWidth;
+    });
+
+    // Determine trend color
+    const firstVal = values[0];
+    const lastVal = values[values.length - 1];
+    const improved = def.lowerIsBetter ? lastVal < firstVal : lastVal > firstVal;
+    const lineColor = improved ? '#38A169' : '#E53E3E';
+
+    let svg = `<svg viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block">`;
+    svg += `<rect x="0" y="0" width="${width}" height="${height}" fill="#FAFAFA" rx="4"/>`;
+
+    // Line
+    if (data.length > 1) {
+      const linePoints = data.map((d, i) => `${xPositions[i].toFixed(1)},${valueToY(d.avg).toFixed(1)}`).join(' ');
+      svg += `<polyline points="${linePoints}" fill="none" stroke="${lineColor}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
+    }
+
+    // Dots — first and last only
+    for (let i = 0; i < data.length; i++) {
+      if (i !== 0 && i !== data.length - 1) continue;
+      const x = xPositions[i];
+      const y = valueToY(data[i].avg);
+      svg += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="3" fill="${lineColor}" stroke="white" stroke-width="1.5"/>`;
+
+      // Value label
+      const avgDisplay = data[i].avg < 10 ? data[i].avg.toFixed(2) : data[i].avg.toFixed(1);
+      const anchor = i === 0 ? 'start' : 'end';
+      const labelY = y < plotTop + 14 ? y + 12 : y - 6;
+      svg += `<text x="${x.toFixed(1)}" y="${labelY.toFixed(1)}" text-anchor="${anchor}" font-size="9" font-family="Barlow Condensed, sans-serif" font-weight="700" fill="#333">${avgDisplay}</text>`;
+    }
+
+    // Date labels — first and last
+    for (let i = 0; i < data.length; i++) {
+      if (i !== 0 && i !== data.length - 1) continue;
+      const x = xPositions[i];
+      const parts = data[i].date.split('-');
+      const monthIdx = parseInt(parts[1], 10) - 1;
+      const dateLabel = `${MONTHS[monthIdx]} ${parseInt(parts[2], 10)}`;
+      const anchor = i === 0 ? 'start' : 'end';
+      svg += `<text x="${x.toFixed(1)}" y="${plotBottom + 12}" text-anchor="${anchor}" font-size="8" font-family="Barlow, sans-serif" fill="#999">${dateLabel}</text>`;
+    }
+
+    svg += '</svg>';
+    return svg;
   },
 
   renderTeamProgressionChart(players, testKey) {

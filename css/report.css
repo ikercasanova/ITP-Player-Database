@@ -356,7 +356,7 @@
   width: 210mm;
   background: #fff;
   box-shadow: 0 2px 16px rgba(0,0,0,0.12);
-  padding: 0 16mm 20mm 16mm;
+  padding: 0 10mm 20mm 10mm;
   font-family: var(--font);
   font-size: 12.5px;
   color: #2A2A2A;
@@ -381,8 +381,8 @@
 
 .rpt-header-banner {
   background: linear-gradient(110deg, #111 0%, #2a0005 42%, #E3000F 100%);
-  margin: 0 -16mm 0 -16mm;
-  padding: 28px 16mm 24px 16mm;
+  margin: 0 -10mm 0 -10mm;
+  padding: 28px 10mm 24px 10mm;
   display: flex;
   align-items: center;
   gap: 16px;
@@ -462,8 +462,8 @@
 /* ── Player Hero Section ─────────────────────────────────────── */
 
 .rpt-player-hero {
-  margin: 0 -16mm;
-  padding: 22px 16mm 20px 16mm;
+  margin: 0 -10mm;
+  padding: 22px 10mm 20px 10mm;
   background: var(--rpt-warm-50);
   border-bottom: 1px solid var(--rpt-warm-200);
 }
@@ -930,8 +930,8 @@
 .rpt-bullet-list li {
   padding: 5px 0 5px 18px;
   position: relative;
-  font-size: 12.5px;
-  line-height: 1.55;
+  font-size: 14px;
+  line-height: 1.6;
 }
 
 .rpt-bullet-list li::before {
@@ -1056,8 +1056,8 @@
 
 .rpt-coach-section {
   background: var(--rpt-red-5);
-  margin: 0 -16mm;
-  padding: 20px 16mm 22px 16mm;
+  margin: 0 -10mm;
+  padding: 20px 10mm 22px 10mm;
   border-top: 1px solid var(--rpt-red-12);
   border-bottom: 1px solid var(--rpt-red-12);
 }
@@ -1131,8 +1131,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin: 32px -16mm 0 -16mm;
-  padding: 14px 16mm;
+  margin: 32px -10mm 0 -10mm;
+  padding: 14px 10mm;
   background: var(--rpt-warm-50);
   border-top: 2px solid var(--dark);
 }
@@ -1597,6 +1597,119 @@
   border-left: 3px solid var(--red);
 }
 
+/* ═══════════════════════════════════════════════════════════════
+   Trial Report Visual Enhancements
+═══════════════════════════════════════════════════════════════ */
+
+/* ── Watermark ── */
+.rpt-page-watermark::after {
+  content: '';
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 400px; height: 400px;
+  background-image: url('../assets/logos/koln-fs.webp');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  opacity: 0.04;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.rpt-page-watermark > * { position: relative; z-index: 1; }
+
+/* ── Strengths / Areas Sections ── */
+.rpt-eval-section {
+  padding: 0 10mm;
+  margin-bottom: 16px;
+}
+
+.rpt-eval-card {
+  padding: 18px 20px;
+  border-radius: 8px;
+}
+
+.rpt-eval-card .rpt-bullet-list li {
+  padding: 6px 0 6px 18px;
+  margin-bottom: 4px;
+}
+
+.rpt-eval-card.strengths-card {
+  background: rgba(56, 161, 105, 0.05);
+  border: 1px solid rgba(56, 161, 105, 0.15);
+}
+
+.rpt-eval-card.areas-card {
+  background: rgba(221, 107, 32, 0.05);
+  border: 1px solid rgba(221, 107, 32, 0.15);
+}
+
+.rpt-eval-card .rpt-heading { font-size: 11px; letter-spacing: 2px; }
+.rpt-eval-card.strengths-card .rpt-heading { color: #276749; border-bottom-color: #38A169; }
+.rpt-eval-card.areas-card .rpt-heading { color: #9B2C2C; border-bottom-color: #DD6B20; }
+
+.strengths-card .rpt-bullet-list li::before { background: #38A169; }
+.areas-card .rpt-bullet-list li::before { background: #DD6B20; }
+
+/* ── Coaching Staff Assessment Band ── */
+.rpt-coach-band {
+  background: rgba(227, 0, 15, 0.04);
+  border-top: 1px solid rgba(227, 0, 15, 0.12);
+  border-bottom: 1px solid rgba(227, 0, 15, 0.12);
+  padding: 20px 10mm 22px 10mm;
+}
+
+.rpt-coach-band .rpt-heading { margin-bottom: 12px; }
+
+.rpt-coach-quote {
+  position: relative;
+  padding-left: 20px;
+}
+
+.rpt-coach-quote::before {
+  content: '\201C';
+  position: absolute;
+  left: -4px; top: -10px;
+  font-family: var(--font-cond);
+  font-weight: 900; font-size: 48px;
+  color: rgba(227, 0, 15, 0.15);
+  line-height: 1;
+}
+
+.rpt-coach-text {
+  font-size: 14px;
+  line-height: 1.8;
+  color: #2A2A2A;
+  font-style: italic;
+}
+
+/* ── Recommendation Section ── */
+.rpt-rec-section {
+  padding: 0 10mm;
+  margin-top: 8px;
+}
+
+.trl-rec-banner-accepted {
+  background: linear-gradient(110deg, #276749 0%, #38A169 100%);
+}
+
+.trl-rec-banner-not-accepted {
+  background: linear-gradient(110deg, #9B2C2C 0%, #E53E3E 100%);
+}
+
+/* ── Print color adjustments ── */
+@media print {
+  .rpt-eval-card,
+  .rpt-coach-band,
+  .rpt-coach-quote::before,
+  .trl-rec-banner-accepted,
+  .trl-rec-banner-not-accepted {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}
+
 /* ── Bullet point preview in builder ── */
 .trl-bullets-preview {
   margin-top: 8px;
@@ -1630,34 +1743,10 @@
   border-radius: 50%;
 }
 
-/* ── Bullet points in PDF preview ── */
-.rpt-bullet-list {
-  list-style: none;
-  padding: 0;
-  margin: 6px 0 0 0;
-}
-
-.rpt-bullet-list li {
-  position: relative;
-  padding: 4px 0 4px 14px;
-  font-size: 10px;
-  line-height: 1.5;
-  color: var(--dark);
-}
-
-.rpt-bullet-list li::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 9px;
-  width: 5px;
-  height: 5px;
-  background: var(--red);
-  border-radius: 50%;
-}
+/* ── Bullet points in PDF preview (overridden by trial report enhancements) ── */
 
 .rpt-text-fallback {
-  font-size: 10px;
+  font-size: 14px;
   line-height: 1.6;
   color: var(--gray-700);
   margin-top: 4px;

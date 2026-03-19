@@ -1353,3 +1353,227 @@
 .session-row-highlight {
   background: rgba(56,161,105,0.05);
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   OVERVIEW REDESIGN — Guided Narrative Layout
+═══════════════════════════════════════════════════════════════ */
+
+/* ── Team Snapshot Banner ──────────────────────────────────── */
+.overview-snapshot {
+  background: linear-gradient(110deg, #111 0%, #2a0005 42%, #E3000F 100%);
+  padding: 18px 20px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  color: #fff;
+  position: relative;
+  overflow: hidden;
+}
+
+.overview-snapshot::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(-45deg, transparent, transparent 2px, rgba(255,255,255,0.03) 2px, rgba(255,255,255,0.03) 4px);
+  pointer-events: none;
+}
+
+.overview-snapshot-label {
+  font-family: var(--font-cond);
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 2.5px;
+  opacity: 0.5;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.overview-snapshot-row {
+  display: flex;
+  gap: 28px;
+  align-items: baseline;
+}
+
+.overview-snapshot-value {
+  font-family: var(--font-cond);
+  font-size: 28px;
+  font-weight: 800;
+}
+
+.overview-snapshot-unit {
+  font-size: 11px;
+  opacity: 0.6;
+}
+
+.overview-snapshot-level {
+  margin-left: auto;
+  text-align: right;
+}
+
+.overview-snapshot-level-label {
+  font-size: 11px;
+  opacity: 0.5;
+}
+
+.overview-snapshot-level-value {
+  font-family: var(--font-cond);
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.overview-snapshot-level-value[data-level="poor"]    { color: #FC8181; }
+.overview-snapshot-level-value[data-level="average"] { color: #F6AD55; }
+.overview-snapshot-level-value[data-level="good"]    { color: #68D391; }
+.overview-snapshot-level-value[data-level="elite"]   { color: #63B3ED; }
+
+/* ── Section Titles & Descriptions ─────────────────────────── */
+.overview-section-title {
+  font-family: var(--font-cond);
+  font-weight: 800;
+  font-size: 16px;
+  color: var(--dark);
+  margin-bottom: 2px;
+}
+
+.overview-section-desc {
+  font-size: 12px;
+  color: var(--gray-500);
+  line-height: 1.5;
+  margin-bottom: 14px;
+}
+
+/* ── Breakdown Category Labels ─────────────────────────────── */
+.breakdown-cat-label {
+  font-family: var(--font-cond);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--gray-500);
+  font-weight: 700;
+  margin-bottom: 6px;
+  margin-top: 12px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--gray-100);
+}
+
+.breakdown-cat-label:first-of-type { margin-top: 0; }
+
+/* ── Improver Table (new layout) ───────────────────────────── */
+.improver-header {
+  display: flex;
+  align-items: center;
+  padding: 6px 0;
+  font-family: var(--font-cond);
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--gray-500);
+  font-weight: 700;
+  border-bottom: 2px solid var(--dark);
+  gap: 8px;
+}
+
+.improver-rank-h  { width: 24px; }
+.improver-info-h  { flex: 1; }
+.improver-test-h  { width: 80px; text-align: center; }
+.improver-progress-h { width: 110px; text-align: center; }
+.improver-total-h { width: 65px; text-align: right; }
+.improver-latest-h { width: 55px; text-align: right; }
+
+.improver-row {
+  display: flex;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--gray-100);
+  gap: 8px;
+}
+
+.improver-row:last-child { border-bottom: none; }
+
+.improver-row .improver-rank {
+  width: 24px;
+  font-family: var(--font-cond);
+  font-weight: 800;
+  font-size: 13px;
+  color: var(--bench-elite);
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.improver-row:first-child .improver-rank { color: var(--red); }
+
+.improver-row .improver-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.improver-row .improver-test {
+  width: 80px;
+  font-size: 11px;
+  color: var(--gray-500);
+  text-align: center;
+}
+
+.improver-progress {
+  width: 110px;
+  font-size: 11px;
+  color: var(--gray-700);
+  text-align: center;
+}
+
+.improver-total {
+  width: 65px;
+  text-align: right;
+}
+
+.improver-latest {
+  width: 55px;
+  text-align: right;
+  font-family: var(--font-cond);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--gray-500);
+}
+
+.improver-latest-up  { color: var(--bench-good); }
+.improver-latest-down { color: var(--bench-poor); }
+
+/* ── Team Trends (sparkline grid) ──────────────────────────── */
+.trend-cat-label {
+  font-family: var(--font-cond);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--gray-500);
+  font-weight: 700;
+  margin-bottom: 8px;
+  margin-top: 14px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--gray-100);
+}
+
+.trend-cat-label:first-of-type { margin-top: 0; }
+
+.trend-spark-grid {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+
+.trend-spark-card {
+  flex: 1;
+  min-width: 180px;
+  max-width: 50%;
+  background: var(--gray-50);
+  border-radius: 6px;
+  padding: 10px;
+  border: 1px solid var(--gray-100);
+}
+
+.trend-spark-label {
+  font-family: var(--font-cond);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--gray-700);
+  margin-bottom: 6px;
+}
