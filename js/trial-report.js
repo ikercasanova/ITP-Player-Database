@@ -118,7 +118,6 @@ const TrialReport = {
           <button class="btn btn-primary" id="trl-btn-preview">Preview Report</button>
         </div>
 
-        <div id="trial-report-preview-area"></div>
       </div>`;
   },
 
@@ -269,26 +268,24 @@ const TrialReport = {
     const meta = DB.getMeta();
     const seasonLabel = `20${meta.activeSeason}`;
 
-    const previewArea = container.querySelector('#trial-report-preview-area');
+    const previewArea = document.getElementById('trial-report-preview-standalone');
 
     previewArea.innerHTML = `
       <div class="report-preview-toolbar">
         <button class="btn btn-primary" id="trl-btn-export-pdf">Export PDF</button>
         <button class="btn btn-outline" id="trl-btn-close-preview">Close Preview</button>
       </div>
-      <div class="report-preview-scroll">
-        <div class="report-pages" id="trl-report-pages">
-          <div class="rpt-page rpt-page-watermark">
-            ${TrialReport._renderHeader(seasonLabel)}
-            ${TrialReport._renderPlayerHero(player)}
-            <hr class="rpt-divider">
-            ${TrialReport._renderTwoColEval(ev)}
-            <hr class="rpt-divider">
-            ${TrialReport._renderCoachAssessment(ev)}
-            <hr class="rpt-divider">
-            ${TrialReport._renderRecommendation(ev)}
-            ${TrialReport._renderFooter(player)}
-          </div>
+      <div id="trl-report-pages">
+        <div class="rpt-page rpt-page-watermark">
+          ${TrialReport._renderHeader(seasonLabel)}
+          ${TrialReport._renderPlayerHero(player)}
+          <hr class="rpt-divider">
+          ${TrialReport._renderTwoColEval(ev)}
+          <hr class="rpt-divider">
+          ${TrialReport._renderCoachAssessment(ev)}
+          <hr class="rpt-divider">
+          ${TrialReport._renderRecommendation(ev)}
+          ${TrialReport._renderFooter(player)}
         </div>
       </div>`;
 
@@ -306,6 +303,13 @@ const TrialReport = {
   // ── Header Banner ───────────────────────────────────────────
 
   _renderHeader(seasonLabel) {
+    // Calculate prospect season (next season from active)
+    const meta = DB.getMeta();
+    const parts = (meta.activeSeason || '25-26').split('-');
+    const nextStart = parseInt(parts[1], 10);
+    const nextEnd = nextStart + 1;
+    const prospectLabel = `Prospect 20${nextStart}-${nextEnd}`;
+
     return `
       <div class="rpt-header-banner">
         <img src="assets/logos/koln-fs.webp" alt="" class="rpt-logo">
@@ -314,8 +318,7 @@ const TrialReport = {
           <div class="rpt-subtitle">International Talent Pathway</div>
         </div>
         <div class="rpt-header-right">
-          <div class="rpt-season">${seasonLabel}</div>
-          <div class="rpt-date">${new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</div>
+          <div class="rpt-season">${prospectLabel}</div>
         </div>
       </div>`;
   },
@@ -607,39 +610,67 @@ Coach's notes: ${rawNotes}`
   // ── PDF Export ──────────────────────────────────────────────
 
   _exportPDF() {
-    const pages = document.getElementById('trl-report-pages');
-    if (!pages) return;
+    const scripts = [
+      { global: 'html2canvas', src: 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js' },
+      { global: 'jspdf', src: 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js' }
+    ];
+    const toLoad = scripts.filter(s => typeof window[s.global] === 'undefined');
 
-    if (typeof html2pdf === 'undefined') {
-      const script = document.createElement('script');
-      script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
-      script.onload = () => TrialReport._doPDFExport(pages);
-      document.head.appendChild(script);
-    } else {
-      TrialReport._doPDFExport(pages);
+    if (toLoad.length === 0) {
+      TrialReport._doPDFExport();
+      return;
     }
+
+    let loaded = 0;
+    toLoad.forEach(s => {
+      const script = document.createElement('script');
+      script.src = s.src;
+      script.onload = () => { loaded++; if (loaded === toLoad.length) TrialReport._doPDFExport(); };
+      document.head.appendChild(script);
+    });
   },
 
-  _doPDFExport(element) {
+  async _doPDFExport() {
     const player = TrialReport._player;
     const filename = `ITP_Trial_Report_${player.firstName}_${player.lastName}.pdf`;
 
-    html2pdf()
-      .set({
-        margin: 0,
-        filename,
-        image: { type: 'jpeg', quality: 0.95 },
-        html2canvas: { scale: 2, useCORS: true, logging: false },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-        pagebreak: { mode: ['css', 'legacy'], avoid: '.rpt-section' }
-      })
-      .from(element)
-      .save()
-      .then(() => App.toast('PDF exported'))
-      .catch(err => {
-        console.error('PDF export error:', err);
-        alert('PDF export failed. Check console for details.');
+    // Screenshot the VISIBLE preview directly — bypass html2pdf pipeline
+    const source = document.querySelector('#trl-report-pages .rpt-page');
+    if (!source) return;
+
+    const btn = document.getElementById('trl-btn-export-pdf');
+    if (btn) { btn.disabled = true; btn.textContent = 'Exporting...'; }
+
+    try {
+      // Scroll the preview into view so html2canvas can see it
+      source.scrollIntoView({ block: 'start' });
+      await new Promise(r => setTimeout(r, 200));
+
+      const canvas = await html2canvas(source, {
+        scale: 2,
+        useCORS: true,
+        allowTaint: true,
+        logging: false,
+        backgroundColor: '#ffffff'
       });
+
+      const imgData = canvas.toDataURL('image/jpeg', 0.95);
+      const pageWidth = 210;
+      const pageHeight = 297;
+      const imgWidth = pageWidth;
+      const imgHeight = (canvas.height * pageWidth) / canvas.width;
+
+      const PDF = new jspdf.jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
+      PDF.addImage(imgData, 'JPEG', 0, 0, imgWidth, Math.min(imgHeight, pageHeight));
+      PDF.save(filename);
+
+      App.toast('PDF exported');
+    } catch (err) {
+      console.error('PDF export error:', err);
+      alert('PDF export failed: ' + err.message);
+    } finally {
+      if (btn) { btn.disabled = false; btn.textContent = 'Export PDF'; }
+    }
   },
 
   // ── Helpers ─────────────────────────────────────────────────

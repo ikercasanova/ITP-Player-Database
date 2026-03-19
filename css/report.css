@@ -331,14 +331,11 @@
 }
 
 .report-preview-scroll {
-  overflow-x: auto;
+  overflow: visible;
 }
 
 .report-pages {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 24px;
+  display: block;
 }
 
 /* ── A4 Page — Dynamic Flow ──────────────────────────────────── */
@@ -353,10 +350,11 @@
   --rpt-red-12:   rgba(227, 0, 15, 0.12);
   --rpt-green-5:  rgba(56, 161, 105, 0.05);
 
-  width: 210mm;
+  width: 794px;
+  max-width: 794px;
   background: #fff;
   box-shadow: 0 2px 16px rgba(0,0,0,0.12);
-  padding: 0 10mm 20mm 10mm;
+  padding: 0 38px 0 38px;
   font-family: var(--font);
   font-size: 12.5px;
   color: #2A2A2A;
@@ -381,8 +379,8 @@
 
 .rpt-header-banner {
   background: linear-gradient(110deg, #111 0%, #2a0005 42%, #E3000F 100%);
-  margin: 0 -10mm 0 -10mm;
-  padding: 28px 10mm 24px 10mm;
+  margin: 0 -38px 0 -38px;
+  padding: 28px 38px 24px 38px;
   display: flex;
   align-items: center;
   gap: 16px;
@@ -408,7 +406,6 @@
 .rpt-header-banner .rpt-logo {
   height: 52px;
   width: auto;
-  filter: brightness(0) invert(1);
   opacity: 0.95;
 }
 
@@ -462,8 +459,8 @@
 /* ── Player Hero Section ─────────────────────────────────────── */
 
 .rpt-player-hero {
-  margin: 0 -10mm;
-  padding: 22px 10mm 20px 10mm;
+  margin: 0 -38px;
+  padding: 22px 38px 20px 38px;
   background: var(--rpt-warm-50);
   border-bottom: 1px solid var(--rpt-warm-200);
 }
@@ -1056,8 +1053,8 @@
 
 .rpt-coach-section {
   background: var(--rpt-red-5);
-  margin: 0 -10mm;
-  padding: 20px 10mm 22px 10mm;
+  margin: 0 -38px;
+  padding: 20px 38px 22px 38px;
   border-top: 1px solid var(--rpt-red-12);
   border-bottom: 1px solid var(--rpt-red-12);
 }
@@ -1131,8 +1128,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin: 32px -10mm 0 -10mm;
-  padding: 14px 10mm;
+  margin: 32px -38px 0 -38px;
+  padding: 14px 38px;
   background: var(--rpt-warm-50);
   border-top: 2px solid var(--dark);
 }
@@ -1621,7 +1618,7 @@
 
 /* ── Strengths / Areas Sections ── */
 .rpt-eval-section {
-  padding: 0 10mm;
+  padding: 0 38px;
   margin-bottom: 16px;
 }
 
@@ -1657,7 +1654,7 @@
   background: rgba(227, 0, 15, 0.04);
   border-top: 1px solid rgba(227, 0, 15, 0.12);
   border-bottom: 1px solid rgba(227, 0, 15, 0.12);
-  padding: 20px 10mm 22px 10mm;
+  padding: 20px 38px 22px 38px;
 }
 
 .rpt-coach-band .rpt-heading { margin-bottom: 12px; }
@@ -1679,14 +1676,13 @@
 
 .rpt-coach-text {
   font-size: 14px;
-  line-height: 1.8;
+  line-height: 1.7;
   color: #2A2A2A;
-  font-style: italic;
 }
 
 /* ── Recommendation Section ── */
 .rpt-rec-section {
-  padding: 0 10mm;
+  padding: 0 38px;
   margin-top: 8px;
 }
 
