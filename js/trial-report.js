@@ -367,7 +367,7 @@ const TrialReport = {
       const sentences = ev.strengthsSentences || [];
       html += '<ul class="rpt-bullet-list">';
       if (sentences.length > 0) {
-        for (const s of sentences) html += `<li>${TrialReport._esc(s)}</li>`;
+        for (const s of sentences) html += `<li>${TrialReport._formatLabeledBullet(s)}</li>`;
       } else {
         const groups = TrialReport._groupTraitsByPillar(ev.strengths);
         for (const [pillar, traits] of Object.entries(groups)) {
@@ -384,7 +384,7 @@ const TrialReport = {
       const sentences = ev.areasSentences || [];
       html += '<ul class="rpt-bullet-list">';
       if (sentences.length > 0) {
-        for (const s of sentences) html += `<li>${TrialReport._esc(s)}</li>`;
+        for (const s of sentences) html += `<li>${TrialReport._formatLabeledBullet(s)}</li>`;
       } else {
         const groups = TrialReport._groupTraitsByPillar(ev.areasOfOpportunity);
         for (const [pillar, traits] of Object.entries(groups)) {
@@ -452,9 +452,11 @@ const TrialReport = {
           system: `You are writing bullet points for a youth football (soccer) player evaluation report shared with the player and their parents.
 
 Given a player's position, their strengths, and their areas of opportunity, write natural sentences that describe each group. Rules:
-- Write exactly 3 sentences for strengths and exactly 3 for areas of opportunity
-- Group related traits into one sentence naturally
-- Be specific to the player's position. Mention real game situations (e.g., "when receiving the ball in midfield", "during 1v1 defending on the wing")
+- Write exactly 3 items for strengths and exactly 3 for areas of opportunity
+- Each item MUST start with a short label (1-3 words) followed by a colon, then the description. Example: "Game Understanding: Ian reads the game well and positions himself intelligently in midfield"
+- The label should summarize the key trait in that bullet point
+- Group related traits into one item naturally
+- Be specific to the player's position. Mention real game situations
 - Use simple language a teenager and parents can understand
 - Do NOT use superlatives like "excellent", "exceptional", "outstanding". Use grounded words like "solid", "comfortable", "good", "showed"
 - Do NOT use dashes as punctuation
@@ -463,7 +465,7 @@ Given a player's position, their strengths, and their areas of opportunity, writ
 
 Also write a "decisionSummary": one short sentence (max 20 words) explaining the decision. Focus on the player's personality, character, attitude, and their potential to be developed. Do not focus on current skill level.
 
-Return a JSON object: {"strengths": ["sentence1", ...], "areas": ["sentence1", ...], "decisionSummary": "sentence"}. No markdown.`,
+Return a JSON object: {"strengths": ["Label: description", ...], "areas": ["Label: description", ...], "decisionSummary": "sentence"}. No markdown.`,
           messages: [{
             role: 'user',
             content: `Player name: ${player.firstName}\nPosition: ${positions}\nStrengths: ${strengthLabels.join(', ') || 'none'}\nAreas of Opportunity: ${areaLabels.join(', ') || 'none'}\nDecision: ${ev.recommendation === 'accepted' ? 'Accepted' : ev.recommendation === 'not-accepted' ? 'Not Accepted' : 'pending'}\nCoach assessment: ${ev.coachAssessment || ev.coachNotesRaw || 'none'}`
@@ -586,12 +588,19 @@ Coach's notes: ${rawNotes}`
     const label = labels[ev.recommendation] || '';
     const bannerClass = ev.recommendation === 'accepted' ? 'trl-rec-banner-accepted' : ev.recommendation === 'not-accepted' ? 'trl-rec-banner-not-accepted' : '';
 
+    const nextSteps = ev.recommendation === 'accepted'
+      ? 'Our administration team will follow up with an official offer and enrollment details shortly.'
+      : ev.recommendation === 'not-accepted'
+      ? 'We appreciate the time and effort during the trial period. We encourage continued development and wish the best for the future.'
+      : '';
+
     return `
       <div class="rpt-rec-section">
         <div class="rpt-section">
           <div class="rpt-heading">Decision</div>
           ${label ? `<div class="trl-rec-banner ${bannerClass}">${label}</div>` : ''}
           ${ev.decisionSummary ? `<p class="trl-rec-text">${TrialReport._esc(ev.decisionSummary)}</p>` : ''}
+          ${nextSteps ? `<p class="trl-next-steps">${nextSteps}</p>` : ''}
         </div>
       </div>`;
   },
@@ -674,6 +683,16 @@ Coach's notes: ${rawNotes}`
   },
 
   // ── Helpers ─────────────────────────────────────────────────
+
+  _formatLabeledBullet(str) {
+    const colonIdx = str.indexOf(':');
+    if (colonIdx > 0 && colonIdx < 40) {
+      const label = str.slice(0, colonIdx);
+      const desc = str.slice(colonIdx + 1).trim();
+      return `<strong>${TrialReport._esc(label)}:</strong> ${TrialReport._esc(desc)}`;
+    }
+    return TrialReport._esc(str);
+  },
 
   _esc(str) {
     if (!str) return '';
