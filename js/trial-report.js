@@ -312,7 +312,7 @@ const TrialReport = {
 
     return `
       <div class="rpt-header-banner">
-        <img src="assets/logos/koln-fs.webp" alt="" class="rpt-logo">
+        <img src="assets/logos/fc-fs-white.png" alt="" class="rpt-logo">
         <div class="rpt-header-banner-text">
           <div class="rpt-title">Trial Evaluation</div>
           <div class="rpt-subtitle">International Talent Pathway</div>
@@ -456,7 +456,7 @@ Given a player's position, their strengths, and their areas of opportunity, writ
 - Each item MUST start with a short label (1-3 words) followed by a colon, then the description. Example: "Game Understanding: Ian reads the game well and positions himself intelligently in midfield"
 - The label should summarize the key trait in that bullet point
 - Group related traits into one item naturally
-- Be specific to the player's position. Mention real game situations
+- Be specific to the player's position. Reference training situations and practice scenarios only (NOT match/game situations, as we only see trial players in training sessions)
 - Use simple language a teenager and parents can understand
 - Do NOT use superlatives like "excellent", "exceptional", "outstanding". Use grounded words like "solid", "comfortable", "good", "showed"
 - Do NOT use dashes as punctuation
@@ -531,7 +531,7 @@ Take the coach's rough notes and turn them into one short paragraph (2-3 sentenc
 - Use simple, clear language that a teenager and their parents can understand
 - Be professional but friendly — like a coach speaking to a family
 - Be honest and balanced — mention both positives and areas to grow
-- Tailor to the player's position on the pitch
+- Tailor to the player's position. Only reference training sessions and practice, NOT matches or games (we don't see trial players in matches)
 - Do NOT overpromise or make guarantees
 - Do NOT use superlatives or hype words like "excellent", "exceptional", "outstanding", "remarkable", "incredible", "phenomenal", "tremendous". Use grounded words like "solid", "good", "showed", "demonstrated", "comfortable", "capable"
 - Sound like a real coaching staff, not a computer
@@ -610,7 +610,7 @@ Coach's notes: ${rawNotes}`
   _renderFooter(player) {
     return `
       <div class="rpt-footer">
-        <img src="assets/logos/koln-fs.webp" alt="" class="rpt-footer-logo">
+        <img src="assets/logos/fc-fs-black.png" alt="" class="rpt-footer-logo">
         <span class="rpt-footer-text">ITP Trial Evaluation &mdash; ${player.firstName} ${player.lastName} &mdash; 1. FC K&ouml;ln International Talent Pathway</span>
       </div>
       <div class="rpt-page-accent"></div>`;

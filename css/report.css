@@ -404,13 +404,14 @@
 }
 
 .rpt-header-banner .rpt-logo {
-  height: 52px;
+  height: 36px;
   width: auto;
   opacity: 0.95;
 }
 
 .rpt-header-banner-text {
   flex: 1;
+  text-align: center;
 }
 
 .rpt-header-banner .rpt-title {
