@@ -26,10 +26,10 @@ const Roster = {
     });
   },
 
-  render() {
+  async render() {
     const grid = document.getElementById('roster-grid');
     const empty = document.getElementById('roster-empty');
-    let players = DB.getAll();
+    let players = await DB.getAll();
 
     // Filter by age group or trial status
     if (Roster.activeGroup === 'trials') {

@@ -9,10 +9,10 @@ const Settings = {
 
   init() {},
 
-  show() {
+  async show() {
     const container = document.getElementById('settings-content');
     const meta = DB.getMeta();
-    const players = DB.getAll();
+    const players = await DB.getAll();
 
     container.innerHTML = `
       <div class="settings-page">
@@ -127,8 +127,8 @@ const Settings = {
     });
 
     // Export
-    container.querySelector('#btn-export').addEventListener('click', () => {
-      const json = DB.exportJSON();
+    container.querySelector('#btn-export').addEventListener('click', async () => {
+      const json = await DB.exportJSON();
       const blob = new Blob([json], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -147,11 +147,11 @@ const Settings = {
       const file = e.target.files[0];
       if (!file) return;
       const reader = new FileReader();
-      reader.onload = ev => {
+      reader.onload = async ev => {
         try {
-          const count = DB.importJSON(ev.target.result);
+          const count = await DB.importJSON(ev.target.result);
           App.toast(`Imported ${count} players`);
-          Settings.show();
+          await Settings.show();
         } catch (err) {
           alert('Import failed: ' + err.message);
         }
@@ -167,12 +167,12 @@ const Settings = {
       const file = e.target.files[0];
       if (!file) return;
       const reader = new FileReader();
-      reader.onload = ev => {
+      reader.onload = async ev => {
         try {
           const players = CSVImport.parse(ev.target.result);
-          const count = DB.importPlayers(players);
+          const count = await DB.importPlayers(players);
           App.toast(`Imported ${count} players from CSV`);
-          Settings.show();
+          await Settings.show();
         } catch (err) {
           alert('CSV import failed: ' + err.message);
         }
@@ -181,9 +181,9 @@ const Settings = {
     });
 
     // Clear all
-    container.querySelector('#btn-clear-all').addEventListener('click', () => {
+    container.querySelector('#btn-clear-all').addEventListener('click', async () => {
       if (confirm('This will permanently delete ALL data. Are you sure?')) {
-        DB.clearAll();
+        await DB.clearAll();
         App.toast('All data cleared');
         location.hash = '#roster';
         Roster.render();

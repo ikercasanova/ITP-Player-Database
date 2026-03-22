@@ -24,13 +24,13 @@ const PlayerForm = {
 
   init() {},
 
-  show(playerId) {
+  async show(playerId) {
     PlayerForm.editingId = playerId || null;
     PlayerForm.selectedPositions = [];
     PlayerForm.photoBase64 = null;
 
     const container = document.getElementById('edit-content');
-    const player = playerId ? DB.get(playerId) : null;
+    const player = playerId ? await DB.get(playerId) : null;
 
     if (playerId && !player) {
       location.hash = '#roster';
@@ -243,13 +243,13 @@ const PlayerForm = {
     PlayerForm.renderSelectedPositions(container);
 
     // Form submit
-    container.querySelector('#player-form').addEventListener('submit', e => {
+    container.querySelector('#player-form').addEventListener('submit', async (e) => {
       e.preventDefault();
-      PlayerForm.savePlayer(container);
+      await PlayerForm.savePlayer(container);
     });
   },
 
-  savePlayer(container) {
+  async savePlayer(container) {
     const g = id => container.querySelector('#' + id)?.value.trim() || '';
     const n = id => { const v = parseFloat(container.querySelector('#' + id)?.value); return isNaN(v) ? null : v; };
 
@@ -292,7 +292,7 @@ const PlayerForm = {
     if (PlayerForm.editingId) {
       data.id = PlayerForm.editingId;
       // Preserve existing data not in the form
-      const existing = DB.get(PlayerForm.editingId);
+      const existing = await DB.get(PlayerForm.editingId);
       if (existing) {
         if (existing.tests) data.tests = existing.tests;
         if (existing.trialEvaluation) data.trialEvaluation = existing.trialEvaluation;
@@ -303,7 +303,7 @@ const PlayerForm = {
       }
     }
 
-    const saved = DB.save(data);
+    const saved = await DB.save(data);
     App.toast(PlayerForm.editingId ? 'Player updated' : 'Player added');
     location.hash = `#profile/${saved.id}`;
   },

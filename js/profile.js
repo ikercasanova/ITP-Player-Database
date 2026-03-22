@@ -20,8 +20,8 @@ const Profile = {
   /** Current view mode for benchmarks: 'charts' or 'numbers' */
   _benchView: 'charts',
 
-  show(playerId) {
-    const player = DB.get(playerId);
+  async show(playerId) {
+    const player = await DB.get(playerId);
     if (!player) {
       location.hash = '#roster';
       return;
@@ -48,10 +48,19 @@ const Profile = {
       slider.addEventListener('input', (e) => {
         if (headerPhoto) headerPhoto.style.objectPosition = `center ${e.target.value}%`;
       });
-      slider.addEventListener('change', (e) => {
+      slider.addEventListener('change', async (e) => {
         player.photoPositionY = parseInt(e.target.value, 10);
-        DB.save(player);
+        await DB.save(player);
         App.toast('Photo position saved');
+      });
+    }
+
+    // Delete button
+    const deleteBtn = container.querySelector('[data-delete-id]');
+    if (deleteBtn) {
+      deleteBtn.addEventListener('click', async () => {
+        const p = await DB.get(deleteBtn.dataset.deleteId);
+        if (p) App.confirmDelete(p, () => { App.toast('Player deleted'); location.hash='#roster'; });
       });
     }
 
@@ -182,7 +191,7 @@ const Profile = {
             ? `<button class="btn btn-primary" onclick="location.hash='#trial-report/${player.id}'">Trial Report</button>`
             : `<button class="btn btn-primary" onclick="location.hash='#report/${player.id}'">Generate Report</button>`}
           <button class="btn btn-outline" onclick="location.hash='#edit/${player.id}'">Edit Player</button>
-          <button class="btn btn-danger" onclick="App.confirmDelete(DB.get('${player.id}'), () => { App.toast('Player deleted'); location.hash='#roster'; })">Delete</button>
+          <button class="btn btn-danger" data-delete-id="${player.id}">Delete</button>
         </div>
       </div>`;
   },

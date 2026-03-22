@@ -7,7 +7,7 @@
 const App = {
   currentView: null,
 
-  init() {
+  async init() {
     // Update season display
     const meta = DB.getMeta();
     const el = document.getElementById('header-season');
@@ -26,18 +26,22 @@ const App = {
     // Route on hash change
     window.addEventListener('hashchange', () => App.route());
 
+    // Migrate localStorage → Supabase if needed
+    await App.migrateToCloud();
+
     // First-launch check
-    if (DB.getAll().length === 0) {
+    const players = await DB.getAll();
+    if (players.length === 0) {
       App.showSeedModal();
     }
 
     // Initial route
-    App.route();
+    await App.route();
   },
 
   // ── Routing ─────────────────────────────────────────────────
 
-  route() {
+  async route() {
     const hash = location.hash || '#roster';
     const parts = hash.slice(1).split('/');
     const view = parts[0];
@@ -62,31 +66,31 @@ const App = {
     // Trigger view-specific logic
     switch (view) {
       case 'roster':
-        Roster.render();
+        await Roster.render();
         break;
       case 'profile':
-        if (param) Profile.show(param);
+        if (param) await Profile.show(param);
         break;
       case 'testing':
-        Testing.show();
+        await Testing.show();
         break;
       case 'analytics':
-        Analytics.show();
+        await Analytics.show();
         break;
       case 'edit':
-        PlayerForm.show(param);
+        await PlayerForm.show(param);
         break;
       case 'report':
-        if (param) Report.show(param);
+        if (param) await Report.show(param);
         break;
       case 'trial-report':
-        if (param) TrialReport.show(param);
+        if (param) await TrialReport.show(param);
         break;
       case 'settings':
-        Settings.show();
+        await Settings.show();
         break;
       default:
-        Roster.render();
+        await Roster.render();
     }
 
     App.currentView = view;
@@ -107,16 +111,56 @@ const App = {
       try {
         const resp = await fetch('data/seed-players.json');
         if (!resp.ok) throw new Error('Could not load seed data');
-        const players = await resp.json();
-        DB.importPlayers(players);
+        const raw = await resp.json();
+        // Seed file is { "itp_players_25-26": [...] } — extract the array
+        const players = Array.isArray(raw) ? raw : (raw[DB._playerKey()] || Object.values(raw)[0] || []);
+        await DB.importPlayers(players);
         modal.style.display = 'none';
         App.toast(`Loaded ${players.length} players`);
-        Roster.render();
+        await Roster.render();
       } catch (err) {
         alert('Failed to load seed data: ' + err.message);
         modal.style.display = 'none';
       }
     };
+  },
+
+  // ── localStorage → Supabase Migration ──────────────────────
+
+  async migrateToCloud() {
+    try {
+      if (typeof supa === 'undefined') return;
+
+      const season = DB.getActiveSeason();
+      const localPlayers = DB._getLocalAll(season);
+      if (localPlayers.length === 0) return;
+
+      // Check if Supabase already has data for this season
+      const { count, error } = await supa
+        .from('players')
+        .select('id', { count: 'exact', head: true })
+        .eq('season', season);
+
+      if (error) throw error;
+      if (count > 0) return; // Supabase already has data, skip
+
+      // Batch upsert local players to Supabase
+      const rows = localPlayers.map(p => ({
+        ...p,
+        season,
+        updated_at: p.updatedAt || new Date().toISOString()
+      }));
+
+      const { error: upsertError } = await supa
+        .from('players')
+        .upsert(rows);
+
+      if (upsertError) throw upsertError;
+
+      App.toast(`Migrated ${localPlayers.length} players to cloud`);
+    } catch (err) {
+      console.warn('Cloud migration skipped:', err.message);
+    }
   },
 
   // ── Toast ───────────────────────────────────────────────────
@@ -146,8 +190,8 @@ const App = {
       modal.style.display = 'none';
     };
 
-    document.getElementById('btn-delete-confirm').onclick = () => {
-      DB.delete(player.id);
+    document.getElementById('btn-delete-confirm').onclick = async () => {
+      await DB.delete(player.id);
       modal.style.display = 'none';
       if (callback) callback();
     };

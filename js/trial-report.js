@@ -15,8 +15,8 @@ const TrialReport = {
 
   // ── Entry Point ─────────────────────────────────────────────
 
-  show(playerId) {
-    const player = DB.get(playerId);
+  async show(playerId) {
+    const player = await DB.get(playerId);
     if (!player) { location.hash = '#roster'; return; }
 
     TrialReport._player = player;
@@ -196,21 +196,21 @@ const TrialReport = {
     });
 
     // Save draft
-    container.querySelector('#trl-btn-save').addEventListener('click', () => {
+    container.querySelector('#trl-btn-save').addEventListener('click', async () => {
       TrialReport._syncFormData(container);
-      TrialReport._saveDraft();
+      await TrialReport._saveDraft();
       App.toast('Draft saved');
     });
 
     // Preview
     container.querySelector('#trl-btn-preview').addEventListener('click', async () => {
       TrialReport._syncFormData(container);
-      TrialReport._saveDraft();
+      await TrialReport._saveDraft();
       const btn = container.querySelector('#trl-btn-preview');
       btn.textContent = 'Generating...';
       btn.disabled = true;
       await TrialReport._generateTraitSentences();
-      TrialReport._saveDraft();
+      await TrialReport._saveDraft();
       btn.textContent = 'Preview Report';
       btn.disabled = false;
       TrialReport._showPreview(container);
@@ -224,10 +224,10 @@ const TrialReport = {
     ev.decisionSummary = container.querySelector('#trl-rec-summary')?.value || '';
   },
 
-  _saveDraft() {
+  async _saveDraft() {
     const player = TrialReport._player;
     player.trialEvaluation = TrialReport._evaluation;
-    DB.save(player);
+    await DB.save(player);
   },
 
   // ══════════════════════════════════════════════════════════════

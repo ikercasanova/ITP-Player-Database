@@ -20,7 +20,7 @@ const Analytics = {
 
   init() {},
 
-  show() {
+  async show() {
     // Auto-select first category/test if not set (for leaderboard)
     if (!Analytics.activeCategory) {
       const cats = Benchmarks.getTestsByCategory();
@@ -35,12 +35,12 @@ const Analytics = {
         }
       }
     }
-    Analytics.render();
+    await Analytics.render();
   },
 
-  render() {
+  async render() {
     const container = document.getElementById('analytics-content');
-    let players = DB.getAll();
+    let players = await DB.getAll();
 
     // Filter by age group
     if (Analytics.activeGroup !== 'all') {
@@ -1429,24 +1429,24 @@ const Analytics = {
   bindEvents(container, players) {
     // Age group tabs
     container.querySelectorAll('.age-tab').forEach(tab => {
-      tab.addEventListener('click', () => {
+      tab.addEventListener('click', async () => {
         Analytics.activeGroup = tab.dataset.group;
-        Analytics.render();
+        await Analytics.render();
       });
     });
 
     // Main tabs (Overview | Session Report | Leaderboard)
     container.querySelectorAll('.analytics-tab').forEach(tab => {
-      tab.addEventListener('click', () => {
+      tab.addEventListener('click', async () => {
         Analytics.activeTab = tab.dataset.tab;
-        Analytics.render();
+        await Analytics.render();
       });
     });
 
     // Category select dropdown (leaderboard)
     const catSelect = container.querySelector('[data-role="category-select"]');
     if (catSelect) {
-      catSelect.addEventListener('change', () => {
+      catSelect.addEventListener('change', async () => {
         Analytics.activeCategory = catSelect.value;
         const cats = Benchmarks.getTestsByCategory();
         const testsInCat = cats[catSelect.value] || [];
@@ -1458,62 +1458,62 @@ const Analytics = {
           Analytics.activeTest = testsInCat[0] || null;
           Analytics.sortBy = 'best';
         }
-        Analytics.render();
+        await Analytics.render();
       });
     }
 
     // Test tabs (leaderboard — have data-test attribute)
     container.querySelectorAll('.test-tab[data-test]').forEach(tab => {
-      tab.addEventListener('click', () => {
+      tab.addEventListener('click', async () => {
         Analytics.activeTest = tab.dataset.test;
         Analytics.sortBy = 'best';
-        Analytics.render();
+        await Analytics.render();
       });
     });
 
     // Sort buttons
     container.querySelectorAll('.sort-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
+      btn.addEventListener('click', async () => {
         Analytics.sortBy = btn.dataset.sort;
-        Analytics.render();
+        await Analytics.render();
       });
     });
 
     // Team progression test dropdown
     const progSelect = container.querySelector('[data-role="progression-test-select"]');
     if (progSelect) {
-      progSelect.addEventListener('change', () => {
+      progSelect.addEventListener('change', async () => {
         Analytics._progressionTest = progSelect.value;
-        Analytics.render();
+        await Analytics.render();
       });
     }
 
     // Session date picker
     const dateSelect = container.querySelector('[data-role="session-date-select"]');
     if (dateSelect) {
-      dateSelect.addEventListener('change', () => {
+      dateSelect.addEventListener('change', async () => {
         Analytics.sessionDate = dateSelect.value;
-        Analytics.render();
+        await Analytics.render();
       });
     }
 
     // Session category select
     const sessCatSelect = container.querySelector('[data-role="session-category-select"]');
     if (sessCatSelect) {
-      sessCatSelect.addEventListener('change', () => {
+      sessCatSelect.addEventListener('change', async () => {
         Analytics.sessionCategory = sessCatSelect.value;
         const categories = Benchmarks.getTestsByCategory();
         const testsInCat = categories[sessCatSelect.value] || [];
         Analytics.sessionTestKey = testsInCat[0] || null;
-        Analytics.render();
+        await Analytics.render();
       });
     }
 
     // Session test tabs (have data-session-test attribute)
     container.querySelectorAll('[data-session-test]').forEach(tab => {
-      tab.addEventListener('click', () => {
+      tab.addEventListener('click', async () => {
         Analytics.sessionTestKey = tab.dataset.sessionTest;
-        Analytics.render();
+        await Analytics.render();
       });
     });
   }

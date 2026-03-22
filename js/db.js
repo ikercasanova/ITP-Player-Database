@@ -1,36 +1,32 @@
 'use strict';
 
 /* ═══════════════════════════════════════════════════════════════
-   db.js — localStorage CRUD, season-aware
+   db.js — Supabase + localStorage write-through cache
+   Player data: async (Supabase primary, localStorage cache)
+   Meta/Benchmarks: sync (localStorage only)
 ═══════════════════════════════════════════════════════════════ */
 
 const META_KEY = 'itp_db_meta';
 const BENCH_KEY = 'itp_benchmarks';
+const PENDING_SYNC_KEY = 'itp_pending_sync';
 
 const DB = {
 
-  // ── Test Format Migration ─────────────────────────────────────
+  // ── Test Format Migration (pure transform, stays sync) ─────
 
-  /**
-   * Detect old-format test data (has `attempts` but no `sessions`)
-   * and wrap it in a single session using player.updatedAt as date.
-   */
   migrateTestFormat(player) {
     if (!player || !player.tests) return player;
     let migrated = false;
 
     for (const [key, testData] of Object.entries(player.tests)) {
       if (!testData || typeof testData !== 'object') continue;
-      // Already new format
       if (testData.sessions) continue;
-      // Old format: has attempts array but no sessions
       if (Array.isArray(testData.attempts)) {
         const date = (player.updatedAt || new Date().toISOString()).slice(0, 10);
         testData.sessions = [
           { date, attempts: testData.attempts, best: testData.best }
         ];
         delete testData.attempts;
-        // Keep top-level best intact
         migrated = true;
       }
     }
@@ -39,7 +35,7 @@ const DB = {
     return player;
   },
 
-  // ── Meta / Seasons ──────────────────────────────────────────
+  // ── Meta / Seasons (sync — localStorage only) ──────────────
 
   getMeta() {
     try {
@@ -61,76 +57,233 @@ const DB = {
     return `itp_players_${season || DB.getActiveSeason()}`;
   },
 
-  // ── Player CRUD ─────────────────────────────────────────────
+  // ── Online Status ──────────────────────────────────────────
 
-  getAll(season) {
+  _online: true,
+
+  _setOffline() {
+    if (DB._online) {
+      DB._online = false;
+      if (typeof App !== 'undefined' && App.toast) {
+        App.toast('Working offline — changes saved locally');
+      }
+    }
+  },
+
+  _setOnline() {
+    DB._online = true;
+  },
+
+  // ── Pending Sync Queue ─────────────────────────────────────
+
+  _getPendingSync() {
+    try {
+      const raw = localStorage.getItem(PENDING_SYNC_KEY);
+      return raw ? JSON.parse(raw) : [];
+    } catch { return []; }
+  },
+
+  _addPendingSync(playerId, season) {
+    const pending = DB._getPendingSync();
+    if (!pending.find(p => p.id === playerId && p.season === season)) {
+      pending.push({ id: playerId, season });
+      localStorage.setItem(PENDING_SYNC_KEY, JSON.stringify(pending));
+    }
+  },
+
+  _removePendingSync(playerId) {
+    const pending = DB._getPendingSync().filter(p => p.id !== playerId);
+    localStorage.setItem(PENDING_SYNC_KEY, JSON.stringify(pending));
+  },
+
+  async syncPending() {
+    const pending = DB._getPendingSync();
+    if (pending.length === 0) return;
+
+    for (const { id, season } of pending) {
+      const localPlayers = DB._getLocalAll(season);
+      const player = localPlayers.find(p => p.id === id);
+      if (!player) {
+        DB._removePendingSync(id);
+        continue;
+      }
+      try {
+        const { error } = await supa.from('players').upsert({
+          id: player.id,
+          season,
+          data: player,
+          updated_at: new Date().toISOString()
+        });
+        if (!error) {
+          DB._removePendingSync(id);
+          DB._setOnline();
+        }
+      } catch { /* still offline */ }
+    }
+  },
+
+  // ── localStorage Helpers (sync, for cache) ─────────────────
+
+  _getLocalAll(season) {
     try {
       const raw = localStorage.getItem(DB._playerKey(season));
       const players = raw ? JSON.parse(raw) : [];
-      let needsSave = false;
       for (const p of players) {
         DB.migrateTestFormat(p);
-        if (p._needsMigrationSave) {
-          delete p._needsMigrationSave;
-          needsSave = true;
-        }
+        delete p._needsMigrationSave;
       }
-      if (needsSave) DB._saveAll(players, season);
       return players;
-    } catch {
-      return [];
-    }
+    } catch { return []; }
   },
 
-  get(id, season) {
-    return DB.getAll(season).find(p => p.id === id) || null;
-  },
-
-  save(player) {
-    const players = DB.getAll();
-    const now = new Date().toISOString();
-
-    if (!player.id) {
-      player = {
-        ...player,
-        id: crypto.randomUUID(),
-        createdAt: now,
-        updatedAt: now
-      };
-      players.push(player);
-    } else {
-      const idx = players.findIndex(p => p.id === player.id);
-      if (idx >= 0) {
-        players[idx] = { ...players[idx], ...player, updatedAt: now };
-        player = players[idx];
-      } else {
-        player = { ...player, createdAt: now, updatedAt: now };
-        players.push(player);
-      }
-    }
-
-    DB._saveAll(players);
-    return player;
-  },
-
-  delete(id) {
-    const players = DB.getAll().filter(p => p.id !== id);
-    DB._saveAll(players);
-  },
-
-  _saveAll(players, season) {
+  _saveLocal(players, season) {
     try {
       localStorage.setItem(DB._playerKey(season), JSON.stringify(players));
     } catch (e) {
-      alert('Storage quota exceeded. Try removing photos or exporting data.');
-      throw e;
+      console.warn('localStorage save failed:', e);
     }
   },
 
-  // ── Test Result Updates ─────────────────────────────────────
+  // ── Player CRUD (async — Supabase + localStorage cache) ────
 
-  updateTestResult(playerId, testKey, attemptIndex, value, sessionDate) {
-    const player = DB.get(playerId);
+  async getAll(season) {
+    const s = season || DB.getActiveSeason();
+    try {
+      const { data, error } = await supa
+        .from('players')
+        .select('data')
+        .eq('season', s);
+
+      if (error) throw error;
+
+      const players = (data || []).map(row => row.data);
+      for (const p of players) {
+        DB.migrateTestFormat(p);
+        delete p._needsMigrationSave;
+      }
+      // Cache to localStorage
+      DB._saveLocal(players, s);
+      DB._setOnline();
+      // Sync any pending writes
+      DB.syncPending();
+      return players;
+    } catch (err) {
+      console.warn('Supabase getAll failed, using cache:', err);
+      DB._setOffline();
+      return DB._getLocalAll(s);
+    }
+  },
+
+  async get(id, season) {
+    const s = season || DB.getActiveSeason();
+    try {
+      const { data, error } = await supa
+        .from('players')
+        .select('data')
+        .eq('id', id)
+        .single();
+
+      if (error) throw error;
+      if (!data) return null;
+
+      const player = data.data;
+      DB.migrateTestFormat(player);
+      delete player._needsMigrationSave;
+      DB._setOnline();
+      return player;
+    } catch (err) {
+      console.warn('Supabase get failed, using cache:', err);
+      DB._setOffline();
+      return DB._getLocalAll(s).find(p => p.id === id) || null;
+    }
+  },
+
+  async save(player) {
+    const season = DB.getActiveSeason();
+    const now = new Date().toISOString();
+    const localPlayers = DB._getLocalAll(season);
+
+    if (!player.id) {
+      player = { ...player, id: crypto.randomUUID(), createdAt: now, updatedAt: now };
+      localPlayers.push(player);
+    } else {
+      const idx = localPlayers.findIndex(p => p.id === player.id);
+      if (idx >= 0) {
+        localPlayers[idx] = { ...localPlayers[idx], ...player, updatedAt: now };
+        player = localPlayers[idx];
+      } else {
+        player = { ...player, createdAt: now, updatedAt: now };
+        localPlayers.push(player);
+      }
+    }
+
+    // Write to localStorage immediately
+    DB._saveLocal(localPlayers, season);
+
+    // Upsert to Supabase (may fail if offline)
+    try {
+      const { error } = await supa.from('players').upsert({
+        id: player.id,
+        season,
+        data: player,
+        updated_at: now
+      });
+      if (error) throw error;
+      DB._setOnline();
+      DB._removePendingSync(player.id);
+    } catch (err) {
+      console.warn('Supabase save failed, queued for sync:', err);
+      DB._setOffline();
+      DB._addPendingSync(player.id, season);
+    }
+
+    return player;
+  },
+
+  async delete(id) {
+    const season = DB.getActiveSeason();
+    const localPlayers = DB._getLocalAll(season).filter(p => p.id !== id);
+    DB._saveLocal(localPlayers, season);
+
+    try {
+      const { error } = await supa.from('players').delete().eq('id', id);
+      if (error) throw error;
+      DB._setOnline();
+      DB._removePendingSync(id);
+    } catch (err) {
+      console.warn('Supabase delete failed:', err);
+      DB._setOffline();
+    }
+  },
+
+  async _saveAll(players, season) {
+    const s = season || DB.getActiveSeason();
+    DB._saveLocal(players, s);
+
+    try {
+      const now = new Date().toISOString();
+      const rows = players.map(p => ({
+        id: p.id,
+        season: s,
+        data: p,
+        updated_at: now
+      }));
+      if (rows.length > 0) {
+        const { error } = await supa.from('players').upsert(rows);
+        if (error) throw error;
+      }
+      DB._setOnline();
+    } catch (err) {
+      console.warn('Supabase _saveAll failed:', err);
+      DB._setOffline();
+      for (const p of players) DB._addPendingSync(p.id, s);
+    }
+  },
+
+  // ── Test Result Updates (async) ────────────────────────────
+
+  async updateTestResult(playerId, testKey, attemptIndex, value, sessionDate) {
+    const player = await DB.get(playerId);
     if (!player) return null;
 
     if (!player.tests) player.tests = {};
@@ -139,23 +292,19 @@ const DB = {
     }
 
     const test = player.tests[testKey];
-    // Ensure sessions array exists (handles edge cases)
     if (!test.sessions) test.sessions = [];
 
     const date = sessionDate || new Date().toISOString().slice(0, 10);
 
-    // Find or create session for this date
     let session = test.sessions.find(s => s.date === date);
     if (!session) {
       session = { date, attempts: [null, null, null], best: null };
       test.sessions.push(session);
-      // Keep sessions sorted chronologically
       test.sessions.sort((a, b) => a.date.localeCompare(b.date));
     }
 
     session.attempts[attemptIndex] = value;
 
-    // Compute session best
     const LOWER_IS_BETTER = ['sprint5m', 'sprint10m', 'sprint30m', 'sprint40yd', 'dribbling'];
     const validAttempts = session.attempts.filter(v => v !== null && v !== undefined && v !== '');
     const nums = validAttempts.map(Number).filter(n => !isNaN(n));
@@ -168,7 +317,6 @@ const DB = {
       session.best = null;
     }
 
-    // Recompute all-time best across all sessions
     const allBests = test.sessions
       .map(s => s.best)
       .filter(b => b !== null && b !== undefined);
@@ -185,7 +333,7 @@ const DB = {
     return DB.save(player);
   },
 
-  // ── Session Helpers ────────────────────────────────────────
+  // ── Session Helpers (sync — reads from player object) ──────
 
   getLatestSession(player, testKey) {
     const sessions = player?.tests?.[testKey]?.sessions;
@@ -199,17 +347,16 @@ const DB = {
     return sessions[sessions.length - 2];
   },
 
-  // ── Season Management ───────────────────────────────────────
+  // ── Season Management (async) ──────────────────────────────
 
-  startNewSeason(seasonId, carryOverPlayerIds) {
+  async startNewSeason(seasonId, carryOverPlayerIds) {
     const meta = DB.getMeta();
     if (!meta.seasons.includes(seasonId)) {
       meta.seasons.push(seasonId);
     }
 
-    // Carry over selected players (reset their tests)
     if (carryOverPlayerIds && carryOverPlayerIds.length) {
-      const oldPlayers = DB.getAll();
+      const oldPlayers = await DB.getAll();
       const newPlayers = oldPlayers
         .filter(p => carryOverPlayerIds.includes(p.id))
         .map(p => ({
@@ -219,44 +366,43 @@ const DB = {
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString()
         }));
-      DB._saveAll(newPlayers, seasonId);
+      await DB._saveAll(newPlayers, seasonId);
     }
 
     meta.activeSeason = seasonId;
     DB.saveMeta(meta);
   },
 
-  // ── Import / Export ─────────────────────────────────────────
+  // ── Import / Export (async) ────────────────────────────────
 
-  exportJSON() {
+  async exportJSON() {
     return JSON.stringify({
       meta: DB.getMeta(),
-      players: DB.getAll(),
+      players: await DB.getAll(),
       benchmarks: DB.getBenchmarks()
     }, null, 2);
   },
 
-  importJSON(json) {
+  async importJSON(json) {
     const data = JSON.parse(json);
 
     if (data.meta) DB.saveMeta(data.meta);
 
     if (data.players && Array.isArray(data.players)) {
-      DB._saveAll(data.players, data.meta?.activeSeason);
+      await DB._saveAll(data.players, data.meta?.activeSeason);
       return data.players.length;
     }
 
-    // Support flat array import too
     if (Array.isArray(data)) {
-      DB._saveAll(data);
+      await DB._saveAll(data);
       return data.length;
     }
 
     throw new Error('Invalid format');
   },
 
-  importPlayers(players) {
-    const existing = DB.getAll();
+  async importPlayers(players) {
+    const existing = await DB.getAll();
     const now = new Date().toISOString();
     for (const p of players) {
       if (!p.id) p.id = crypto.randomUUID();
@@ -264,32 +410,39 @@ const DB = {
       if (!p.updatedAt) p.updatedAt = now;
       existing.push(p);
     }
-    DB._saveAll(existing);
+    await DB._saveAll(existing);
     return players.length;
   },
 
-  // ── Benchmarks ──────────────────────────────────────────────
+  // ── Benchmarks (sync — localStorage only) ──────────────────
 
   getBenchmarks() {
     try {
       const raw = localStorage.getItem(BENCH_KEY);
       if (raw) return JSON.parse(raw);
     } catch {}
-    return null; // Will fall back to defaults in benchmarks.js
+    return null;
   },
 
   saveBenchmarks(benchmarks) {
     localStorage.setItem(BENCH_KEY, JSON.stringify(benchmarks));
   },
 
-  // ── Danger Zone ─────────────────────────────────────────────
+  // ── Danger Zone (async) ────────────────────────────────────
 
-  clearAll() {
+  async clearAll() {
     const meta = DB.getMeta();
     for (const s of meta.seasons) {
       localStorage.removeItem(`itp_players_${s}`);
     }
     localStorage.removeItem(META_KEY);
     localStorage.removeItem(BENCH_KEY);
+    localStorage.removeItem(PENDING_SYNC_KEY);
+
+    try {
+      await supa.from('players').delete().gt('updated_at', '1970-01-01');
+    } catch (err) {
+      console.warn('Supabase clearAll failed:', err);
+    }
   }
 };

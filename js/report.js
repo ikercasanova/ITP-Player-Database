@@ -18,8 +18,8 @@ const Report = {
 
   // ── Entry Point ─────────────────────────────────────────────
 
-  show(playerId) {
-    const player = DB.get(playerId);
+  async show(playerId) {
+    const player = await DB.get(playerId);
     if (!player) { location.hash = '#roster'; return; }
 
     Report._player = player;
@@ -250,16 +250,16 @@ const Report = {
     });
 
     // Save draft
-    container.querySelector('#btn-report-save').addEventListener('click', () => {
+    container.querySelector('#btn-report-save').addEventListener('click', async () => {
       Report._syncFormData(container);
-      Report._saveDraft(player);
+      await Report._saveDraft(player);
       App.toast('Draft saved');
     });
 
     // Preview
-    container.querySelector('#btn-report-preview').addEventListener('click', () => {
+    container.querySelector('#btn-report-preview').addEventListener('click', async () => {
       Report._syncFormData(container);
-      Report._saveDraft(player);
+      await Report._saveDraft(player);
       Report._showPreview(player);
     });
   },
@@ -328,13 +328,13 @@ const Report = {
     Report._coachNotes = container.querySelector('#report-coach-notes')?.value || '';
   },
 
-  _saveDraft(player) {
+  async _saveDraft(player) {
     player.developmentReview = Report._review;
     player.trials = Report._trials;
     player.coachNotes = Report._coachNotes;
     player.mediaLinks = Report._mediaLinks;
     player.endOfSeason = Report._endOfSeason;
-    DB.save(player);
+    await DB.save(player);
   },
 
   // ══════════════════════════════════════════════════════════════

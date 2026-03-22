@@ -16,20 +16,20 @@ const Testing = {
 
   init() {},
 
-  show() {
+  async show() {
     if (Testing.phase === 'queue' && Testing.players.length > 0) {
       Testing.renderQueue();
     } else if (Testing.phase === 'summary') {
       Testing.renderSummary();
     } else {
       Testing.phase = 'setup';
-      Testing.renderSetup();
+      await Testing.renderSetup();
     }
   },
 
   // ── Setup Phase ─────────────────────────────────────────────
 
-  renderSetup() {
+  async renderSetup() {
     const container = document.getElementById('testing-content');
 
     // Build test options: grouped tests + individual tests
@@ -82,16 +82,14 @@ const Testing = {
           <button id="btn-start-session" class="btn btn-primary btn-lg btn-block mt-16">Start Session</button>
         </div>
 
-        ${Testing.renderRecentSessions()}
+        ${await Testing.renderRecentSessions()}
       </div>`;
 
-    container.querySelector('#btn-start-session').addEventListener('click', () => {
-      Testing.startSession(container);
-    });
+    container.querySelector('#btn-start-session').addEventListener('click', () => Testing.startSession(container));
   },
 
-  renderRecentSessions() {
-    const players = DB.getAll();
+  async renderRecentSessions() {
+    const players = await DB.getAll();
     const counts = {};
     for (const p of players) {
       if (!p.tests) continue;
@@ -136,7 +134,7 @@ const Testing = {
       </div>`;
   },
 
-  startSession(container) {
+  async startSession(container) {
     const selectValue = container.querySelector('#test-select').value;
     if (!selectValue) {
       App.toast('Please select a test');
@@ -166,7 +164,7 @@ const Testing = {
     Testing.currentIndex = 0;
     Testing.phase = 'queue';
 
-    Testing.players = DB.getAll()
+    Testing.players = (await DB.getAll())
       .filter(p => groups.includes(p.ageGroup))
       .sort((a, b) => (a.lastName || '').localeCompare(b.lastName || ''));
 
@@ -285,8 +283,8 @@ const Testing = {
       input.addEventListener('change', () => Testing.onAttemptChange(container));
     });
 
-    container.querySelector('#btn-end-session').addEventListener('click', () => {
-      Testing.saveCurrentPlayer(container);
+    container.querySelector('#btn-end-session').addEventListener('click', async () => {
+      await Testing.saveCurrentPlayer(container);
       Testing.phase = 'summary';
       Testing.renderSummary();
     });
@@ -298,8 +296,8 @@ const Testing = {
     if (nextBtn) nextBtn.addEventListener('click', () => Testing.navigate(1, container));
 
     const finishBtn = container.querySelector('#btn-finish');
-    if (finishBtn) finishBtn.addEventListener('click', () => {
-      Testing.saveCurrentPlayer(container);
+    if (finishBtn) finishBtn.addEventListener('click', async () => {
+      await Testing.saveCurrentPlayer(container);
       Testing.phase = 'summary';
       Testing.renderSummary();
     });
@@ -430,8 +428,8 @@ const Testing = {
       input.addEventListener('change', () => Testing.onGroupedAttemptChange(container));
     });
 
-    container.querySelector('#btn-end-session').addEventListener('click', () => {
-      Testing.saveCurrentPlayer(container);
+    container.querySelector('#btn-end-session').addEventListener('click', async () => {
+      await Testing.saveCurrentPlayer(container);
       Testing.phase = 'summary';
       Testing.renderSummary();
     });
@@ -443,8 +441,8 @@ const Testing = {
     if (nextBtn) nextBtn.addEventListener('click', () => Testing.navigate(1, container));
 
     const finishBtn = container.querySelector('#btn-finish');
-    if (finishBtn) finishBtn.addEventListener('click', () => {
-      Testing.saveCurrentPlayer(container);
+    if (finishBtn) finishBtn.addEventListener('click', async () => {
+      await Testing.saveCurrentPlayer(container);
       Testing.phase = 'summary';
       Testing.renderSummary();
     });
@@ -508,7 +506,7 @@ const Testing = {
     }
   },
 
-  saveCurrentPlayer(container) {
+  async saveCurrentPlayer(container) {
     const player = Testing.players[Testing.currentIndex];
     if (!player) return;
 
@@ -517,29 +515,29 @@ const Testing = {
       const group = TEST_GROUPS[Testing.activeGroup];
       for (const tk of group.tests) {
         const inputs = container.querySelectorAll(`.speed-attempt-input[data-test="${tk}"]`);
-        inputs.forEach(inp => {
+        for (const inp of inputs) {
           const idx = parseInt(inp.dataset.attempt);
           const v = inp.value.trim();
           const num = v === '' ? null : parseFloat(v);
-          DB.updateTestResult(player.id, tk, idx, isNaN(num) ? null : num, Testing.sessionDate);
-        });
+          await DB.updateTestResult(player.id, tk, idx, isNaN(num) ? null : num, Testing.sessionDate);
+        }
       }
     } else {
       // Single test
       const inputs = container.querySelectorAll('.attempt-input');
-      inputs.forEach(inp => {
+      for (const inp of inputs) {
         const idx = parseInt(inp.dataset.attempt);
         const v = inp.value.trim();
         const num = v === '' ? null : parseFloat(v);
-        DB.updateTestResult(player.id, Testing.activeTest, idx, isNaN(num) ? null : num, Testing.sessionDate);
-      });
+        await DB.updateTestResult(player.id, Testing.activeTest, idx, isNaN(num) ? null : num, Testing.sessionDate);
+      }
     }
 
-    Testing.players[Testing.currentIndex] = DB.get(player.id);
+    Testing.players[Testing.currentIndex] = await DB.get(player.id);
   },
 
-  navigate(dir, container) {
-    Testing.saveCurrentPlayer(container);
+  async navigate(dir, container) {
+    await Testing.saveCurrentPlayer(container);
     Testing.currentIndex = Math.max(0, Math.min(Testing.players.length - 1, Testing.currentIndex + dir));
     Testing.renderQueue();
   },
