@@ -184,12 +184,22 @@ function buildVideosHTML(urls, playerName, layout) {
   return html;
 }
 
-function buildPositionPills(positions) {
+const POSITION_NAMES_DE = {
+  GK: 'TW', CB: 'IV', LB: 'LV', RB: 'RV',
+  CDM: 'ZDM', CM: 'ZM', CAM: 'ZOM',
+  LW: 'LA', RW: 'RA', ST: 'ST',
+};
+
+function buildPositionDisplay(positions, layoutId) {
   if (!positions || !positions.length) return '';
+  const isGerman = layoutId === 'german';
+
   return positions.map((p, i) => {
     const code = typeof p === 'string' ? p : p.code;
-    return `<span class="card-pos-pill ${i === 0 ? 'card-pos-pill-primary' : 'card-pos-pill-secondary'}">${code}</span>`;
-  }).join('');
+    const displayCode = isGerman ? (POSITION_NAMES_DE[code] || code) : code;
+    const cls = i === 0 ? 'card-pos-primary' : 'card-pos-secondary';
+    return `<span class="${cls}">${displayCode}</span>`;
+  }).join('<span class="card-pos-sep">/</span>');
 }
 
 // ── Player Archetype Banner ──────────────────────────────────
@@ -235,7 +245,7 @@ function buildCard(player, layoutId) {
        </div>`;
 
   const tests = player.tests || {};
-  const pills = buildPositionPills(player.positions);
+  const posDisplay = buildPositionDisplay(player.positions, layoutId);
   const contact = (player.cardContact && typeof CARD_CONTACTS !== 'undefined' && CARD_CONTACTS[player.cardContact])
     ? CARD_CONTACTS[player.cardContact]
     : L.contact;
@@ -244,13 +254,13 @@ function buildCard(player, layoutId) {
   card.innerHTML = `
     <!-- ── 1. HEADER ───────────────────────────────────────── -->
     <div class="card-header">
-      <div class="card-header-badge">${FCK_LOGO_IMG}</div>
       <div class="card-header-center">
         <div class="card-program-name">${L.programName}</div>
         <div class="card-player-name-wrap">
           <div class="card-player-name">${player.firstName ? player.firstName.toUpperCase() : ''} ${player.lastName ? player.lastName.toUpperCase() : ''}</div>
         </div>
       </div>
+      <div class="card-header-badge">${FCK_LOGO_IMG}</div>
     </div>
 
     <!-- ── 2. BIO ROW ──────────────────────────────────────── -->
@@ -271,9 +281,9 @@ function buildCard(player, layoutId) {
           <tr><td class="info-label">${L.labels.weight}</td><td class="info-value">${formatWeight(player.weightKg, L.weightFormat)}</td></tr>
           <tr><td class="info-label">${L.labels.foot}</td><td class="info-value">${val(player.foot)}</td></tr>
         </table>
-        ${pills ? `<div class="card-position-display">
+        ${posDisplay ? `<div class="card-position-display">
           <span class="info-label">${L.labels.position}</span>
-          <div class="card-position-badges">${pills}</div>
+          <div class="card-position-values">${posDisplay}</div>
         </div>` : ''}
       </div>
       <div class="card-contact-cell">

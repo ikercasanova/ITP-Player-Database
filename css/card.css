@@ -48,10 +48,10 @@
   /* Dark left fades into FC red — logo pops on the dark side */
   background: linear-gradient(110deg, #111 0%, #2a0005 42%, #ED1C24 100%);
   color: #fff;
-  padding: 0 20px 0 0;
+  padding: 0;
   display: flex;
-  align-items: stretch;
-  min-height: 100px;
+  align-items: center;
+  min-height: 84px;
   flex-shrink: 0;
   position: relative;
   overflow: hidden;
@@ -72,41 +72,40 @@
   pointer-events: none;
 }
 
-/* FC Köln Football School logo */
+/* FC Köln Football School logo — right side */
 .card-header-badge {
   flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 10px 16px 10px 18px;
+  padding: 8px 20px 8px 14px;
 }
 
 .card-fck-logo {
-  height: 78px;
+  height: 42px;
   width: auto;
   object-fit: contain;
-  filter: drop-shadow(0 2px 6px rgba(0,0,0,0.5));
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4));
 }
 
-/* Thin vertical separator between badge and name */
+/* Name area — left side */
 .card-header-center {
   flex: 1;
   min-width: 0;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: 12px 16px 12px 18px;
-  border-left: 1px solid rgba(255,255,255,0.12);
+  padding: 12px 16px 12px 22px;
 }
 
 .card-program-name {
   font-family: var(--bc);
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 700;
   letter-spacing: 3px;
-  opacity: 0.6;
+  opacity: 0.5;
   text-transform: uppercase;
-  margin-bottom: 4px;
+  margin-bottom: 2px;
 }
 
 .card-player-name-wrap {
@@ -130,11 +129,14 @@
 
 .card-player-name {
   font-family: var(--bc);
-  font-size: 50px;
+  font-size: 40px;
   font-weight: 900;
   line-height: 1;
-  letter-spacing: -1px;
+  letter-spacing: 1px;
   color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* ── Partner Logo (in contact cell) ─────────────────────────── */
@@ -282,17 +284,42 @@
 /* Position display (below overview table) */
 .card-position-display {
   display: flex;
-  align-items: center;
+  align-items: baseline;
   gap: 10px;
   margin-top: 0;
-  padding-top: 5px;
-  padding-bottom: 2px;
+  padding-top: 7px;
+  padding-bottom: 4px;
   border-top: 1px solid #EAEAEA;
 }
 
-.card-position-badges {
+.card-position-values {
   display: flex;
-  gap: 6px;
+  align-items: baseline;
+  gap: 2px;
+}
+
+.card-pos-primary {
+  font-family: var(--bc);
+  font-size: 22px;
+  font-weight: 900;
+  color: var(--red);
+  letter-spacing: 1px;
+}
+
+.card-pos-secondary {
+  font-family: var(--bc);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: 1px;
+}
+
+.card-pos-sep {
+  font-family: var(--bc);
+  font-size: 16px;
+  font-weight: 400;
+  color: #ccc;
+  margin: 0 3px;
 }
 
 /* Contact */
@@ -482,7 +509,7 @@
    5. ABOUT THE PLAYER
 ═══════════════════════════════════════════════════════════════ */
 .card-about-block {
-  flex: 0 0 auto;
+  flex: 1;
   min-height: 120px;
   overflow: hidden;
   position: relative;
@@ -542,7 +569,7 @@
 
 .card-strength-item {
   font-family: var(--bc);
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 600;
   color: var(--text);
   padding: 3px 0;
@@ -575,9 +602,9 @@
 
 .card-about-text {
   font-family: var(--bc);
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 500;
-  line-height: 1.72;
+  line-height: 1.65;
   color: #2a2a2a;
   overflow: hidden;
 }
@@ -742,8 +769,8 @@
    6b. PLAYER ARCHETYPE BANNER
 ═══════════════════════════════════════════════════════════════ */
 .card-archetype-banner {
-  flex: 1;
-  min-height: 40px;
+  flex: 0;
+  padding: 55px 0;
   background: linear-gradient(110deg, #111 0%, #2a0005 42%, #ED1C24 100%);
   display: flex;
   align-items: center;
@@ -775,20 +802,20 @@
 
 .card-archetype-name {
   font-family: var(--bc);
-  font-size: 28px;
+  font-size: 20px;
   font-weight: 900;
   color: #fff;
-  letter-spacing: 5px;
+  letter-spacing: 4px;
   text-transform: uppercase;
   line-height: 1;
 }
 
 .card-archetype-cats {
   font-family: var(--bc);
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 600;
   color: rgba(255,255,255,0.5);
-  letter-spacing: 2.5px;
+  letter-spacing: 2px;
   text-transform: uppercase;
   margin-top: 6px;
 }
