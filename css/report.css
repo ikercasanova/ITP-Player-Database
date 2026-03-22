@@ -1596,26 +1596,73 @@
   color: #c53030 !important;
 }
 
+.card-archetype-toggle {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.card-archetype-btn {
+  padding: 8px 14px;
+  border: 1.5px solid var(--gray-200);
+  border-radius: 20px;
+  background: var(--white);
+  font-family: var(--font-cond);
+  font-weight: 600;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: all 0.15s;
+  color: var(--gray-500);
+}
+
+.card-archetype-btn:hover { border-color: var(--gray-300); }
+.card-archetype-btn.active { background: var(--dark); color: #fff; border-color: var(--dark); }
+
 .card-generate-row {
   display: flex;
   gap: 8px;
   margin-bottom: 10px;
 }
 
-.card-logo-area {
+.card-logo-presets {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+
+.card-logo-option {
+  width: 100px;
+  height: 60px;
+  border: 2px solid var(--gray-200);
+  border-radius: var(--radius);
   display: flex;
   align-items: center;
-  gap: 12px;
+  justify-content: center;
+  cursor: pointer;
+  padding: 6px;
+  transition: all 0.15s;
+  background: #fff;
 }
 
-#card-logo-preview {
-  max-height: 60px;
-  max-width: 120px;
-  border-radius: 4px;
-  border: 1px solid var(--gray-200);
+.card-logo-option:hover { border-color: var(--gray-300); }
+.card-logo-option.selected { border-color: var(--red); background: rgba(227,0,15,0.05); }
+
+.card-logo-option img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
 }
 
-.card-logo-actions { display: flex; gap: 8px; }
+.card-logo-none {
+  font-size: 12px;
+  color: var(--gray-500);
+  font-weight: 600;
+}
+
+.card-logo-custom-row { margin-top: 4px; }
 
 .card-preview-wrapper {
   display: flex;

@@ -187,7 +187,7 @@ function buildPositionPills(positions) {
 // ── Player Archetype Banner ──────────────────────────────────
 
 function buildArchetypeBanner(player) {
-  const arch = getPlayerArchetype(player.strengths);
+  const arch = getPlayerArchetype(player.strengths, player.archetypeOverride);
   if (!arch) return '';
 
   return `<div class="card-archetype-banner">
@@ -287,7 +287,7 @@ function buildCard(player, layoutId) {
         <div class="card-strengths-col">
           <div class="card-col-heading">${L.sections.strengths}</div>
           ${player.strengths && player.strengths.length
-            ? `<ul class="card-strengths-list">${buildStrengthBullets(player.strengths).map(s =>
+            ? `<ul class="card-strengths-list">${buildStrengthBullets(player.strengths, L.id === 'german' ? 'de' : 'en').map(s =>
                 `<li class="card-strength-item">${s}</li>`).join('')}</ul>`
             : '<span class="card-empty-dash">—</span>'}
         </div>

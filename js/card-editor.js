@@ -75,6 +75,18 @@ const CardEditor = {
           <div id="card-trait-categories">${CardEditor._renderTraitSelector()}</div>
         </div>
 
+        <!-- ── Player Archetype ─────────────────────────────── -->
+        <div class="report-section">
+          <div class="report-section-title">Player Archetype</div>
+          <p class="report-section-desc">The big label on the card. Auto-detected from traits, or pick manually.</p>
+          <div class="card-archetype-toggle" id="card-archetype-toggle">
+            <button type="button" class="card-archetype-btn ${!CardEditor._player.archetypeOverride ? 'active' : ''}" data-archetype="">Auto</button>
+            ${Object.entries(ARCHETYPE_NAMES).map(([key, name]) =>
+              `<button type="button" class="card-archetype-btn ${CardEditor._player.archetypeOverride === key ? 'active' : ''}" data-archetype="${key}">${name}</button>`
+            ).join('')}
+          </div>
+        </div>
+
         <!-- ── Playing Style ──────────────────────────────── -->
         <div class="report-section">
           <div class="report-section-title">Playing Style</div>
@@ -88,13 +100,23 @@ const CardEditor = {
         <!-- ── Partner Logo ───────────────────────────────── -->
         <div class="report-section">
           <div class="report-section-title">Partner Club Logo</div>
-          <div class="card-logo-area">
-            <input type="file" id="card-logo-input" accept="image/*" style="display:none">
-            <img id="card-logo-preview" src="${ev._partnerLogo || ''}" style="${ev._partnerLogo ? '' : 'display:none'}" alt="">
-            <div class="card-logo-actions">
-              <button class="btn btn-outline btn-sm" id="card-btn-upload-logo">Upload Logo</button>
-              <button class="btn btn-ghost btn-sm" id="card-btn-clear-logo" style="${ev._partnerLogo ? '' : 'display:none'}">Remove</button>
+          <div class="card-logo-presets" id="card-logo-presets">
+            <div class="card-logo-option ${ev._partnerLogo === 'assets/logos/athletes-usa.png' ? 'selected' : ''}" data-logo="assets/logos/athletes-usa.png" title="Athletes USA">
+              <img src="assets/logos/athletes-usa.png" alt="Athletes USA">
             </div>
+            <div class="card-logo-option ${ev._partnerLogo === 'assets/logos/warubi-sports.png' ? 'selected' : ''}" data-logo="assets/logos/warubi-sports.png" title="Warubi Sports">
+              <img src="assets/logos/warubi-sports.png" alt="Warubi Sports">
+            </div>
+            <div class="card-logo-option ${ev._partnerLogo === 'assets/logos/warubi.png' ? 'selected' : ''}" data-logo="assets/logos/warubi.png" title="Warubi">
+              <img src="assets/logos/warubi.png" alt="Warubi">
+            </div>
+            <div class="card-logo-option card-logo-none ${!ev._partnerLogo ? 'selected' : ''}" data-logo="" title="No logo">
+              <span>None</span>
+            </div>
+          </div>
+          <div class="card-logo-custom-row">
+            <input type="file" id="card-logo-input" accept="image/*" style="display:none">
+            <button class="btn btn-ghost btn-sm" id="card-btn-upload-logo">Or upload custom logo</button>
           </div>
         </div>
 
@@ -166,16 +188,43 @@ const CardEditor = {
       CardEditor._cardLayout = btn.dataset.layout;
     });
 
+    // Archetype toggle
+    container.querySelector('#card-archetype-toggle').addEventListener('click', e => {
+      const btn = e.target.closest('.card-archetype-btn');
+      if (!btn) return;
+      container.querySelectorAll('.card-archetype-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      CardEditor._player.archetypeOverride = btn.dataset.archetype || null;
+    });
+
     // Generate playing style
-    container.querySelector('#card-btn-generate').addEventListener('click', () => {
+    container.querySelector('#card-btn-generate').addEventListener('click', async () => {
       if (CardEditor._selectedTraits.size === 0) {
         App.toast('Select some traits first');
         return;
       }
+      const btn = container.querySelector('#card-btn-generate');
       const textarea = container.querySelector('#card-playing-style');
       const cardData = CardEditor._mapPlayerToCard(CardEditor._player);
-      const text = ScoutGenerator.generate(CardEditor._selectedTraits, cardData);
-      textarea.value = text;
+
+      // Try Claude API first, fall back to deterministic generator
+      const apiKey = CardEditor._getApiKey();
+      if (apiKey) {
+        btn.textContent = 'Generating...';
+        btn.disabled = true;
+        try {
+          const text = await CardEditor._generateWithAI(cardData, apiKey);
+          textarea.value = text;
+        } catch (err) {
+          console.warn('AI generation failed, using fallback:', err);
+          textarea.value = ScoutGenerator.generate(CardEditor._selectedTraits, cardData);
+          App.toast('Used offline generator');
+        }
+        btn.textContent = 'Generate Playing Style';
+        btn.disabled = false;
+      } else {
+        textarea.value = ScoutGenerator.generate(CardEditor._selectedTraits, cardData);
+      }
     });
 
     // Clear traits
@@ -184,7 +233,16 @@ const CardEditor = {
       container.querySelector('#card-trait-categories').innerHTML = CardEditor._renderTraitSelector();
     });
 
-    // Partner logo upload
+    // Partner logo presets
+    container.querySelector('#card-logo-presets').addEventListener('click', e => {
+      const option = e.target.closest('.card-logo-option');
+      if (!option) return;
+      container.querySelectorAll('.card-logo-option').forEach(o => o.classList.remove('selected'));
+      option.classList.add('selected');
+      CardEditor._partnerLogo = option.dataset.logo || null;
+    });
+
+    // Custom logo upload
     container.querySelector('#card-btn-upload-logo').addEventListener('click', () => {
       container.querySelector('#card-logo-input').click();
     });
@@ -193,19 +251,9 @@ const CardEditor = {
       if (e.target.files[0]) {
         CardEditor._resizeImage(e.target.files[0], 400, b64 => {
           CardEditor._partnerLogo = b64;
-          const img = container.querySelector('#card-logo-preview');
-          img.src = b64;
-          img.style.display = '';
-          container.querySelector('#card-btn-clear-logo').style.display = '';
+          container.querySelectorAll('.card-logo-option').forEach(o => o.classList.remove('selected'));
         }, 'image/png');
       }
-    });
-
-    container.querySelector('#card-btn-clear-logo').addEventListener('click', () => {
-      CardEditor._partnerLogo = null;
-      container.querySelector('#card-logo-preview').style.display = 'none';
-      container.querySelector('#card-logo-preview').src = '';
-      container.querySelector('#card-btn-clear-logo').style.display = 'none';
     });
 
     // Save draft
@@ -228,6 +276,7 @@ const CardEditor = {
     CardEditor._player.strengths = CardEditor._getStrengthLabels();
     CardEditor._player.partnerLogoBase64 = CardEditor._partnerLogo;
     CardEditor._player.cardLayout = CardEditor._cardLayout;
+    // archetypeOverride already set via click handler
   },
 
   async _saveDraft() {
@@ -263,6 +312,7 @@ const CardEditor = {
       strengths: player.strengths || [],
       playingStyle: player.playingStyle || '',
       videoUrls: [player.highlightUrl, player.fullGameUrl].filter(Boolean),
+      archetypeOverride: player.archetypeOverride || null,
     };
   },
 
@@ -357,6 +407,71 @@ const CardEditor = {
       img.src = e.target.result;
     };
     reader.readAsDataURL(file);
+  },
+
+  _getApiKey() {
+    let key = localStorage.getItem('itp_claude_api_key');
+    if (!key) {
+      key = window.prompt('Enter your Claude API key for AI-generated descriptions.\n\nGet one at console.anthropic.com.\nSaved locally in your browser.');
+      if (key) localStorage.setItem('itp_claude_api_key', key.trim());
+    }
+    return key ? key.trim() : null;
+  },
+
+  async _generateWithAI(cardData, apiKey) {
+    const player = CardEditor._player;
+    const traits = CardEditor._getStrengthLabels();
+    const layout = CARD_LAYOUTS[CardEditor._cardLayout];
+    const isGerman = CardEditor._cardLayout === 'german';
+    const positions = (player.positions || []).map(p => typeof p === 'string' ? p : p.code).join(', ');
+
+    const prompt = isGerman
+      ? `Schreibe einen kurzen Scouting-Bericht (3-4 Sätze) auf Deutsch für einen Fußballspieler-Profilkarte. Der Text soll professionell und überzeugend sein.
+
+Spieler: ${player.firstName} ${player.lastName}
+Alter: ${App.computeAge(player.dateOfBirth) || '?'}
+Position(en): ${positions || '?'}
+Fuß: ${player.foot || '?'}
+Größe: ${player.heightCm ? player.heightCm + ' cm' : '?'}
+Stärken: ${traits.join(', ')}
+
+Schreibe NUR den Fließtext, keine Überschriften oder Aufzählungszeichen.`
+      : `Write a short scouting description (3-4 sentences) for a football player profile card. The text should be professional and compelling, suitable for sharing with college coaches.
+
+Player: ${player.firstName} ${player.lastName}
+Age: ${App.computeAge(player.dateOfBirth) || '?'}
+Position(s): ${positions || '?'}
+Foot: ${player.foot || '?'}
+Height: ${player.heightCm ? player.heightCm + ' cm' : '?'}
+Key traits: ${traits.join(', ')}
+
+Write ONLY the paragraph text, no headings or bullet points.`;
+
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 512,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+
+    if (!response.ok) {
+      if (response.status === 401) {
+        localStorage.removeItem('itp_claude_api_key');
+        throw new Error('Invalid API key');
+      }
+      throw new Error(`API error (${response.status})`);
+    }
+
+    const data = await response.json();
+    return data.content?.[0]?.text || '';
   },
 
   _esc(str) {

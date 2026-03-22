@@ -12,11 +12,17 @@ const SCOUT_TRAITS = {
       ballControl:      'Ball Control',
       firstTouch:       'First Touch',
       passingRange:     'Passing Range',
+      shortPassing:     'Short Passing',
       crossing:         'Crossing',
       dribbling:        'Dribbling',
       finishing:        'Finishing',
       longRangeShooting:'Long-Range Shooting',
       setPieces:        'Set Pieces',
+      heading:          'Heading',
+      weakFoot:         'Weak Foot Ability',
+      receivingUnderPressure: 'Receiving Under Pressure',
+      throughBalls:     'Through Balls',
+      holdUpPlay:       'Hold-Up Play',
     }
   },
   mental: {
@@ -29,6 +35,11 @@ const SCOUT_TRAITS = {
       workRate:         'Work Rate',
       creativity:       'Creativity',
       decisionMaking:   'Decision-Making',
+      concentration:    'Concentration',
+      offTheBall:       'Off-the-Ball Movement',
+      anticipation:     'Anticipation',
+      communication:    'Communication',
+      pressing:         'Pressing',
     }
   },
   physical: {
@@ -41,6 +52,9 @@ const SCOUT_TRAITS = {
       explosiveness:    'Explosiveness',
       balance:          'Balance',
       aerialPresence:   'Aerial Presence',
+      flexibility:      'Flexibility',
+      strength:         'Strength',
+      acceleration:     'Acceleration',
     }
   },
   defensive: {
@@ -50,6 +64,9 @@ const SCOUT_TRAITS = {
       marking:          'Marking',
       interceptions:    'Interceptions',
       oneVOneDefending: '1v1 Defending',
+      coveringDepth:    'Covering Depth',
+      defensiveAwareness:'Defensive Awareness',
+      aerialDuels:      'Aerial Duels',
     }
   },
   character: {
@@ -60,6 +77,9 @@ const SCOUT_TRAITS = {
       competitiveMentality: 'Competitive Mentality',
       versatile:            'Versatile',
       teamPlayer:           'Team Player',
+      resilience:           'Resilience',
+      discipline:           'Discipline',
+      professionalism:      'Professionalism',
     }
   }
 };
@@ -76,6 +96,12 @@ const SHORT_PHRASES = {
   finishing:         'clinical finishing',
   longRangeShooting: 'a powerful long-range shot',
   setPieces:         'set-piece quality',
+  heading:           'strong heading ability',
+  weakFoot:          'comfortable on both feet',
+  receivingUnderPressure: 'composed receiving under pressure',
+  throughBalls:      'incisive through balls',
+  shortPassing:      'precise short passing',
+  holdUpPlay:        'effective hold-up play',
   // Mental
   gameReading:       'reads the game well',
   positioning:       'intelligent positioning',
@@ -84,6 +110,11 @@ const SHORT_PHRASES = {
   workRate:          'a relentless work rate',
   creativity:        'creative vision',
   decisionMaking:    'mature decision-making',
+  concentration:     'sustained concentration',
+  offTheBall:        'intelligent off-the-ball movement',
+  anticipation:      'sharp anticipation',
+  communication:     'vocal communication',
+  pressing:          'effective pressing',
   // Physical
   pace:              'explosive pace',
   power:             'physical power',
@@ -92,23 +123,67 @@ const SHORT_PHRASES = {
   explosiveness:     'dynamic explosiveness',
   balance:           'outstanding balance',
   aerialPresence:    'aerial dominance',
+  flexibility:       'natural flexibility',
+  strength:          'upper-body strength',
+  acceleration:      'quick acceleration',
   // Defensive
   tackling:          'strong tackling',
   marking:           'disciplined marking',
   interceptions:     'sharp interceptions',
   oneVOneDefending:  'solid 1v1 defending',
+  coveringDepth:     'excellent covering depth',
+  defensiveAwareness:'keen defensive awareness',
+  aerialDuels:       'dominance in aerial duels',
   // Character
   coachable:         'highly coachable',
   highCeiling:       'high development ceiling',
   competitiveMentality: 'fierce competitor',
   versatile:         'tactical versatility',
   teamPlayer:        'selfless team player',
+  resilience:        'mental resilience',
+  discipline:        'tactical discipline',
+  professionalism:   'professional attitude',
+};
+
+// ── German short phrases ──────────────────────────────────────
+
+const SHORT_PHRASES_DE = {
+  ballControl: 'hervorragende Ballkontrolle', firstTouch: 'ein feiner erster Kontakt',
+  passingRange: 'beeindruckende Passreichweite', shortPassing: 'präzises Kurzpassspiel',
+  crossing: 'gefährliche Flanken', dribbling: 'starkes Dribbling',
+  finishing: 'klinischer Torabschluss', longRangeShooting: 'einen kraftvollen Fernschuss',
+  setPieces: 'Qualität bei Standards', heading: 'starkes Kopfballspiel',
+  weakFoot: 'beidfüßig einsetzbar', receivingUnderPressure: 'sicheres Annehmen unter Druck',
+  throughBalls: 'präzise Steilpässe', holdUpPlay: 'effektives Festmachen des Balls',
+  gameReading: 'gutes Spielverständnis', positioning: 'intelligentes Stellungsspiel',
+  leadership: 'natürliche Führungsqualitäten', composure: 'Ruhe unter Druck',
+  workRate: 'unermüdlicher Einsatz', creativity: 'kreative Spielgestaltung',
+  decisionMaking: 'reife Entscheidungsfindung', concentration: 'hohe Konzentrationsfähigkeit',
+  offTheBall: 'intelligentes Freilaufverhalten', anticipation: 'vorausschauendes Spiel',
+  communication: 'gute Kommunikation auf dem Platz', pressing: 'effektives Pressing',
+  pace: 'explosive Schnelligkeit', power: 'physische Stärke',
+  agility: 'hohe Wendigkeit', stamina: 'ausgezeichnete Ausdauer',
+  explosiveness: 'dynamische Explosivität', balance: 'hervorragendes Gleichgewicht',
+  aerialPresence: 'Kopfballstärke', flexibility: 'natürliche Flexibilität',
+  strength: 'körperliche Robustheit', acceleration: 'schnelle Antrittsgeschwindigkeit',
+  tackling: 'starkes Tackling', marking: 'diszipliniertes Deckungsspiel',
+  interceptions: 'aufmerksames Abfangen', oneVOneDefending: 'starkes 1-gegen-1-Verteidigen',
+  coveringDepth: 'gute Absicherung hinter der Kette', defensiveAwareness: 'ausgeprägtes Defensivbewusstsein',
+  aerialDuels: 'Dominanz in Kopfballduellen',
+  coachable: 'hohe Trainierbarkeit', highCeiling: 'hohes Entwicklungspotenzial',
+  competitiveMentality: 'ausgeprägter Wettkampfgeist', versatile: 'taktische Vielseitigkeit',
+  teamPlayer: 'selbstloser Teamplayer', resilience: 'mentale Widerstandsfähigkeit',
+  discipline: 'taktische Disziplin', professionalism: 'professionelle Einstellung',
 };
 
 // ── Build grouped strength bullet sentences ──────────────────
 
-function buildStrengthBullets(labels) {
+function buildStrengthBullets(labels, lang) {
   if (!labels || !labels.length) return [];
+
+  const phrases = (lang === 'de') ? SHORT_PHRASES_DE : SHORT_PHRASES;
+  const conjunction = (lang === 'de') ? ' und ' : ' and ';
+  const lastConj = (lang === 'de') ? ' und ' : ', and ';
 
   // Build reverse lookup: label → { key, category }
   const labelToInfo = {};
@@ -135,16 +210,15 @@ function buildStrengthBullets(labels) {
     const keys = groups[cat];
     if (!keys || !keys.length) continue;
 
-    const phrases = keys.map(k => SHORT_PHRASES[k] || k);
+    const parts = keys.map(k => phrases[k] || k);
     let sentence;
-    if (phrases.length === 1) {
-      sentence = phrases[0];
-    } else if (phrases.length === 2) {
-      sentence = phrases[0] + ' and ' + phrases[1];
+    if (parts.length === 1) {
+      sentence = parts[0];
+    } else if (parts.length === 2) {
+      sentence = parts[0] + conjunction + parts[1];
     } else {
-      sentence = phrases.slice(0, -1).join(', ') + ', and ' + phrases[phrases.length - 1];
+      sentence = parts.slice(0, -1).join(', ') + lastConj + parts[parts.length - 1];
     }
-    // Capitalize first letter
     bullets.push(sentence.charAt(0).toUpperCase() + sentence.slice(1));
   }
 
@@ -238,6 +312,27 @@ const PHRASE_POOLS = {
   competitiveMentality:  ['a fierce competitive mentality', 'the desire to win every individual battle', 'a winning mentality that drives his performance', 'competitive fire that raises his level in big moments'],
   versatile:             ['tactical versatility across multiple positions', 'the flexibility to operate in different roles', 'adaptability that makes him a valuable squad option', 'comfortable deploying in multiple positions'],
   teamPlayer:            ['a selfless team player', 'willingness to work for the collective', 'a team-first mentality that prioritizes the group', 'the ability to put the team above individual glory'],
+  // New traits
+  heading:               ['strong heading ability', 'aerial quality in both boxes', 'a threat in the air from set pieces and open play'],
+  weakFoot:              ['comfort on both feet', 'a reliable weak foot that expands his options', 'the ability to use either foot effectively'],
+  receivingUnderPressure:['the composure to receive under pressure', 'confident ball reception even when closely marked', 'the ability to take the ball in tight areas'],
+  throughBalls:          ['the vision to play incisive through balls', 'an eye for the killer pass', 'the ability to unlock defences with well-timed passes'],
+  shortPassing:          ['precise short passing', 'crisp link-up play in tight spaces', 'quick, accurate distribution over short distances'],
+  holdUpPlay:            ['effective hold-up play', 'the strength to bring others into the game', 'the ability to retain possession and lay off under pressure'],
+  concentration:         ['sustained concentration throughout the match', 'the focus to stay engaged for the full 90 minutes', 'consistent attention to tactical responsibilities'],
+  offTheBall:            ['intelligent off-the-ball movement', 'well-timed runs that stretch the opposition', 'the ability to find space between the lines'],
+  anticipation:          ['sharp anticipation of play', 'the ability to read the game a step ahead', 'instinctive movement based on game awareness'],
+  communication:         ['vocal presence on the pitch', 'effective communication that organises teammates', 'a commanding voice that improves the team structure'],
+  pressing:              ['effective pressing instincts', 'the ability to lead the press and force turnovers', 'intelligent pressing triggers that disrupt the opposition'],
+  flexibility:           ['natural flexibility and body control', 'fluid body movement that aids agility', 'suppleness that supports quick changes of direction'],
+  strength:              ['upper-body strength in duels', 'the physicality to hold off opponents', 'robust frame that allows him to compete physically'],
+  acceleration:          ['quick acceleration over the first few yards', 'explosive first-step pace', 'the burst of speed to beat defenders in tight situations'],
+  coveringDepth:         ['excellent covering depth behind the defensive line', 'the awareness to cover space in behind', 'reliable positional cover when teammates push forward'],
+  defensiveAwareness:    ['keen defensive awareness', 'the ability to read danger early', 'sound defensive instincts that prevent chances'],
+  aerialDuels:           ['dominance in aerial duels', 'the ability to win headers in both boxes', 'physical presence in contested aerial situations'],
+  resilience:            ['mental resilience under adversity', 'the ability to bounce back from setbacks', 'a strong mindset that handles pressure situations'],
+  discipline:            ['tactical discipline and positional responsibility', 'the maturity to follow the team plan', 'consistent adherence to tactical instructions'],
+  professionalism:       ['a professional attitude toward training and development', 'mature approach to preparation and recovery', 'the habits and mindset of a professional player'],
 };
 
 // ── Athletic qualifier sentences ───────────────────────────────
@@ -284,6 +379,9 @@ const CHARACTER_CLOSERS = {
   competitiveMentality:  ['His competitive edge drives him to raise his game when it matters most.', 'A winner by nature, he brings intensity to every training session and match.', 'His mentality ensures he will thrive in competitive collegiate environments.'],
   versatile:             ['His versatility gives coaching staff tactical flexibility in multiple systems.', 'The ability to play across different positions adds significant value.', 'Positional flexibility makes him an asset in any squad.'],
   teamPlayer:            ['A player who elevates those around him through selfless play.', 'His team-first approach will make him a valued member of any program.', 'Coaches will appreciate his willingness to sacrifice for the collective.'],
+  resilience:            ['His mental resilience ensures he thrives under pressure and recovers quickly from setbacks.', 'A resilient competitor who rises to challenges rather than shrinking from them.'],
+  discipline:            ['His tactical discipline makes him a reliable and coachable player in any system.', 'Coaches will value his consistent adherence to team structure and tactical plans.'],
+  professionalism:       ['His professional approach to training and development sets him apart from his peers.', 'A player whose off-field habits and mindset reflect genuine professional standards.'],
 };
 
 const GENERIC_CLOSERS = [
@@ -420,7 +518,33 @@ const ARCHETYPE_NAMES = {
 
 const ARCHETYPE_PRIORITY = ['technical', 'physical', 'mental', 'defensive', 'character'];
 
-function getPlayerArchetype(strengths) {
+function getPlayerArchetype(strengths, archetypeOverride) {
+  // Manual override
+  if (archetypeOverride && ARCHETYPE_NAMES[archetypeOverride]) {
+    const ARCHETYPE_LABELS = {
+      technical: 'Technically Gifted',
+      physical:  'Physically Dominant',
+      mental:    'Tactically Sharp',
+      defensive: 'Defensively Solid',
+      character: 'Strong Leader',
+    };
+    // Build secondary cats from traits
+    const labelToCat = {};
+    for (const [catKey, cat] of Object.entries(SCOUT_TRAITS)) {
+      for (const label of Object.values(cat.traits)) labelToCat[label] = catKey;
+    }
+    const counts = {};
+    for (const label of (strengths || [])) {
+      const cat = labelToCat[label];
+      if (cat) counts[cat] = (counts[cat] || 0) + 1;
+    }
+    const activeCats = ARCHETYPE_PRIORITY
+      .filter(c => counts[c] > 0)
+      .slice(0, 3)
+      .map(c => ARCHETYPE_LABELS[c]);
+    return { name: ARCHETYPE_NAMES[archetypeOverride], categories: activeCats };
+  }
+
   if (!strengths || !strengths.length) return null;
 
   // Build reverse lookup: label → category
