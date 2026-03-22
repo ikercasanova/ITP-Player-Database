@@ -508,6 +508,40 @@ const ScoutGenerator = {
 
 // ── Player Archetype (trading-card style label) ──────────────
 
+// Position-aware archetype names for more specific labels
+const ARCHETYPE_BY_POSITION = {
+  technical: {
+    GK: 'SWEEPER KEEPER', CB: 'BALL-PLAYING DEFENDER', LB: 'CREATIVE FULLBACK', RB: 'CREATIVE FULLBACK',
+    CDM: 'DEEP-LYING PLAYMAKER', CM: 'CREATIVE PLAYMAKER', CAM: 'CREATIVE TECHNICIAN',
+    LW: 'TECHNICAL WINGER', RW: 'TECHNICAL WINGER', ST: 'SKILLFUL STRIKER',
+    _default: 'CREATIVE TECHNICIAN',
+  },
+  physical: {
+    GK: 'COMMANDING KEEPER', CB: 'DOMINANT DEFENDER', LB: 'DYNAMIC FULLBACK', RB: 'DYNAMIC FULLBACK',
+    CDM: 'MIDFIELD ENFORCER', CM: 'BOX-TO-BOX ENGINE', CAM: 'DYNAMIC ATTACKER',
+    LW: 'EXPLOSIVE WINGER', RW: 'EXPLOSIVE WINGER', ST: 'POWERFUL STRIKER',
+    _default: 'ATHLETIC FORCE',
+  },
+  mental: {
+    GK: 'TACTICAL KEEPER', CB: 'INTELLIGENT DEFENDER', LB: 'SMART FULLBACK', RB: 'SMART FULLBACK',
+    CDM: 'TACTICAL ANCHOR', CM: 'MIDFIELD CONDUCTOR', CAM: 'CREATIVE THINKER',
+    LW: 'INTELLIGENT WINGER', RW: 'INTELLIGENT WINGER', ST: 'CLINICAL FORWARD',
+    _default: 'TACTICAL MIND',
+  },
+  defensive: {
+    GK: 'SHOT STOPPER', CB: 'DEFENSIVE ROCK', LB: 'SOLID FULLBACK', RB: 'SOLID FULLBACK',
+    CDM: 'MIDFIELD DESTROYER', CM: 'TENACIOUS MIDFIELDER', CAM: 'PRESSING MACHINE',
+    LW: 'TWO-WAY WINGER', RW: 'TWO-WAY WINGER', ST: 'HARDWORKING FORWARD',
+    _default: 'DEFENSIVE SPECIALIST',
+  },
+  character: {
+    _default: 'NATURAL LEADER',
+    GK: 'VOCAL LEADER', CB: 'DEFENSIVE LEADER', CDM: 'MIDFIELD LEADER',
+    CM: 'TEAM CAPTAIN', ST: 'INSPIRATIONAL FORWARD',
+  },
+};
+
+// Fallback flat names (used when no position available)
 const ARCHETYPE_NAMES = {
   technical: 'CREATIVE TECHNICIAN',
   physical:  'ATHLETIC FORCE',
@@ -518,7 +552,14 @@ const ARCHETYPE_NAMES = {
 
 const ARCHETYPE_PRIORITY = ['technical', 'physical', 'mental', 'defensive', 'character'];
 
-function getPlayerArchetype(strengths, archetypeOverride) {
+function _getArchetypeName(dominant, position) {
+  const posMap = ARCHETYPE_BY_POSITION[dominant];
+  if (!posMap) return ARCHETYPE_NAMES[dominant] || 'VERSATILE TALENT';
+  const posCode = typeof position === 'string' ? position : position?.code;
+  return posMap[posCode] || posMap._default || ARCHETYPE_NAMES[dominant];
+}
+
+function getPlayerArchetype(strengths, archetypeOverride, position) {
   // Manual override
   if (archetypeOverride && ARCHETYPE_NAMES[archetypeOverride]) {
     const ARCHETYPE_LABELS = {
@@ -542,7 +583,7 @@ function getPlayerArchetype(strengths, archetypeOverride) {
       .filter(c => counts[c] > 0)
       .slice(0, 3)
       .map(c => ARCHETYPE_LABELS[c]);
-    return { name: ARCHETYPE_NAMES[archetypeOverride], categories: activeCats };
+    return { name: _getArchetypeName(archetypeOverride, position), categories: activeCats };
   }
 
   if (!strengths || !strengths.length) return null;
@@ -588,7 +629,7 @@ function getPlayerArchetype(strengths, archetypeOverride) {
     .map(c => ARCHETYPE_LABELS[c]);
 
   return {
-    name: ARCHETYPE_NAMES[dominant],
+    name: _getArchetypeName(dominant, position),
     categories: activeCats,
   };
 }

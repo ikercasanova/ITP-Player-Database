@@ -158,6 +158,27 @@ const CARD_LAYOUTS = {
 
 };
 
+// ── Contact Options ─────────────────────────────────────────
+
+const CARD_CONTACTS = {
+  max: {
+    id: 'max',
+    label: 'Max Bisinger',
+    name: 'Max Bisinger',
+    role: 'ITP Coordinator',
+    email: 'max.bisinger@warubi-sports.com',
+    org: ['1. FC Köln Football School', 'International Talent Pathway'],
+  },
+  thomas: {
+    id: 'thomas',
+    label: 'Thomas Ellinger',
+    name: 'Thomas Ellinger',
+    role: 'ITP Coordinator',
+    email: 'th.el@warubi-sports.com',
+    org: ['1. FC Köln Football School', 'International Talent Pathway'],
+  },
+};
+
 function getLayout(id) {
   return CARD_LAYOUTS[id] || CARD_LAYOUTS.usa;
 }

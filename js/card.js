@@ -27,16 +27,24 @@ function calcBenchmarkPercent(cfg) {
 
 function buildTestsHTML(tests, layout) {
   const benchmarks = layout.benchmarks;
+
+  // Only include tests that have data
+  const testEntries = Object.entries(benchmarks).filter(([key, cfg]) => {
+    const raw = tests[key];
+    return raw != null && raw !== '' && !isNaN(parseFloat(raw));
+  });
+
+  if (testEntries.length === 0) return '';
+
   const legend = `<div class="test-bars-legend">
     <span class="test-legend-item"><span class="test-legend-swatch" style="background:#ED1C24"></span>${layout.labels.player}</span>
     <span class="test-legend-item"><span class="test-legend-swatch" style="background:#888"></span>${layout.benchmarkLabel}</span>
   </div>`;
 
-  const rows = Object.entries(benchmarks).map(([key, cfg]) => {
+  const rows = testEntries.map(([key, cfg]) => {
     const raw = tests[key];
-    const hasValue = raw != null && raw !== '' && !isNaN(parseFloat(raw));
-    const displayVal = hasValue ? parseFloat(raw) + ' ' + cfg.unit : '—';
-    const barPct = hasValue ? calcBarPercent(raw, cfg) : 0;
+    const displayVal = parseFloat(raw) + ' ' + cfg.unit;
+    const barPct = calcBarPercent(raw, cfg);
     const benchPct = calcBenchmarkPercent(cfg);
 
     return `<div class="test-bar-row">
@@ -56,7 +64,7 @@ function buildTestsHTML(tests, layout) {
 
 // ── FC Köln Football School logo — official image ─────────────
 // Located at assets/logos/koln-fs.webp
-const FCK_LOGO_IMG = `<img src="assets/logos/koln-fs.webp" class="card-fck-logo" alt="1. FC Köln Football School">`;
+const FCK_LOGO_IMG = `<img src="assets/logos/fc-fs-white-full.png" class="card-fck-logo" alt="1. FC Köln Football School">`;
 
 // ── Unit conversions ──────────────────────────────────────────
 
@@ -187,7 +195,9 @@ function buildPositionPills(positions) {
 // ── Player Archetype Banner ──────────────────────────────────
 
 function buildArchetypeBanner(player) {
-  const arch = getPlayerArchetype(player.strengths, player.archetypeOverride);
+  const primaryPos = player.positions?.[0];
+  const posCode = typeof primaryPos === 'string' ? primaryPos : primaryPos?.code;
+  const arch = getPlayerArchetype(player.strengths, player.archetypeOverride, posCode);
   if (!arch) return '';
 
   return `<div class="card-archetype-banner">
@@ -226,7 +236,9 @@ function buildCard(player, layoutId) {
 
   const tests = player.tests || {};
   const pills = buildPositionPills(player.positions);
-  const contact = L.contact;
+  const contact = (player.cardContact && typeof CARD_CONTACTS !== 'undefined' && CARD_CONTACTS[player.cardContact])
+    ? CARD_CONTACTS[player.cardContact]
+    : L.contact;
   const playerName = `${player.firstName || ''} ${player.lastName || ''}`.trim();
 
   card.innerHTML = `
@@ -275,10 +287,10 @@ function buildCard(player, layoutId) {
     </div>
 
     <!-- ── 3. PERFORMANCE TESTS ────────────────────────────── -->
-    <div class="card-section-block card-tests-block">
+    ${buildTestsHTML(tests, L) ? `<div class="card-section-block card-tests-block">
       <div class="card-section-title">${L.sections.tests}</div>
       ${buildTestsHTML(tests, L)}
-    </div>
+    </div>` : ''}
 
     <!-- ── 5. PLAYER PROFILE ──────────────────────────────── -->
     <div class="card-section-block card-about-block">
