@@ -1,0 +1,822 @@
+/* ═══════════════════════════════════════════════════════════════
+   card.css — A4 Player Card (794 × 1123 px)
+   1. FC Köln International Talent Pathway
+   Font: Barlow Condensed (display) + Barlow (body)
+═══════════════════════════════════════════════════════════════ */
+
+:root {
+  --red:    #ED1C24;
+  --dark:   #111111;
+  --mid:    #2a0005;
+  --text:   #1A1A1A;
+  --muted:  #888;
+  --border: #E8E8E8;
+  --light:  #F7F7F7;
+  --bc:     'Barlow Condensed', 'Arial Narrow', Arial, sans-serif;
+  --br:     'Barlow', Arial, sans-serif;
+}
+
+.player-card {
+  width:  794px;
+  height: 1123px;
+  background: #fff;
+  font-family: var(--bc);
+  color: var(--text);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Red left accent strip — premium sports document signature */
+.player-card::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 5px;
+  background: var(--red);
+  z-index: 10;
+  pointer-events: none;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   1. HEADER
+═══════════════════════════════════════════════════════════════ */
+.card-header {
+  /* Dark left fades into FC red — logo pops on the dark side */
+  background: linear-gradient(110deg, #111 0%, #2a0005 42%, #ED1C24 100%);
+  color: #fff;
+  padding: 0 20px 0 0;
+  display: flex;
+  align-items: stretch;
+  min-height: 100px;
+  flex-shrink: 0;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Subtle diagonal texture overlay */
+.card-header::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    -55deg,
+    transparent,
+    transparent 18px,
+    rgba(255,255,255,0.022) 18px,
+    rgba(255,255,255,0.022) 19px
+  );
+  pointer-events: none;
+}
+
+/* FC Köln Football School logo */
+.card-header-badge {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 16px 10px 18px;
+}
+
+.card-fck-logo {
+  height: 78px;
+  width: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 6px rgba(0,0,0,0.5));
+}
+
+/* Thin vertical separator between badge and name */
+.card-header-center {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 12px 16px 12px 18px;
+  border-left: 1px solid rgba(255,255,255,0.12);
+}
+
+.card-program-name {
+  font-family: var(--bc);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  opacity: 0.6;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.card-player-name-wrap {
+  position: relative;
+  overflow: hidden;
+}
+
+.header-jersey-watermark {
+  position: absolute;
+  right: -6px;
+  top: -22px;
+  font-family: var(--bc);
+  font-size: 96px;
+  font-weight: 900;
+  color: rgba(255,255,255,0.07);
+  line-height: 1;
+  pointer-events: none;
+  user-select: none;
+  letter-spacing: -6px;
+}
+
+.card-player-name {
+  font-family: var(--bc);
+  font-size: 50px;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -1px;
+  color: #fff;
+}
+
+/* ── Partner Logo (in contact cell) ─────────────────────────── */
+.card-partner-in-contact {
+  margin-top: auto;
+  padding-top: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.partner-contact-label {
+  font-family: var(--bc);
+  font-size: 7.5px;
+  font-weight: 700;
+  letter-spacing: 2.5px;
+  color: #bbb;
+  text-transform: uppercase;
+}
+
+.partner-contact-logo {
+  max-height: 36px;
+  max-width: 100px;
+  width: auto;
+  object-fit: contain;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   2. BIO ROW
+═══════════════════════════════════════════════════════════════ */
+.card-bio-row {
+  display: flex;
+  height: 258px;
+  flex-shrink: 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.card-photo-cell {
+  width: 240px;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.card-photo-wrap {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.card-photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* object-position set inline per player via photoPositionY */
+  display: block;
+}
+
+.card-photo-placeholder {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(160deg, #e2e2e2, #cacaca);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Red-to-transparent gradient at bottom of photo */
+.card-photo-gradient {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 90px;
+  background: linear-gradient(transparent, rgba(150,0,8,0.5));
+  pointer-events: none;
+}
+
+/* ── Section title — universal ──────────────────────────────── */
+.card-section-title {
+  font-family: var(--bc);
+  font-size: 13px;
+  font-weight: 900;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--red);
+  border-left: 3px solid var(--red);
+  padding-left: 7px;
+  margin-bottom: 10px;
+  line-height: 1.2;
+}
+
+.card-overview-cell {
+  flex: 1;
+  padding: 14px 18px;
+  border-left: 1px solid var(--border);
+  min-width: 0;
+}
+
+.card-contact-cell {
+  width: 140px;
+  flex-shrink: 0;
+  padding: 14px 16px;
+  border-left: 1px solid var(--border);
+  background: var(--light);
+  display: flex;
+  flex-direction: column;
+}
+
+/* Overview table */
+.card-info-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.card-info-table tr {
+  border-bottom: 1px solid #EAEAEA;
+}
+.card-info-table tr:last-child { border-bottom: none; }
+
+.card-info-table td {
+  padding: 5px 0;
+  vertical-align: middle;
+}
+
+.info-label {
+  font-family: var(--bc);
+  color: #aaa;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  width: 88px;
+  white-space: nowrap;
+}
+
+.info-value {
+  font-family: var(--bc);
+  color: var(--text);
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+}
+
+/* Position display (below overview table) */
+.card-position-display {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 0;
+  padding-top: 5px;
+  padding-bottom: 2px;
+  border-top: 1px solid #EAEAEA;
+}
+
+.card-position-badges {
+  display: flex;
+  gap: 6px;
+}
+
+/* Contact */
+.card-contact-name {
+  font-family: var(--bc);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 2px;
+  letter-spacing: 0.2px;
+}
+
+.card-contact-role {
+  font-family: var(--bc);
+  font-size: 10px;
+  color: var(--red);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  margin-bottom: 4px;
+}
+
+.card-contact-email {
+  font-family: var(--bc);
+  font-size: 8.5px;
+  color: #555;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+.card-contact-org {
+  font-size: 10px;
+  color: #666;
+  line-height: 1.7;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   3 & 4. PLAYER INFO + PERFORMANCE TESTS
+═══════════════════════════════════════════════════════════════ */
+.card-section-block {
+  padding: 10px 18px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.card-data-table {
+  width: 100%;
+  border-collapse: collapse;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.card-data-table thead tr {
+  background: var(--dark);
+}
+
+.card-data-table thead th {
+  padding: 7px 8px;
+  text-align: center;
+  font-family: var(--bc);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.7);
+  border-right: 1px solid rgba(255,255,255,0.08);
+}
+.card-data-table thead th:last-child { border-right: none; }
+
+.card-data-table tbody tr:nth-child(odd)  { background: #fff; }
+.card-data-table tbody tr:nth-child(even) { background: var(--light); }
+
+.card-data-table tbody td {
+  padding: 9px 10px;
+  text-align: center;
+  font-family: var(--bc);
+  font-size: 17px;
+  font-weight: 800;
+  color: var(--text);
+  border-right: 1px solid #EBEBEB;
+  letter-spacing: 0.3px;
+}
+.card-data-table tbody td:last-child { border-right: none; }
+
+/* ── Performance Tests: Bar Charts ─────────────────────────────── */
+.card-tests-block {
+  padding-bottom: 6px;
+}
+
+.test-bars-legend {
+  display: flex;
+  justify-content: flex-end;
+  gap: 14px;
+  margin-bottom: 6px;
+}
+
+.test-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--bc);
+  font-size: 8.5px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.test-legend-swatch {
+  display: inline-block;
+  width: 10px;
+  height: 6px;
+  border-radius: 1px;
+}
+
+.test-bar-row {
+  display: flex;
+  align-items: center;
+  height: 28px;
+  border-bottom: 1px solid #F0F0F0;
+}
+
+.test-bar-row:last-child {
+  border-bottom: none;
+}
+
+.test-bar-label {
+  width: 90px;
+  flex-shrink: 0;
+  font-family: var(--bc);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: #aaa;
+}
+
+.test-bar-value {
+  width: 58px;
+  flex-shrink: 0;
+  font-family: var(--bc);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: 0.2px;
+}
+
+.test-bar-track {
+  flex: 1;
+  height: 14px;
+  background: #F0F0F0;
+  border-radius: 2px;
+  position: relative;
+  overflow: visible;
+}
+
+.test-bar-fill {
+  height: 100%;
+  background: var(--red);
+  border-radius: 2px;
+  min-width: 0;
+  transition: width 0.3s ease;
+}
+
+.test-bar-benchmark {
+  position: absolute;
+  top: -3px;
+  width: 2px;
+  height: 18px;
+  background: #555;
+  border-radius: 1px;
+  transform: translateX(-1px);
+}
+
+.test-bar-bench-val {
+  width: 52px;
+  flex-shrink: 0;
+  text-align: right;
+  font-family: var(--bc);
+  font-size: 10px;
+  font-weight: 600;
+  color: #999;
+  letter-spacing: 0.2px;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   5. ABOUT THE PLAYER
+═══════════════════════════════════════════════════════════════ */
+.card-about-block {
+  flex: 0 0 auto;
+  min-height: 120px;
+  overflow: hidden;
+  position: relative;
+  background: #F9F9F9;
+  /* Subtle diagonal line texture makes the white space look intentional */
+  background-image: repeating-linear-gradient(
+    -45deg,
+    transparent,
+    transparent 24px,
+    rgba(0,0,0,0.018) 24px,
+    rgba(0,0,0,0.018) 25px
+  );
+}
+
+/* FC Köln crest watermark — fills empty space when about text is short */
+.card-about-block::after {
+  content: '';
+  position: absolute;
+  bottom: 10px;
+  right: 18px;
+  width: 120px;
+  height: 120px;
+  background: url('../assets/logos/koln-fs.webp') center / contain no-repeat;
+  opacity: 0.06;
+  pointer-events: none;
+}
+
+/* Two-column inner layout: strengths | playing style */
+.card-about-inner {
+  display: flex;
+  gap: 0;
+  height: 100%;
+}
+
+.card-col-heading {
+  font-family: var(--bc);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #999;
+  margin-bottom: 8px;
+}
+
+.card-strengths-col {
+  width: 35%;
+  flex-shrink: 0;
+  border-right: 1px solid #E0E0E0;
+  padding-right: 16px;
+}
+
+.card-strengths-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.card-strength-item {
+  font-family: var(--bc);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  padding: 3px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  letter-spacing: 0.3px;
+}
+
+.card-strength-item::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--red);
+  flex-shrink: 0;
+}
+
+.card-style-col {
+  flex: 1;
+  min-width: 0;
+  padding-left: 16px;
+}
+
+.card-empty-dash {
+  color: #aaa;
+  font-style: italic;
+  font-size: 13px;
+}
+
+.card-about-text {
+  font-family: var(--bc);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.72;
+  color: #2a2a2a;
+  overflow: hidden;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   6. BOTTOM ROW — Videos
+═══════════════════════════════════════════════════════════════ */
+.card-bottom-row {
+  display: flex;
+  flex-shrink: 0;
+  border-top: 1px solid var(--border);
+}
+
+.card-videos-cell {
+  width: 100%;
+  padding: 12px 18px;
+  overflow: hidden;
+  min-width: 0;
+}
+
+.card-videos-content {
+  display: flex;
+  gap: 14px;
+  justify-content: center;
+}
+
+.card-video-item {
+  flex: 1;
+  min-width: 0;
+  max-width: 240px;
+}
+
+.card-video-thumb {
+  width: 100%;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  display: block;
+}
+
+.card-video-label {
+  font-family: var(--bc);
+  font-size: 10px;
+  color: var(--red);
+  font-weight: 700;
+  letter-spacing: 1px;
+  margin-top: 6px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Generated video thumbnail — used for Veo / non-YouTube links */
+.card-video-thumb-gen {
+  width: 100%;
+  height: 100px;
+  border-radius: 4px;
+  background: linear-gradient(135deg, #111 0%, #2a0005 60%, #4a000a 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.card-video-thumb-gen--game {
+  background: linear-gradient(135deg, #0a0a14 0%, #111 50%, #1a0005 100%);
+}
+
+.card-video-thumb-icon {
+  font-size: 18px;
+  color: rgba(255,255,255,0.55);
+  margin-bottom: 6px;
+  line-height: 1;
+}
+
+.card-video-thumb-gen-title {
+  font-family: var(--bc);
+  font-size: 14px;
+  font-weight: 900;
+  letter-spacing: 4px;
+  color: #fff;
+  text-transform: uppercase;
+}
+
+.card-video-thumb-gen-name {
+  font-family: var(--bc);
+  font-size: 9px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.4);
+  letter-spacing: 2px;
+  margin-top: 4px;
+  text-transform: uppercase;
+}
+
+.card-video-thumb-gen-source {
+  position: absolute;
+  bottom: 6px;
+  right: 8px;
+  font-family: var(--bc);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  color: rgba(255,255,255,0.3);
+  text-transform: lowercase;
+}
+
+.card-no-videos {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 120px;
+  color: #ccc;
+}
+
+.card-no-videos span {
+  font-family: var(--bc);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #ccc;
+}
+
+.card-videos-hint {
+  text-align: center;
+  font-family: var(--bc);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: #999;
+  margin-top: 8px;
+}
+
+.card-pos-pill {
+  font-family: var(--bc);
+  font-size: 11px;
+  font-weight: 800;
+  padding: 3px 12px;
+  border-radius: 12px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+
+.card-pos-pill-primary {
+  background: var(--red);
+  color: #fff;
+}
+
+.card-pos-pill-secondary {
+  background: var(--dark);
+  color: rgba(255,255,255,0.72);
+  border: 1px solid rgba(255,255,255,0.12);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   6b. PLAYER ARCHETYPE BANNER
+═══════════════════════════════════════════════════════════════ */
+.card-archetype-banner {
+  flex: 1;
+  min-height: 40px;
+  background: linear-gradient(110deg, #111 0%, #2a0005 42%, #ED1C24 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Subtle diagonal texture (matches header) */
+.card-archetype-banner::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    -55deg,
+    transparent,
+    transparent 18px,
+    rgba(255,255,255,0.022) 18px,
+    rgba(255,255,255,0.022) 19px
+  );
+  pointer-events: none;
+}
+
+.card-archetype-inner {
+  text-align: center;
+  position: relative;
+  z-index: 1;
+}
+
+.card-archetype-name {
+  font-family: var(--bc);
+  font-size: 28px;
+  font-weight: 900;
+  color: #fff;
+  letter-spacing: 5px;
+  text-transform: uppercase;
+  line-height: 1;
+}
+
+.card-archetype-cats {
+  font-family: var(--bc);
+  font-size: 10px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.5);
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  margin-top: 6px;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   7. FOOTER
+═══════════════════════════════════════════════════════════════ */
+.card-footer {
+  background: var(--dark);
+  color: rgba(255,255,255,0.5);
+  font-family: var(--bc);
+  font-size: 8.5px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  padding: 11px 14px;
+  flex-shrink: 0;
+  text-align: center;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   8. PRINT
+═══════════════════════════════════════════════════════════════ */
+@media print {
+  .player-card,
+  .player-card * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+  }
+}

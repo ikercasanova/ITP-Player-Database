@@ -190,6 +190,7 @@ const Profile = {
           ${player.playerType === 'trial'
             ? `<button class="btn btn-primary" onclick="location.hash='#trial-report/${player.id}'">Trial Report</button>`
             : `<button class="btn btn-primary" onclick="location.hash='#report/${player.id}'">Generate Report</button>`}
+          <button class="btn btn-outline" onclick="location.hash='#card/${player.id}'">Player Card</button>
           <button class="btn btn-outline" onclick="location.hash='#edit/${player.id}'">Edit Player</button>
           <button class="btn btn-danger" data-delete-id="${player.id}">Delete</button>
         </div>

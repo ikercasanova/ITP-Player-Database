@@ -1514,6 +1514,118 @@
 
 .player-type-toggle .type-btn:first-child { border-right: 1px solid var(--gray-200); }
 
+/* ═══════════════════════════════════════════════════════════════
+   CARD EDITOR
+═══════════════════════════════════════════════════════════════ */
+
+.card-layout-toggle {
+  display: flex;
+  gap: 0;
+  border-radius: var(--radius);
+  overflow: hidden;
+  border: 1.5px solid var(--gray-200);
+}
+
+.card-layout-btn {
+  flex: 1;
+  padding: 10px 16px;
+  border: none;
+  border-right: 1px solid var(--gray-200);
+  background: var(--white);
+  font-family: var(--font-cond);
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  color: var(--gray-500);
+}
+
+.card-layout-btn:last-child { border-right: none; }
+.card-layout-btn.active { background: var(--dark); color: #fff; }
+
+.card-trait-category { margin-bottom: 10px; }
+
+.card-trait-category-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 0;
+  cursor: pointer;
+  user-select: none;
+}
+
+.card-trait-chevron {
+  font-size: 10px;
+  color: var(--gray-500);
+  transition: transform 0.15s;
+}
+
+.card-trait-category.open .card-trait-chevron { transform: rotate(90deg); }
+
+.card-trait-category-label {
+  font-family: var(--font-cond);
+  font-weight: 700;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--gray-700);
+}
+
+.card-trait-count {
+  font-size: 11px;
+  font-weight: 700;
+  color: #fff;
+  background: var(--red);
+  border-radius: 10px;
+  padding: 1px 7px;
+  margin-left: auto;
+}
+
+.card-trait-chips {
+  display: none;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 4px 0 8px 0;
+}
+
+.card-trait-category.open .card-trait-chips { display: flex; }
+
+.card-trait-selected {
+  background: rgba(227, 0, 15, 0.1) !important;
+  border-color: var(--red) !important;
+  color: #c53030 !important;
+}
+
+.card-generate-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.card-logo-area {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+#card-logo-preview {
+  max-height: 60px;
+  max-width: 120px;
+  border-radius: 4px;
+  border: 1px solid var(--gray-200);
+}
+
+.card-logo-actions { display: flex; gap: 8px; }
+
+.card-preview-wrapper {
+  display: flex;
+  justify-content: center;
+}
+
+.card-preview-wrapper .player-card {
+  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+}
+
 /* ── Print / PDF Overrides ───────────────────────────────────── */
 
 @media print {
