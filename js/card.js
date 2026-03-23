@@ -234,7 +234,7 @@ function buildCard(player, layoutId) {
        </div>`
     : '';
 
-  const posY = player.photoPositionY != null ? player.photoPositionY : 0;
+  const posY = player.photoPositionY != null ? player.photoPositionY : 40;
   const photoContent = player.photoBase64
     ? `<img src="${player.photoBase64}" class="card-photo" alt="Player Photo" style="object-position: center ${posY}%">`
     : `<div class="card-photo-placeholder">

@@ -74,7 +74,7 @@ const Profile = {
     const weightLbs = App.kgToLbs(player.weightKg);
 
     // Photo header
-    const posY = player.photoPositionY ?? 25;
+    const posY = player.photoPositionY ?? 40;
     const photoCSS = player.photoBase64
       ? `<img class="profile-header-photo" src="${player.photoBase64}" alt="" style="object-position: center ${posY}%">`
       : '';

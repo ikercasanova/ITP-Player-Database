@@ -39,7 +39,7 @@ html { -webkit-text-size-adjust: 100%; }
 
 body {
   font-family: var(--font);
-  background: var(--gray-50);
+  background: #F3F4F6;
   color: var(--dark);
   min-height: 100vh;
   min-height: 100dvh;
@@ -663,8 +663,8 @@ body {
 
 .profile-header {
   position: relative;
-  height: 200px;
-  background: linear-gradient(135deg, var(--dark) 0%, #2a0005 50%, var(--red) 100%);
+  height: 260px;
+  background: #1a1a1a;
   display: flex;
   align-items: flex-end;
   padding: 20px;
@@ -677,13 +677,22 @@ body {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  opacity: 0.35;
+  opacity: 1;
+}
+
+/* Dark gradient overlay — only at the bottom so the face shows through */
+.profile-header::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.82) 0%, rgba(0,0,0,0.35) 45%, rgba(0,0,0,0.05) 100%);
+  z-index: 1;
 }
 
 /* Photo framing control */
 .photo-framing-control {
   position: absolute;
-  right: 12px;
+  right: 14px;
   top: 50%;
   transform: translateY(-50%);
   z-index: 10;
@@ -729,15 +738,16 @@ body {
 .profile-header-info {
   position: relative;
   z-index: 2;
+  padding-bottom: 4px;
 }
 
 .profile-name {
   font-family: var(--font-cond);
   font-weight: 900;
-  font-size: 28px;
+  font-size: 34px;
   color: var(--white);
   line-height: 1.1;
-  text-shadow: 0 2px 8px rgba(0,0,0,0.4);
+  text-shadow: 0 2px 12px rgba(0,0,0,0.6);
 }
 
 .profile-age-group {
@@ -747,9 +757,9 @@ body {
   font-family: var(--font-cond);
   font-weight: 700;
   font-size: 12px;
-  padding: 2px 10px;
-  border-radius: 3px;
-  margin-top: 6px;
+  padding: 3px 12px;
+  border-radius: 4px;
+  margin-top: 8px;
   letter-spacing: 0.5px;
 }
 
@@ -759,10 +769,11 @@ body {
 
 .profile-section {
   background: var(--white);
-  border-radius: var(--radius);
+  border-radius: 10px;
   padding: 16px 18px;
-  margin-top: 16px;
-  box-shadow: var(--shadow);
+  margin-top: 14px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06), 0 4px 12px rgba(0,0,0,0.04);
+  border: 1px solid rgba(0,0,0,0.04);
 }
 
 .profile-section-title {
@@ -786,19 +797,20 @@ body {
 .info-pill {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  padding: 5px 12px;
+  gap: 6px;
+  padding: 6px 14px;
   background: var(--gray-100);
+  border: 1px solid var(--gray-200);
   border-radius: 20px;
-  font-size: 13px;
-  font-weight: 500;
+  font-size: 14px;
+  font-weight: 600;
 }
 .info-pill-label {
   font-size: 10px;
   font-weight: 700;
   color: var(--gray-500);
   text-transform: uppercase;
-  letter-spacing: 0.3px;
+  letter-spacing: 0.4px;
 }
 
 /* Body comp grid */
@@ -809,9 +821,11 @@ body {
 }
 .body-comp-item {
   text-align: center;
-  padding: 10px;
+  padding: 12px 10px;
   background: var(--gray-50);
-  border-radius: var(--radius-sm);
+  border-radius: 8px;
+  border: 1px solid #EBEBEB;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
 }
 .body-comp-value {
   font-family: var(--font-cond);
@@ -1208,5 +1222,5 @@ body {
     max-width: 640px;
   }
 
-  .profile-header { height: 240px; }
+  .profile-header { height: 300px; }
 }
