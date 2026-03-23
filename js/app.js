@@ -23,6 +23,7 @@ const App = {
     Report.init();
     TrialReport.init();
     CardEditor.init();
+    BenchmarksView.init();
 
     // Route on hash change
     window.addEventListener('hashchange', () => App.route());
@@ -89,6 +90,9 @@ const App = {
         break;
       case 'card':
         if (param) await CardEditor.show(param);
+        break;
+      case 'benchmarks':
+        BenchmarksView.show();
         break;
       case 'settings':
         await Settings.show();

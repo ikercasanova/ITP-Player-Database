@@ -470,6 +470,148 @@ body {
 }
 .photo-remove-btn:hover { background: var(--red); }
 
+/* ── Benchmarks View ─────────────────────────────────────── */
+.bench-page {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 20px 16px 60px;
+}
+.bench-header {
+  margin-bottom: 20px;
+}
+.bench-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--dark);
+  margin: 0 0 8px;
+}
+.bench-source {
+  font-size: 13px;
+  color: var(--gray-500);
+  line-height: 1.5;
+  background: var(--gray-50);
+  border-left: 3px solid var(--red);
+  padding: 10px 12px;
+  border-radius: 0 6px 6px 0;
+}
+.bench-source strong { color: var(--dark); }
+.bench-tabs {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+.bench-tab {
+  padding: 7px 20px;
+  border-radius: 20px;
+  border: 1.5px solid var(--gray-200);
+  background: white;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--gray-500);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.bench-tab.active {
+  background: var(--dark);
+  color: white;
+  border-color: var(--dark);
+}
+.bench-legend {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+.bench-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--gray-500);
+  font-weight: 500;
+}
+.bench-category {
+  background: white;
+  border: 1px solid var(--gray-100);
+  border-radius: 10px;
+  margin-bottom: 14px;
+  overflow: hidden;
+}
+.bench-category-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--red);
+  padding: 10px 16px 8px;
+  border-bottom: 1px solid var(--gray-100);
+  background: var(--gray-50);
+}
+.bench-row {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--gray-50);
+}
+.bench-row:last-child { border-bottom: none; }
+.bench-row-header {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.bench-test-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--dark);
+}
+.bench-dir-note {
+  font-size: 11px;
+  color: var(--gray-400);
+}
+.bench-chips {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.bench-chip {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: var(--gray-50);
+  border: 1px solid var(--gray-100);
+  border-radius: 6px;
+  padding: 5px 10px;
+  min-width: 100px;
+}
+.bench-chip-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.bench-chip-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--gray-500);
+  width: 48px;
+}
+.bench-chip-val {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--dark);
+}
+.bench-chip-unit {
+  font-size: 10px;
+  font-weight: 400;
+  color: var(--gray-400);
+}
+.bench-footer {
+  margin-top: 24px;
+  font-size: 12px;
+  color: var(--gray-400);
+  line-height: 1.5;
+  text-align: center;
+}
+
 /* Pitch selector (form) */
 .pitch-selector-wrap {
   max-width: 260px;
