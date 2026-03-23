@@ -66,14 +66,20 @@ const PlayerForm = {
 
           <!-- Photo -->
           <div class="form-section text-center">
-            <div class="photo-upload" id="photo-upload-area">
-              <input type="file" id="f-photo" accept="image/*">
-              <img id="photo-preview" src="${p.photoBase64 || ''}" style="${p.photoBase64 ? '' : 'display:none'}" alt="">
-              <svg class="photo-upload-icon" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="${p.photoBase64 ? 'display:none' : ''}">
-                <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
-              </svg>
+            <div class="photo-upload-wrap">
+              <div class="photo-upload" id="photo-upload-area">
+                <input type="file" id="f-photo" accept="image/*" title="">
+                <img id="photo-preview" src="${p.photoBase64 || ''}" style="${p.photoBase64 ? '' : 'display:none'}" alt="">
+                <div class="photo-placeholder" id="photo-placeholder" style="${p.photoBase64 ? 'display:none' : ''}">
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
+                  </svg>
+                  <span>Upload Photo</span>
+                </div>
+                <div class="photo-change-overlay" id="photo-change-overlay" style="${p.photoBase64 ? '' : 'display:none'}">Change</div>
+              </div>
+              <button type="button" id="btn-remove-photo" class="photo-remove-btn" title="Remove photo" style="${p.photoBase64 ? '' : 'display:none'}">&times;</button>
             </div>
-            ${p.photoBase64 ? '<button type="button" id="btn-remove-photo" class="btn btn-ghost btn-sm">Remove Photo</button>' : ''}
           </div>
 
           <!-- Basic Info -->
@@ -205,25 +211,26 @@ const PlayerForm = {
           const img = container.querySelector('#photo-preview');
           img.src = b64;
           img.style.display = '';
-          const icon = container.querySelector('.photo-upload-icon');
-          if (icon) icon.style.display = 'none';
+          container.querySelector('#photo-placeholder').style.display = 'none';
+          container.querySelector('#photo-change-overlay').style.display = '';
+          container.querySelector('#btn-remove-photo').style.display = '';
         });
       }
     });
 
     // Remove photo
     const removeBtn = container.querySelector('#btn-remove-photo');
-    if (removeBtn) {
-      removeBtn.addEventListener('click', () => {
-        PlayerForm.photoBase64 = null;
-        const img = container.querySelector('#photo-preview');
-        img.style.display = 'none';
-        img.src = '';
-        const icon = container.querySelector('.photo-upload-icon');
-        if (icon) icon.style.display = '';
-        removeBtn.remove();
-      });
-    }
+    removeBtn.addEventListener('click', e => {
+      e.stopPropagation();
+      PlayerForm.photoBase64 = null;
+      const img = container.querySelector('#photo-preview');
+      img.style.display = 'none';
+      img.src = '';
+      container.querySelector('#photo-placeholder').style.display = '';
+      container.querySelector('#photo-change-overlay').style.display = 'none';
+      removeBtn.style.display = 'none';
+      photoInput.value = '';
+    });
 
     // Player type toggle
     const typeToggle = container.querySelector('#player-type-toggle');

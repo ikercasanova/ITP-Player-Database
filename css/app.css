@@ -387,15 +387,19 @@ body {
 .form-actions .btn { flex: 1; }
 
 /* Photo upload */
+.photo-upload-wrap {
+  position: relative;
+  display: inline-block;
+  margin: 0 auto 8px;
+}
 .photo-upload {
   position: relative;
-  width: 120px;
-  height: 120px;
+  width: 140px;
+  height: 140px;
   border-radius: 50%;
   border: 3px dashed var(--gray-200);
   overflow: hidden;
   cursor: pointer;
-  margin: 0 auto 12px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -414,12 +418,57 @@ body {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  display: none;
 }
-.photo-upload-icon {
+.photo-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
   color: var(--gray-300);
   pointer-events: none;
 }
+.photo-placeholder span {
+  font-size: 12px;
+  font-weight: 500;
+}
+.photo-change-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.48);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  opacity: 0;
+  transition: opacity 0.15s;
+  pointer-events: none;
+  z-index: 1;
+}
+.photo-upload:hover .photo-change-overlay { opacity: 1; }
+.photo-remove-btn {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: #111;
+  color: white;
+  border: 2px solid white;
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: background 0.15s;
+}
+.photo-remove-btn:hover { background: var(--red); }
 
 /* Pitch selector (form) */
 .pitch-selector-wrap {
