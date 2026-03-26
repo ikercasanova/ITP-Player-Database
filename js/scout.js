@@ -81,6 +81,21 @@ const SCOUT_TRAITS = {
       discipline:           'Discipline',
       professionalism:      'Professionalism',
     }
+  },
+  goalkeeping: {
+    label: 'Goalkeeping',
+    traits: {
+      shotStopping:     'Shot Stopping',
+      reflexes:         'Reflexes',
+      handling:         'Handling',
+      aerialCommand:    'Aerial Command',
+      distribution:     'Distribution',
+      oneVOneSaving:    '1v1 Saving',
+      sweeping:         'Sweeping',
+      kickingRange:     'Kicking Range',
+      crossClaiming:    'Cross Claiming',
+      gkPositioning:    'Positioning (GK)',
+    }
   }
 };
 
@@ -143,6 +158,17 @@ const SHORT_PHRASES = {
   resilience:        'mental resilience',
   discipline:        'tactical discipline',
   professionalism:   'professional attitude',
+  // Goalkeeping
+  shotStopping:      'outstanding shot stopping',
+  reflexes:          'sharp reflexes',
+  handling:          'reliable handling',
+  aerialCommand:     'commanding aerial presence',
+  distribution:      'accurate distribution',
+  oneVOneSaving:     'brave 1v1 saving',
+  sweeping:          'proactive sweeping',
+  kickingRange:      'impressive kicking range',
+  crossClaiming:     'confident cross claiming',
+  gkPositioning:     'intelligent positioning',
 };
 
 // ── German short phrases ──────────────────────────────────────
@@ -174,6 +200,11 @@ const SHORT_PHRASES_DE = {
   competitiveMentality: 'ausgeprägter Wettkampfgeist', versatile: 'taktische Vielseitigkeit',
   teamPlayer: 'selbstloser Teamplayer', resilience: 'mentale Widerstandsfähigkeit',
   discipline: 'taktische Disziplin', professionalism: 'professionelle Einstellung',
+  shotStopping: 'starke Torverteidigung', reflexes: 'schnelle Reflexe',
+  handling: 'sicheres Ballfangen', aerialCommand: 'Lufthoheit im Strafraum',
+  distribution: 'präzise Spieleröffnung', oneVOneSaving: 'mutige 1-gegen-1 Paraden',
+  sweeping: 'vorausschauendes Herauslaufen', kickingRange: 'große Schussweite',
+  crossClaiming: 'sicheres Flankenabfangen', gkPositioning: 'intelligentes Stellungsspiel',
 };
 
 // ── Build grouped strength bullet sentences ──────────────────
@@ -187,7 +218,7 @@ function buildStrengthBullets(labels, lang) {
 
   // Build reverse lookup: label → { key, category }
   const labelToInfo = {};
-  const categoryOrder = ['technical', 'mental', 'physical', 'defensive', 'character'];
+  const categoryOrder = ['technical', 'mental', 'physical', 'defensive', 'character', 'goalkeeping'];
   for (const catKey of categoryOrder) {
     const cat = SCOUT_TRAITS[catKey];
     for (const [traitKey, traitLabel] of Object.entries(cat.traits)) {
@@ -333,6 +364,17 @@ const PHRASE_POOLS = {
   resilience:            ['mental resilience under adversity', 'the ability to bounce back from setbacks', 'a strong mindset that handles pressure situations'],
   discipline:            ['tactical discipline and positional responsibility', 'the maturity to follow the team plan', 'consistent adherence to tactical instructions'],
   professionalism:       ['a professional attitude toward training and development', 'mature approach to preparation and recovery', 'the habits and mindset of a professional player'],
+  // Goalkeeping
+  shotStopping:          ['outstanding shot stopping ability', 'the reflexes and positioning to keep out shots from all angles', 'reliable hands and strong wrists that deny goal-scoring opportunities'],
+  reflexes:              ['sharp reflexes that produce crucial saves', 'lightning-quick reactions to close-range efforts', 'the instinct to make saves that seem impossible'],
+  handling:              ['secure handling under pressure', 'clean catching that gives the backline confidence', 'reliable hands in all conditions'],
+  aerialCommand:         ['commanding presence in the box', 'authority when coming for crosses and corners', 'dominance in the aerial space around goal'],
+  distribution:          ['accurate distribution with hands and feet', 'the ability to start attacks with precise throws and passes', 'a modern goalkeeper who contributes to build-up play'],
+  oneVOneSaving:         ['brave 1v1 saving ability', 'the composure and timing to make himself big in one-on-one situations', 'sound technique when confronting attackers in isolation'],
+  sweeping:              ['proactive sweeping behind the defensive line', 'the reading of play to come off his line and intercept danger', 'a goalkeeper who acts as an extra defender with intelligent sweeping'],
+  kickingRange:          ['impressive kicking range', 'the ability to find teammates with long goal kicks and clearances', 'powerful and accurate distribution over long distances'],
+  crossClaiming:         ['confident cross claiming', 'the timing and courage to come and claim crosses', 'authority in dealing with aerial deliveries into the box'],
+  gkPositioning:         ['intelligent positioning between the posts', 'the awareness to narrow angles and cover the goal effectively', 'well-judged positioning that reduces the shooting window for opponents'],
 };
 
 // ── Athletic qualifier sentences ───────────────────────────────
@@ -446,7 +488,7 @@ const ScoutGenerator = {
 
   _buildStyleDescription(selectedTraits, firstName, seed) {
     // Group selected traits by category
-    const counts = { technical: 0, mental: 0, physical: 0, defensive: 0 };
+    const counts = { technical: 0, mental: 0, physical: 0, defensive: 0, goalkeeping: 0 };
     for (const traitKey of selectedTraits) {
       const cat = ScoutGenerator._findCategory(traitKey);
       if (cat && cat in counts) counts[cat]++;
@@ -479,6 +521,11 @@ const ScoutGenerator = {
         'Reads danger early and cuts out attacks before they develop, providing a reliable defensive foundation.',
         'Strong in the tackle and positionally disciplined, he wins the ball back and distributes cleanly.',
         'Combines strong 1v1 defending with the awareness to cover for teammates and organize the back line.',
+      ],
+      goalkeeping: [
+        'Commands the penalty area with authority, providing a reliable last line of defense through sharp reflexes and strong positioning.',
+        'A modern goalkeeper who combines shot-stopping ability with the composure to play out from the back and start attacks.',
+        'Brings confidence to the backline through vocal communication, decisive aerial command, and the ability to make crucial saves in key moments.',
       ],
     };
 
@@ -539,18 +586,22 @@ const ARCHETYPE_BY_POSITION = {
     GK: 'VOCAL LEADER', CB: 'DEFENSIVE LEADER', CDM: 'MIDFIELD LEADER',
     CM: 'TEAM CAPTAIN', ST: 'INSPIRATIONAL FORWARD',
   },
+  goalkeeping: {
+    GK: 'COMPLETE KEEPER', _default: 'COMPLETE KEEPER',
+  },
 };
 
 // Fallback flat names (used when no position available)
 const ARCHETYPE_NAMES = {
-  technical: 'CREATIVE TECHNICIAN',
-  physical:  'ATHLETIC FORCE',
-  mental:    'TACTICAL MIND',
-  defensive: 'DEFENSIVE SPECIALIST',
-  character: 'NATURAL LEADER',
+  technical:    'CREATIVE TECHNICIAN',
+  physical:     'ATHLETIC FORCE',
+  mental:       'TACTICAL MIND',
+  defensive:    'DEFENSIVE SPECIALIST',
+  character:    'NATURAL LEADER',
+  goalkeeping:  'COMPLETE KEEPER',
 };
 
-const ARCHETYPE_PRIORITY = ['technical', 'physical', 'mental', 'defensive', 'character'];
+const ARCHETYPE_PRIORITY = ['technical', 'goalkeeping', 'physical', 'mental', 'defensive', 'character'];
 
 function _getArchetypeName(dominant, position) {
   const posMap = ARCHETYPE_BY_POSITION[dominant];
@@ -563,11 +614,12 @@ function getPlayerArchetype(strengths, archetypeOverride, position) {
   // Manual override
   if (archetypeOverride && ARCHETYPE_NAMES[archetypeOverride]) {
     const ARCHETYPE_LABELS = {
-      technical: 'Technically Gifted',
-      physical:  'Physically Dominant',
-      mental:    'Tactically Sharp',
-      defensive: 'Defensively Solid',
-      character: 'Strong Leader',
+      technical:    'Technically Gifted',
+      physical:     'Physically Dominant',
+      mental:       'Tactically Sharp',
+      defensive:    'Defensively Solid',
+      character:    'Strong Leader',
+      goalkeeping:  'Goalkeeping Specialist',
     };
     // Build secondary cats from traits
     const labelToCat = {};
