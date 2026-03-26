@@ -1,137 +1,148 @@
 'use strict';
 
 /* ═══════════════════════════════════════════════════════════════
-   pdf.js — html2pdf.js wrapper for A4 PDF export
-   Pre-processes card for html2canvas compatibility:
-   - Replaces <img object-fit:cover> with background-image div
-   - Converts SVGs to canvas for reliable viewBox rendering
-   - Adds clickable link annotations for video URLs
+   card-pdf.js — Direct html2canvas + jsPDF export for A4 player cards
+   Uses the same proven approach as trial-report.js:
+   html2canvas → canvas.toDataURL → jsPDF.addImage → save
 ═══════════════════════════════════════════════════════════════ */
 
 const PDF = {
 
+  /** Dynamically load a script if its global isn't available */
+  _loadScript(global, src) {
+    if (window[global]) return Promise.resolve();
+    return new Promise((resolve, reject) => {
+      const s = document.createElement('script');
+      s.src = src;
+      s.onload = resolve;
+      s.onerror = () => reject(new Error(`Failed to load ${global}`));
+      document.head.appendChild(s);
+    });
+  },
+
   async export(player, layoutId) {
-    if (typeof html2pdf === 'undefined') {
-      alert('PDF library not loaded. Please check your internet connection and refresh.');
+    // Load libraries on demand (same approach as trial report)
+    try {
+      await PDF._loadScript('html2canvas', 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js');
+      await PDF._loadScript('jspdf', 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js');
+    } catch (err) {
+      alert('PDF libraries failed to load. Please check your internet connection and refresh.');
       return;
     }
 
-    // Build a fresh card element at full A4 size
-    const cardEl = buildCard(player, layoutId);
-
-    // Render off-screen for html2canvas (must be in DOM but not visible)
-    cardEl.style.transform = 'none';
-    cardEl.style.position = 'fixed';
-    cardEl.style.left   = '0';
-    cardEl.style.top    = '0';
-    cardEl.style.zIndex = '99999';
-    cardEl.style.width  = '794px';
-    cardEl.style.height = '1123px';
-    cardEl.style.pointerEvents = 'none';
-    document.body.appendChild(cardEl);
-
-    // ── Pre-process for html2canvas compatibility ──────────────
-
-    // Fix 1: Replace <img object-fit:cover> with background-image div
-    // html2canvas doesn't handle object-fit correctly → stretches the photo
-    const photoImg = cardEl.querySelector('.card-photo');
-    if (photoImg && photoImg.tagName === 'IMG') {
-      const div = document.createElement('div');
-      div.style.width  = '100%';
-      div.style.height = '100%';
-      div.style.backgroundImage    = `url(${photoImg.src})`;
-      div.style.backgroundSize     = 'cover';
-      div.style.backgroundPosition = photoImg.style.objectPosition || 'center center';
-      div.style.display = 'block';
-      photoImg.replaceWith(div);
-    }
-
-    // Fix 2: Pre-render pitch SVG to canvas
-    // html2canvas misrenders SVG viewBox → zooms into one corner
-    const pitchSvg = cardEl.querySelector('.card-pitch-wrap svg');
-    if (pitchSvg) {
-      await PDF._svgToCanvas(pitchSvg);
-    }
-
-    // Fix 3: Replace external video thumbnails with generated fallbacks
-    // html2canvas can't load cross-origin images when opened via file://
-    cardEl.querySelectorAll('.card-video-thumb').forEach(img => {
-      img.style.display = 'none';
-      const fallback = img.nextElementSibling;
-      if (fallback && fallback.classList.contains('card-video-thumb-gen')) {
-        fallback.style.display = 'flex';
-      }
-    });
-
-    // Capture video link positions (before html2pdf wraps the DOM)
-    const videoLinks = PDF._getVideoLinks(cardEl);
-
-    const lastName  = (player.lastName  || 'Player').toUpperCase().replace(/\s+/g, '_');
-    const firstName = (player.firstName || '').toUpperCase().replace(/\s+/g, '_');
-    const filename  = `${lastName}_${firstName}_ITP_Card.pdf`;
-
-    const opt = {
-      margin:   0,
-      filename,
-      image:    { type: 'jpeg', quality: 0.98 },
-      html2canvas: {
-        scale:      2,
-        useCORS:    true,
-        allowTaint: true,
-        logging:    false,
-        width:      794,
-        height:     1123
-      },
-      jsPDF: {
-        unit:        'mm',
-        format:      [210, 297.1],
-        orientation: 'portrait'
-      }
-    };
-
     // Show loading state
-    const exportBtns = document.querySelectorAll('#btn-export-pdf, #btn-preview-export');
+    const exportBtns = document.querySelectorAll('#card-btn-export-pdf, #btn-export-pdf');
     exportBtns.forEach(b => { b.disabled = true; b.textContent = 'Exporting…'; });
 
-    html2pdf()
-      .set(opt)
-      .from(cardEl)
-      .toPdf()
-      .get('pdf')
-      .then(function(pdf) {
-        // Fix 3: Add clickable link annotations for video URLs
-        videoLinks.forEach(link => {
-          pdf.link(link.x, link.y, link.w, link.h, { url: link.url });
-        });
-        // Manual blob download — reliable filename across all browsers
-        const blob = pdf.output('blob');
-        const url  = URL.createObjectURL(blob);
-        const a    = document.createElement('a');
-        a.href     = url;
-        a.download = filename;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        setTimeout(() => URL.revokeObjectURL(url), 100);
-      })
-      .then(() => {
-        document.body.removeChild(cardEl);
-        exportBtns.forEach(b => { b.disabled = false; b.textContent = 'Export PDF'; });
-      })
-      .catch(err => {
-        console.error('PDF export failed:', err);
-        if (document.body.contains(cardEl)) document.body.removeChild(cardEl);
-        exportBtns.forEach(b => { b.disabled = false; b.textContent = 'Export PDF'; });
-        alert('PDF export failed. Try in Chrome for best results.');
+    try {
+      // Build a fresh card element at full A4 size
+      const cardEl = buildCard(player, layoutId);
+
+      // Must be in DOM and visible for html2canvas to capture
+      cardEl.style.position = 'fixed';
+      cardEl.style.left = '0';
+      cardEl.style.top = '0';
+      cardEl.style.width = '794px';
+      cardEl.style.height = '1123px';
+      cardEl.style.zIndex = '99999';
+      cardEl.style.transform = 'none';
+      document.body.appendChild(cardEl);
+
+      // ── Pre-process for html2canvas ────────────────────────────
+
+      // Fix: Replace <img object-fit:cover> with background-image div
+      const photoImg = cardEl.querySelector('.card-photo');
+      if (photoImg && photoImg.tagName === 'IMG') {
+        const div = document.createElement('div');
+        div.style.width = '100%';
+        div.style.height = '100%';
+        div.style.backgroundImage = `url(${photoImg.src})`;
+        div.style.backgroundSize = 'cover';
+        div.style.backgroundPosition = photoImg.style.objectPosition || 'center center';
+        div.style.display = 'block';
+        photoImg.replaceWith(div);
+      }
+
+      // Fix: Replace external video thumbnails with generated fallbacks
+      cardEl.querySelectorAll('.card-video-thumb').forEach(img => {
+        img.style.display = 'none';
+        const fallback = img.nextElementSibling;
+        if (fallback && fallback.classList.contains('card-video-thumb-gen')) {
+          fallback.style.display = 'flex';
+        }
       });
+
+      // Capture video link positions for clickable PDF annotations
+      const videoLinks = PDF._getVideoLinks(cardEl);
+
+      // Wait for images to settle
+      await new Promise(r => setTimeout(r, 300));
+
+      // ── Capture with html2canvas ──────────────────────────────
+
+      const canvas = await html2canvas(cardEl, {
+        scale: 2,
+        useCORS: true,
+        allowTaint: true,
+        logging: false,
+        backgroundColor: '#ffffff',
+        width: 794,
+        height: 1123,
+      });
+
+      // Remove the card from DOM
+      document.body.removeChild(cardEl);
+
+      // ── Build PDF with jsPDF ──────────────────────────────────
+
+      const imgData = canvas.toDataURL('image/jpeg', 0.95);
+      const pageWidth = 210;
+      const pageHeight = 297;
+      const imgWidth = pageWidth;
+      const imgHeight = (canvas.height * pageWidth) / canvas.width;
+
+      const pdf = new jspdf.jsPDF({
+        unit: 'mm',
+        format: 'a4',
+        orientation: 'portrait',
+      });
+
+      pdf.addImage(imgData, 'JPEG', 0, 0, imgWidth, Math.min(imgHeight, pageHeight));
+
+      // Add clickable link annotations for video URLs
+      videoLinks.forEach(link => {
+        pdf.link(link.x, link.y, link.w, link.h, { url: link.url });
+      });
+
+      // Download
+      const lastName  = (player.lastName  || 'Player').toUpperCase().replace(/\s+/g, '_');
+      const firstName = (player.firstName || '').toUpperCase().replace(/\s+/g, '_');
+      const filename  = `${lastName}_${firstName}_ITP_Card.pdf`;
+
+      const blob = pdf.output('blob');
+      const url  = URL.createObjectURL(blob);
+      const a    = document.createElement('a');
+      a.href     = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(url), 100);
+
+    } catch (err) {
+      console.error('PDF export failed:', err);
+      alert('PDF export failed. Try in Chrome for best results.');
+    }
+
+    exportBtns.forEach(b => { b.disabled = false; b.textContent = 'Export PDF'; });
   },
 
-  /** Measure video item positions in the card and convert to PDF mm coords */
+  /** Measure video item positions and convert to PDF mm coords */
   _getVideoLinks(cardEl) {
     const links = [];
     const cardRect = cardEl.getBoundingClientRect();
     const scaleX = 210 / 794;
-    const scaleY = 297.1 / 1123;
+    const scaleY = 297 / 1123;
 
     cardEl.querySelectorAll('.card-video-item[data-url]').forEach(item => {
       const url = item.dataset.url;
@@ -147,41 +158,4 @@ const PDF = {
     });
     return links;
   },
-
-  /** Convert an inline SVG to a canvas for reliable html2canvas rendering */
-  _svgToCanvas(svg) {
-    return new Promise(resolve => {
-      const rect = svg.getBoundingClientRect();
-      if (!rect.width || !rect.height) { resolve(); return; }
-
-      const dpr = 2;
-      const canvas  = document.createElement('canvas');
-      canvas.width  = Math.round(rect.width  * dpr);
-      canvas.height = Math.round(rect.height * dpr);
-      canvas.style.width     = rect.width  + 'px';
-      canvas.style.height    = rect.height + 'px';
-      canvas.style.maxWidth  = '100%';
-      canvas.style.maxHeight = '100%';
-      canvas.style.display   = 'block';
-
-      const ctx = canvas.getContext('2d');
-      const svgData = new XMLSerializer().serializeToString(svg);
-      const blob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
-      const url  = URL.createObjectURL(blob);
-
-      const img = new Image();
-      img.onload = () => {
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-        svg.replaceWith(canvas);
-        URL.revokeObjectURL(url);
-        resolve();
-      };
-      img.onerror = () => {
-        URL.revokeObjectURL(url);
-        resolve(); // Keep original SVG if conversion fails
-      };
-      img.src = url;
-    });
-  }
-
 };
