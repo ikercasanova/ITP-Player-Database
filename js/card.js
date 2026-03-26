@@ -245,6 +245,13 @@ function buildCard(player, layoutId) {
        </div>`;
 
   const tests = player.tests || {};
+  // Remove sprint stats for goalkeepers
+  const primaryPos = player.positions?.[0];
+  const posCode = typeof primaryPos === 'string' ? primaryPos : primaryPos?.code;
+  if (posCode === 'GK') {
+    delete tests.sprint30mSec;
+    delete tests.sprint40ydSec;
+  }
   const posDisplay = buildPositionDisplay(player.positions, layoutId);
   const contact = (player.cardContact && typeof CARD_CONTACTS !== 'undefined' && CARD_CONTACTS[player.cardContact])
     ? CARD_CONTACTS[player.cardContact]
