@@ -669,11 +669,12 @@ function getPlayerArchetype(strengths, archetypeOverride, position) {
 
   // Secondary categories (all with ≥1 trait)
   const ARCHETYPE_LABELS = {
-    technical: 'Technically Gifted',
-    physical:  'Physically Dominant',
-    mental:    'Tactically Sharp',
-    defensive: 'Defensively Solid',
-    character: 'Strong Leader',
+    technical:    'Technically Gifted',
+    physical:     'Physically Dominant',
+    mental:       'Tactically Sharp',
+    defensive:    'Defensively Solid',
+    character:    'Strong Leader',
+    goalkeeping:  'Goalkeeping Specialist',
   };
   const activeCats = ARCHETYPE_PRIORITY
     .filter(c => counts[c] > 0)
