@@ -19,14 +19,15 @@ const PDF = {
     // Build a fresh card element at full A4 size
     const cardEl = buildCard(player, layoutId);
 
-    // Render at viewport origin for html2canvas
+    // Render off-screen for html2canvas (must be in DOM but not visible)
     cardEl.style.transform = 'none';
-    cardEl.style.position = 'absolute';
+    cardEl.style.position = 'fixed';
     cardEl.style.left   = '0';
     cardEl.style.top    = '0';
-    cardEl.style.zIndex = '-9999';
+    cardEl.style.zIndex = '99999';
     cardEl.style.width  = '794px';
     cardEl.style.height = '1123px';
+    cardEl.style.pointerEvents = 'none';
     document.body.appendChild(cardEl);
 
     // ── Pre-process for html2canvas compatibility ──────────────
