@@ -77,7 +77,7 @@ const CSVImport = {
       mapTest('ift3015', ['30-15 ift', 'ift', '30-15', 'ift 30-15']);
       mapTest('sprint5m', ['5m', '5m sprint', 'sprint 5m']);
       mapTest('sprint10m', ['10m', '10m sprint', 'sprint 10m']);
-
+      mapTest('sprint20m', ['20m', '20m sprint', 'sprint 20m']);
       mapTest('sprint30m', ['30m', '30m sprint', 'sprint 30m']);
       mapTest('sprint40yd', ['40yd', '40yd dash', '40 yard', '40 yd']);
       mapTest('passingAcc', ['passing', 'passing accuracy', 'passing acc']);

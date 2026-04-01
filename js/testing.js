@@ -314,7 +314,7 @@ const Testing = {
 
     const group = TEST_GROUPS[Testing.activeGroup];
     const testKeys = group.tests;
-    const shortLabels = { sprint5m: '5m', sprint10m: '10m', sprint30m: '30m', sprint40yd: '40yd' };
+    const shortLabels = { sprint5m: '5m', sprint10m: '10m', sprint20m: '20m', sprint30m: '30m', sprint40yd: '40yd' };
 
     // Get current session data for each distance
     const sessionData = {};
@@ -670,7 +670,7 @@ const Testing = {
     const container = document.getElementById('testing-content');
     const group = TEST_GROUPS[Testing.activeGroup];
     const testKeys = group.tests;
-    const shortLabels = { sprint5m: '5m', sprint10m: '10m', sprint30m: '30m', sprint40yd: '40yd' };
+    const shortLabels = { sprint5m: '5m', sprint10m: '10m', sprint20m: '20m', sprint30m: '30m', sprint40yd: '40yd' };
 
     const results = Testing.players.map(p => {
       const cells = {};

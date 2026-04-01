@@ -305,7 +305,7 @@ const DB = {
 
     session.attempts[attemptIndex] = value;
 
-    const LOWER_IS_BETTER = ['sprint5m', 'sprint10m', 'sprint30m', 'sprint40yd', 'dribbling'];
+    const LOWER_IS_BETTER = ['sprint5m', 'sprint10m', 'sprint20m', 'sprint30m', 'sprint40yd', 'dribbling'];
     const validAttempts = session.attempts.filter(v => v !== null && v !== undefined && v !== '');
     const nums = validAttempts.map(Number).filter(n => !isNaN(n));
 

@@ -12,6 +12,7 @@ const TEST_DEFS = {
   ift3015:    { name: '30-15 IFT',        unit: 'km/h',  category: 'Endurance',       lowerIsBetter: false },
   sprint5m:   { name: '5m Sprint',        unit: 's',     category: 'Speed',           lowerIsBetter: true },
   sprint10m:  { name: '10m Sprint',       unit: 's',     category: 'Speed',           lowerIsBetter: true },
+  sprint20m:  { name: '20m Sprint',       unit: 's',     category: 'Speed',           lowerIsBetter: true },
   sprint30m:  { name: '30m Sprint',       unit: 's',     category: 'Speed',           lowerIsBetter: true },
   sprint40yd: { name: '40yd Dash',        unit: 's',     category: 'Speed',           lowerIsBetter: true },
   passingAcc: { name: 'Passing Accuracy', unit: 'goals', category: 'Technical',       lowerIsBetter: false },
@@ -22,7 +23,7 @@ const TEST_DEFS = {
 const TEST_GROUPS = {
   speed: {
     name: 'Speed Testing',
-    tests: ['sprint5m', 'sprint10m', 'sprint30m', 'sprint40yd'],
+    tests: ['sprint5m', 'sprint10m', 'sprint20m', 'sprint30m', 'sprint40yd'],
     category: 'Speed'
   }
 };
@@ -53,6 +54,7 @@ const DEFAULT_BENCHMARKS = {
     ift3015:    { poor: 17.5, average: 19.0, good: 20.0, elite: 21.0 },
     sprint5m:   { poor: 1.15, average: 1.08, good: 1.02, elite: 0.97 },
     sprint10m:  { poor: 1.88, average: 1.80, good: 1.74, elite: 1.68 },
+    sprint20m:  { poor: 3.45, average: 3.30, good: 3.15, elite: 3.02 },
     sprint30m:  { poor: 4.50, average: 4.30, good: 4.15, elite: 4.02 },
     sprint40yd: { poor: 5.20, average: 4.95, good: 4.75, elite: 4.55 },
     passingAcc: { poor: 3, average: 5, good: 7, elite: 9 },
@@ -66,6 +68,7 @@ const DEFAULT_BENCHMARKS = {
     ift3015:    { poor: 18.5, average: 20.0, good: 21.0, elite: 22.0 },
     sprint5m:   { poor: 1.12, average: 1.05, good: 0.99, elite: 0.95 },
     sprint10m:  { poor: 1.84, average: 1.76, good: 1.70, elite: 1.65 },
+    sprint20m:  { poor: 3.35, average: 3.20, good: 3.05, elite: 2.95 },
     sprint30m:  { poor: 4.40, average: 4.20, good: 4.05, elite: 3.92 },
     sprint40yd: { poor: 5.05, average: 4.85, good: 4.65, elite: 4.48 },
     passingAcc: { poor: 4, average: 6, good: 8, elite: 10 },
@@ -79,6 +82,7 @@ const DEFAULT_BENCHMARKS = {
     ift3015:    { poor: 19.0, average: 20.5, good: 21.5, elite: 22.5 },
     sprint5m:   { poor: 1.10, average: 1.03, good: 0.97, elite: 0.93 },
     sprint10m:  { poor: 1.82, average: 1.74, good: 1.68, elite: 1.63 },
+    sprint20m:  { poor: 3.30, average: 3.15, good: 3.00, elite: 2.90 },
     sprint30m:  { poor: 4.35, average: 4.15, good: 4.00, elite: 3.85 },
     sprint40yd: { poor: 4.95, average: 4.78, good: 4.58, elite: 4.42 },
     passingAcc: { poor: 5, average: 7, good: 9, elite: 10 },

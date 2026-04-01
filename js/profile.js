@@ -7,6 +7,26 @@
 const Profile = {
 
   // Level colors for SVG (matching CSS --bench-* variables)
+  _calcMaxSpeed(tests) {
+    if (!tests) return null;
+    const segments = [];
+    const t5  = tests.sprint5m?.best;
+    const t10 = tests.sprint10m?.best;
+    const t20 = tests.sprint20m?.best;
+    const t30 = tests.sprint30m?.best;
+    const t40 = tests.sprint40yd?.best;
+
+    if (t20 && t30)  segments.push(10   / (t30 - t20));  // 20-30m (best window)
+    if (t30 && t40)  segments.push(6.58 / (t40 - t30));  // 30-40yd
+    if (t10 && t30)  segments.push(20   / (t30 - t10));  // 10-30m (old setup)
+    if (t5  && t20)  segments.push(15   / (t20 - t5));   // 5-20m
+    if (t5  && t10)  segments.push(5    / (t10 - t5));   // 5-10m
+
+    if (segments.length === 0) return null;
+    const maxMs = Math.max(...segments);
+    return Math.round(maxMs * 3.6 * 10) / 10;  // km/h, 1 decimal
+  },
+
   LEVEL_COLORS: {
     poor:    '#E53E3E',
     average: '#ED8936',
@@ -115,6 +135,12 @@ const Profile = {
     }
     if (player.muscleRatePct) {
       bodyComp.push({ value: `${player.muscleRatePct}%`, sub: '', label: 'Muscle Rate' });
+    }
+
+    // Max speed from sprint segments
+    const maxSpd = Profile._calcMaxSpeed(player.tests);
+    if (maxSpd) {
+      bodyComp.push({ value: `${maxSpd} km/h`, sub: '', label: 'Max Speed' });
     }
 
     const bodyCompHTML = bodyComp.length > 0
