@@ -24,6 +24,7 @@ const App = {
     TrialReport.init();
     CardEditor.init();
     BenchmarksView.init();
+    WhatsAppReport.init();
 
     // Route on hash change
     window.addEventListener('hashchange', () => App.route());
@@ -93,6 +94,9 @@ const App = {
         break;
       case 'benchmarks':
         BenchmarksView.show();
+        break;
+      case 'wa-report':
+        await WhatsAppReport.show();
         break;
       case 'settings':
         await Settings.show();

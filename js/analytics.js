@@ -341,7 +341,13 @@ const Analytics = {
 
     return `
       <div class="analytics-page">
-        <h2 class="analytics-title">Team Analytics</h2>
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+          <h2 class="analytics-title" style="margin:0">Team Analytics</h2>
+          <button class="btn btn-outline btn-sm" onclick="location.hash='#wa-report'" style="display:flex;align-items:center;gap:6px">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+            Player Report Cards
+          </button>
+        </div>
         ${ageTabsHTML}
         ${mainTabsHTML}
         ${contentHTML}
