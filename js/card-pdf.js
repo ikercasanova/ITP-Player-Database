@@ -9,8 +9,8 @@ const PDF = {
 
   async export(player, layoutId) {
     // Build a fresh card at full A4 size
-    const cardData = typeof CardEditor !== 'undefined' ? CardEditor._mapPlayerToCard(player) : player;
-    const cardEl = buildCard(cardData, layoutId || (typeof CardEditor !== 'undefined' ? CardEditor._cardLayout : 'usa'));
+    // player is already mapped card data from CardEditor._exportPDF()
+    const cardEl = buildCard(player, layoutId || 'usa');
 
     // Get the base URL for resolving relative paths
     const base = location.href.replace(/[^/]*$/, '');
