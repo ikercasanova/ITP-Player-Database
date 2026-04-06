@@ -88,6 +88,24 @@ const PDF = {
         backgroundColor: '#ffffff',
         width: 794,
         height: 1123,
+        onclone(clonedDoc) {
+          // Fix html2canvas IndexSizeError — disable text-overflow:ellipsis
+          // which causes Range.setEnd offset mismatches with special chars
+          clonedDoc.querySelectorAll('*').forEach(el => {
+            const s = el.style;
+            if (getComputedStyle(el).textOverflow === 'ellipsis') {
+              s.textOverflow = 'clip';
+            }
+          });
+          // Also strip soft hyphens from text nodes
+          const walker = clonedDoc.createTreeWalker(
+            clonedDoc.body, NodeFilter.SHOW_TEXT, null, false
+          );
+          let node;
+          while ((node = walker.nextNode())) {
+            if (node.nodeValue) node.nodeValue = node.nodeValue.replace(/\u00AD/g, '');
+          }
+        },
       });
 
       // Remove the card from DOM
