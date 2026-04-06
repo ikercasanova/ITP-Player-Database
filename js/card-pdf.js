@@ -6,6 +6,18 @@
    with html2canvas, then pipe the image into jsPDF.
 ═══════════════════════════════════════════════════════════════ */
 
+// ── Patch Range.setEnd BEFORE html2canvas loads ─────────────
+// html2canvas 1.4.1 miscalculates text node offsets with
+// letter-spacing + multi-byte chars (ü,ö,ä,ß), passing an offset
+// larger than the node length → IndexSizeError. Clamping prevents it.
+(function() {
+  const orig = Range.prototype.setEnd;
+  Range.prototype.setEnd = function(node, offset) {
+    const max = node.nodeType === 3 ? node.nodeValue.length : node.childNodes.length;
+    orig.call(this, node, Math.min(offset, max));
+  };
+})();
+
 const PDF = {
 
   /** Dynamically load a script if its global isn't available */
@@ -45,16 +57,6 @@ const PDF = {
       source.scrollIntoView({ block: 'start' });
       await new Promise(r => setTimeout(r, 300));
 
-      // Monkey-patch Range.setEnd to prevent html2canvas crash.
-      // html2canvas 1.4.1 miscalculates text node offsets with
-      // letter-spacing + multi-byte chars, passing an offset
-      // larger than the node length. Clamping prevents the crash.
-      const origSetEnd = Range.prototype.setEnd;
-      Range.prototype.setEnd = function(node, offset) {
-        const max = node.nodeType === 3 ? node.nodeValue.length : node.childNodes.length;
-        origSetEnd.call(this, node, Math.min(offset, max));
-      };
-
       // Capture the visible preview — same approach as trial report
       const canvas = await html2canvas(source, {
         scale: 2,
@@ -63,9 +65,6 @@ const PDF = {
         logging: false,
         backgroundColor: '#ffffff',
       });
-
-      // Restore original Range.setEnd
-      Range.prototype.setEnd = origSetEnd;
 
       // Build PDF
       const imgData = canvas.toDataURL('image/jpeg', 0.95);
