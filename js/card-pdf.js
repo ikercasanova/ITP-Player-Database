@@ -39,17 +39,32 @@ const PDF = {
     exportBtns.forEach(b => { b.disabled = true; b.textContent = 'Exporting…'; });
 
     try {
-      // Scroll the preview into view
-      source.scrollIntoView({ block: 'start' });
-      await new Promise(r => setTimeout(r, 300));
+      // Set card to full A4 width for capture (794×1123px)
+      const origStyle = source.style.cssText;
+      source.style.width = '794px';
+      source.style.height = '1123px';
+      source.style.minWidth = '794px';
+      source.style.overflow = 'hidden';
+      source.style.transform = 'none';
 
-      // Capture with dom-to-image-more (SVG foreignObject — no Range API)
-      const dataUrl = await domtoimage.toJpeg(source, {
-        quality: 0.95,
-        width: source.scrollWidth,
-        height: source.scrollHeight,
-        style: { transform: 'none' },
+      source.scrollIntoView({ block: 'start' });
+      await new Promise(r => setTimeout(r, 400));
+
+      // Capture with dom-to-image-more at 2x for crisp output
+      const scale = 2;
+      const dataUrl = await domtoimage.toPng(source, {
+        width: 794 * scale,
+        height: 1123 * scale,
+        style: {
+          transform: 'scale(' + scale + ')',
+          transformOrigin: 'top left',
+          width: '794px',
+          height: '1123px',
+        },
       });
+
+      // Restore original style
+      source.style.cssText = origStyle;
 
       // Build PDF
       const pageWidth = 210;
@@ -72,7 +87,7 @@ const PDF = {
       const imgWidth = pageWidth;
       const imgHeight = (img.height * pageWidth) / img.width;
 
-      pdf.addImage(dataUrl, 'JPEG', 0, 0, imgWidth, Math.min(imgHeight, pageHeight));
+      pdf.addImage(dataUrl, 'PNG', 0, 0, imgWidth, Math.min(imgHeight, pageHeight));
 
       // Add clickable link annotations for video URLs
       const videoLinks = PDF._getVideoLinks(source);
