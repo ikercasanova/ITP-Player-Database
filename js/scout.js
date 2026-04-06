@@ -242,8 +242,15 @@ function buildStrengthBullets(labels, lang) {
     const keys = groups[cat];
     if (!keys || !keys.length) continue;
 
-    // Limit to 3 traits per bullet to keep the card compact
-    const limited = keys.length > 3 ? keys.slice(0, 3) : keys;
+    // Keep adding traits until the bullet exceeds ~60 chars
+    const limited = [];
+    let len = 0;
+    for (const k of keys) {
+      const phrase = phrases[k] || k;
+      if (limited.length > 0 && len + phrase.length > 55) break;
+      limited.push(k);
+      len += phrase.length;
+    }
     const parts = limited.map(k => phrases[k] || k);
     let sentence;
     if (parts.length === 1) {
