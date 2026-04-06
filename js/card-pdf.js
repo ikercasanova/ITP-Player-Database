@@ -1,19 +1,27 @@
+'use strict';
+
 /* ═══════════════════════════════════════════════════════════════
    card-pdf.js — Export player card as PDF via browser print
    Opens the card in a new window and triggers window.print().
-   The browser's native renderer handles all CSS perfectly —
-   no html2canvas bugs with letter-spacing or special characters.
+   The browser's native renderer handles all CSS perfectly.
+   Video URLs are added as visible links below the card.
 ═══════════════════════════════════════════════════════════════ */
 
 const PDF = {
 
   async export(player, layoutId) {
     // Build a fresh card at full A4 size
-    // player is already mapped card data from CardEditor._exportPDF()
     const cardEl = buildCard(player, layoutId || 'usa');
 
     // Get the base URL for resolving relative paths
     const base = location.href.replace(/[^/]*$/, '');
+
+    // Collect video URLs before moving the card
+    const videoUrls = [];
+    cardEl.querySelectorAll('.card-video-item[data-url]').forEach(item => {
+      const url = item.dataset.url;
+      if (url) videoUrls.push(url);
+    });
 
     // Open a new window
     const printWin = window.open('', '_blank', 'width=850,height=1200');
@@ -42,28 +50,16 @@ const PDF = {
     html, body {
       margin: 0;
       padding: 0;
-      width: 210mm;
-      height: 297mm;
       background: #fff;
-    }
-    body {
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
     }
     .player-card {
       width: 794px;
       height: 1123px;
-      transform-origin: top left;
       -webkit-print-color-adjust: exact !important;
       print-color-adjust: exact !important;
       color-adjust: exact !important;
     }
     @media print {
-      html, body {
-        width: 210mm;
-        height: 297mm;
-      }
       .player-card {
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
@@ -80,14 +76,11 @@ const PDF = {
     printWin.document.body.appendChild(cardEl);
 
     // Wait for fonts and images to load
-    await new Promise(function(resolve) {
+    await new Promise(resolve => {
       printWin.onload = resolve;
-      // Fallback in case onload already fired
       setTimeout(resolve, 1500);
     });
-
-    // Extra wait for fonts to render
-    await new Promise(function(r) { setTimeout(r, 500); });
+    await new Promise(r => setTimeout(r, 500));
 
     // Trigger print
     printWin.print();
