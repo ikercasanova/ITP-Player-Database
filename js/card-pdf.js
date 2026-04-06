@@ -45,17 +45,15 @@ const PDF = {
       source.scrollIntoView({ block: 'start' });
       await new Promise(r => setTimeout(r, 300));
 
-      // Fix html2canvas IndexSizeError: letter-spacing causes Range API
-      // offset mismatches with multi-byte characters (ü,ö,ä,ß).
-      // Temporarily remove letter-spacing before capture, then restore.
-      const savedLS = [];
-      source.querySelectorAll('*').forEach(el => {
-        const cs = getComputedStyle(el);
-        if (cs.letterSpacing && cs.letterSpacing !== 'normal' && cs.letterSpacing !== '0px') {
-          savedLS.push({ el, val: el.style.letterSpacing });
-          el.style.letterSpacing = '0px';
-        }
-      });
+      // Monkey-patch Range.setEnd to prevent html2canvas crash.
+      // html2canvas 1.4.1 miscalculates text node offsets with
+      // letter-spacing + multi-byte chars, passing an offset
+      // larger than the node length. Clamping prevents the crash.
+      const origSetEnd = Range.prototype.setEnd;
+      Range.prototype.setEnd = function(node, offset) {
+        const max = node.nodeType === 3 ? node.nodeValue.length : node.childNodes.length;
+        origSetEnd.call(this, node, Math.min(offset, max));
+      };
 
       // Capture the visible preview — same approach as trial report
       const canvas = await html2canvas(source, {
@@ -66,8 +64,8 @@ const PDF = {
         backgroundColor: '#ffffff',
       });
 
-      // Restore letter-spacing
-      savedLS.forEach(({ el, val }) => { el.style.letterSpacing = val; });
+      // Restore original Range.setEnd
+      Range.prototype.setEnd = origSetEnd;
 
       // Build PDF
       const imgData = canvas.toDataURL('image/jpeg', 0.95);
