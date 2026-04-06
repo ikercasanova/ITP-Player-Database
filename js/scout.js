@@ -235,9 +235,10 @@ function buildStrengthBullets(labels, lang) {
     groups[info.category].push(info.key);
   }
 
-  // Build one sentence per category (in order)
+  // Build one sentence per category (in order), max 4 bullets total
   const bullets = [];
   for (const cat of categoryOrder) {
+    if (bullets.length >= 4) break;
     const keys = groups[cat];
     if (!keys || !keys.length) continue;
 
