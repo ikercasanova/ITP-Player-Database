@@ -1,25 +1,8 @@
 /* ═══════════════════════════════════════════════════════════════
    card-pdf.js — Screenshot the visible card preview → PDF
-   Same approach as trial-report.js: capture the on-screen preview
-   with html2canvas, then pipe the image into jsPDF.
+   Uses dom-to-image-more (SVG foreignObject) to avoid html2canvas
+   IndexSizeError with letter-spacing + multi-byte characters.
 ═══════════════════════════════════════════════════════════════ */
-
-// ── Patch Range API BEFORE html2canvas loads ────────────────
-// html2canvas 1.4.1 miscalculates text node offsets with
-// letter-spacing + multi-byte chars (ü,ö,ä,ß), passing an offset
-// larger than the node length → IndexSizeError. Clamping prevents it.
-(function() {
-  var origSetEnd = Range.prototype.setEnd;
-  var origSetStart = Range.prototype.setStart;
-  Range.prototype.setEnd = function(node, offset) {
-    var max = node.nodeType === 3 ? node.nodeValue.length : node.childNodes.length;
-    origSetEnd.call(this, node, Math.min(offset, max));
-  };
-  Range.prototype.setStart = function(node, offset) {
-    var max = node.nodeType === 3 ? node.nodeValue.length : node.childNodes.length;
-    origSetStart.call(this, node, Math.min(offset, max));
-  };
-})();
 
 const PDF = {
 
@@ -38,7 +21,7 @@ const PDF = {
   async export(player, layoutId) {
     // Load libraries on demand
     try {
-      await PDF._loadScript('html2canvas', 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js');
+      await PDF._loadScript('domtoimage', 'https://cdn.jsdelivr.net/npm/dom-to-image-more@3.4.5/dist/dom-to-image-more.min.js');
       await PDF._loadScript('jspdf', 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js');
     } catch (err) {
       alert('PDF libraries failed to load. Please check your internet connection and refresh.');
@@ -56,25 +39,21 @@ const PDF = {
     exportBtns.forEach(b => { b.disabled = true; b.textContent = 'Exporting…'; });
 
     try {
-      // Scroll the preview into view so html2canvas can see it
+      // Scroll the preview into view
       source.scrollIntoView({ block: 'start' });
       await new Promise(r => setTimeout(r, 300));
 
-      // Capture the visible preview — same approach as trial report
-      const canvas = await html2canvas(source, {
-        scale: 2,
-        useCORS: true,
-        allowTaint: true,
-        logging: false,
-        backgroundColor: '#ffffff',
+      // Capture with dom-to-image-more (SVG foreignObject — no Range API)
+      const dataUrl = await domtoimage.toJpeg(source, {
+        quality: 0.95,
+        width: source.scrollWidth,
+        height: source.scrollHeight,
+        style: { transform: 'none' },
       });
 
       // Build PDF
-      const imgData = canvas.toDataURL('image/jpeg', 0.95);
       const pageWidth = 210;
       const pageHeight = 297;
-      const imgWidth = pageWidth;
-      const imgHeight = (canvas.height * pageWidth) / canvas.width;
 
       const pdf = new jspdf.jsPDF({
         unit: 'mm',
@@ -82,7 +61,18 @@ const PDF = {
         orientation: 'portrait',
       });
 
-      pdf.addImage(imgData, 'JPEG', 0, 0, imgWidth, Math.min(imgHeight, pageHeight));
+      // Calculate image dimensions to fit A4
+      const img = new Image();
+      await new Promise((resolve, reject) => {
+        img.onload = resolve;
+        img.onerror = reject;
+        img.src = dataUrl;
+      });
+
+      const imgWidth = pageWidth;
+      const imgHeight = (img.height * pageWidth) / img.width;
+
+      pdf.addImage(dataUrl, 'JPEG', 0, 0, imgWidth, Math.min(imgHeight, pageHeight));
 
       // Add clickable link annotations for video URLs
       const videoLinks = PDF._getVideoLinks(source);
