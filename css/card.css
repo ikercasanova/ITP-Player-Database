@@ -847,3 +847,12 @@
     color-adjust: exact !important;
   }
 }
+
+/* ── html2canvas fix: kill letter-spacing for PDF export ──────
+   html2canvas 1.4.1 crashes with IndexSizeError when
+   letter-spacing + multi-byte chars (ü,ö,ä,ß) are combined.
+   Toggle this class on .player-card before capture. */
+.player-card.no-letter-spacing,
+.player-card.no-letter-spacing * {
+  letter-spacing: 0 !important;
+}

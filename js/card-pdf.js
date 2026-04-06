@@ -1,7 +1,7 @@
 /* ═══════════════════════════════════════════════════════════════
-   card-pdf.js — Screenshot the visible card preview → PDF
+   card-pdf.js — Build a fresh card at full A4 size → capture → PDF
    Uses dom-to-image-more (SVG foreignObject) to avoid html2canvas
-   IndexSizeError with letter-spacing + multi-byte characters.
+   IndexSizeError bug with letter-spacing + multi-byte characters.
 ═══════════════════════════════════════════════════════════════ */
 
 const PDF = {
@@ -28,45 +28,71 @@ const PDF = {
       return;
     }
 
-    // Find the visible card preview on the page
-    const source = document.querySelector('#card-preview-wrapper .player-card');
-    if (!source) {
-      alert('Please preview the card first.');
-      return;
-    }
+    // Build a fresh card at full A4 size
+    const cardData = typeof CardEditor !== 'undefined' ? CardEditor._mapPlayerToCard(player) : player;
+    const cardEl = buildCard(cardData, layoutId || (typeof CardEditor !== 'undefined' ? CardEditor._cardLayout : 'usa'));
+
+    // Position it on-screen at exact A4 dimensions
+    cardEl.style.position = 'fixed';
+    cardEl.style.left = '0';
+    cardEl.style.top = '0';
+    cardEl.style.width = '794px';
+    cardEl.style.height = '1123px';
+    cardEl.style.zIndex = '99999';
+    cardEl.style.transform = 'none';
+    document.body.appendChild(cardEl);
 
     const exportBtns = document.querySelectorAll('#card-btn-export-pdf, #btn-export-pdf');
-    exportBtns.forEach(b => { b.disabled = true; b.textContent = 'Exporting…'; });
+    exportBtns.forEach(function(b) { b.disabled = true; b.textContent = 'Exporting…'; });
 
     try {
-      // Set card to full A4 width for capture (794×1123px)
-      const origStyle = source.style.cssText;
-      source.style.width = '794px';
-      source.style.height = '1123px';
-      source.style.minWidth = '794px';
-      source.style.overflow = 'hidden';
-      source.style.transform = 'none';
+      // ── Pre-process ────────────────────────────────────────────
 
-      source.scrollIntoView({ block: 'start' });
-      await new Promise(r => setTimeout(r, 400));
+      // Fix: Replace <img object-fit:cover> with background-image div
+      const photoImg = cardEl.querySelector('.card-photo');
+      if (photoImg && photoImg.tagName === 'IMG') {
+        const div = document.createElement('div');
+        div.style.width = '100%';
+        div.style.height = '100%';
+        div.style.backgroundImage = 'url(' + photoImg.src + ')';
+        div.style.backgroundSize = 'cover';
+        div.style.backgroundPosition = photoImg.style.objectPosition || 'center center';
+        div.style.display = 'block';
+        photoImg.replaceWith(div);
+      }
 
-      // Capture with dom-to-image-more at 2x for crisp output
+      // Fix: Replace external video thumbnails with generated fallbacks
+      cardEl.querySelectorAll('.card-video-thumb').forEach(function(img) {
+        img.style.display = 'none';
+        var fallback = img.nextElementSibling;
+        if (fallback && fallback.classList.contains('card-video-thumb-gen')) {
+          fallback.style.display = 'flex';
+        }
+      });
+
+      // Capture video link positions for clickable PDF annotations
+      const videoLinks = PDF._getVideoLinks(cardEl);
+
+      // Wait for layout + images
+      await new Promise(function(r) { setTimeout(r, 400); });
+
+      // ── Capture with dom-to-image-more ─────────────────────────
+
       const scale = 2;
-      const dataUrl = await domtoimage.toPng(source, {
+      const dataUrl = await domtoimage.toPng(cardEl, {
         width: 794 * scale,
         height: 1123 * scale,
         style: {
           transform: 'scale(' + scale + ')',
           transformOrigin: 'top left',
-          width: '794px',
-          height: '1123px',
         },
       });
 
-      // Restore original style
-      source.style.cssText = origStyle;
+      // Remove the card from DOM
+      document.body.removeChild(cardEl);
 
-      // Build PDF
+      // ── Build PDF with jsPDF ──────────────────────────────────
+
       const pageWidth = 210;
       const pageHeight = 297;
 
@@ -76,9 +102,9 @@ const PDF = {
         orientation: 'portrait',
       });
 
-      // Calculate image dimensions to fit A4
+      // Calculate image dimensions
       const img = new Image();
-      await new Promise((resolve, reject) => {
+      await new Promise(function(resolve, reject) {
         img.onload = resolve;
         img.onerror = reject;
         img.src = dataUrl;
@@ -90,15 +116,14 @@ const PDF = {
       pdf.addImage(dataUrl, 'PNG', 0, 0, imgWidth, Math.min(imgHeight, pageHeight));
 
       // Add clickable link annotations for video URLs
-      const videoLinks = PDF._getVideoLinks(source);
-      videoLinks.forEach(link => {
+      videoLinks.forEach(function(link) {
         pdf.link(link.x, link.y, link.w, link.h, { url: link.url });
       });
 
       // Download
       const lastName  = (player.lastName  || 'Player').toUpperCase().replace(/\s+/g, '_');
       const firstName = (player.firstName || '').toUpperCase().replace(/\s+/g, '_');
-      const filename  = `${lastName}_${firstName}_ITP_Card.pdf`;
+      const filename  = lastName + '_' + firstName + '_ITP_Card.pdf';
 
       const blob = pdf.output('blob');
       const url  = URL.createObjectURL(blob);
@@ -108,14 +133,15 @@ const PDF = {
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
-      setTimeout(() => URL.revokeObjectURL(url), 100);
+      setTimeout(function() { URL.revokeObjectURL(url); }, 100);
 
     } catch (err) {
       console.error('PDF export failed:', err);
       alert('PDF export failed: ' + err.message);
+      if (cardEl.parentNode) cardEl.parentNode.removeChild(cardEl);
     }
 
-    exportBtns.forEach(b => { b.disabled = false; b.textContent = 'Export PDF'; });
+    exportBtns.forEach(function(b) { b.disabled = false; b.textContent = 'Export PDF'; });
   },
 
   /** Measure video item positions and convert to PDF mm coords */
@@ -125,7 +151,7 @@ const PDF = {
     const scaleX = 210 / 794;
     const scaleY = 297 / 1123;
 
-    cardEl.querySelectorAll('.card-video-item[data-url]').forEach(item => {
+    cardEl.querySelectorAll('.card-video-item[data-url]').forEach(function(item) {
       const url = item.dataset.url;
       if (!url) return;
       const rect = item.getBoundingClientRect();
@@ -134,7 +160,7 @@ const PDF = {
         y: (rect.top  - cardRect.top)  * scaleY,
         w: rect.width  * scaleX,
         h: rect.height * scaleY,
-        url
+        url: url
       });
     });
     return links;
