@@ -72,9 +72,6 @@ const PDF = {
         }
       });
 
-      // Capture video link positions for clickable PDF annotations
-      const videoLinks = PDF._getVideoLinks(cardEl);
-
       // Fix: Replace German umlauts in text nodes to prevent
       // html2canvas IndexSizeError. The bug is in html2canvas's
       // Range-based text measurement which miscalculates offsets
@@ -92,8 +89,12 @@ const PDF = {
         }
       }
 
-      // Wait for images to settle
+      // Wait for layout to settle after umlaut replacement
       await new Promise(r => setTimeout(r, 300));
+
+      // Capture video link positions AFTER umlaut replacement
+      // (text length changes shift the video section position)
+      const videoLinks = PDF._getVideoLinks(cardEl);
 
       // ── Capture with html2canvas ──────────────────────────────
 
