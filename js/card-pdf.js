@@ -76,16 +76,21 @@ const PDF = {
       const videoLinks = PDF._getVideoLinks(cardEl);
 
       // ── Fix html2canvas IndexSizeError ────────────────────────
-      // html2canvas 1.4.1 crashes on text-overflow:ellipsis with
-      // special characters (umlauts etc). Disable it on the live
-      // element before capture, then restore after.
-      const ellipsisEls = [];
-      cardEl.querySelectorAll('*').forEach(el => {
-        const cs = getComputedStyle(el);
-        if (cs.textOverflow === 'ellipsis') {
-          ellipsisEls.push({ el, orig: el.style.textOverflow });
-          el.style.textOverflow = 'clip';
-        }
+      // html2canvas 1.4.1 crashes with Range.setEnd on text nodes
+      // containing multi-byte chars (ü,ö,ä,ß). Wrapping each text
+      // node in a <span> prevents html2canvas from using Range API.
+      const walker = document.createTreeWalker(
+        cardEl, NodeFilter.SHOW_TEXT, null, false
+      );
+      const textNodes = [];
+      let tn;
+      while ((tn = walker.nextNode())) {
+        if (tn.nodeValue && tn.nodeValue.trim()) textNodes.push(tn);
+      }
+      textNodes.forEach(t => {
+        const span = document.createElement('span');
+        t.parentNode.insertBefore(span, t);
+        span.appendChild(t);
       });
 
       // Wait for images to settle
@@ -102,9 +107,6 @@ const PDF = {
         width: 794,
         height: 1123,
       });
-
-      // Restore text-overflow
-      ellipsisEls.forEach(({ el, orig }) => { el.style.textOverflow = orig; });
 
       // Remove the card from DOM
       document.body.removeChild(cardEl);
