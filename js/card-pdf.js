@@ -1,20 +1,23 @@
-'use strict';
-
 /* ═══════════════════════════════════════════════════════════════
    card-pdf.js — Screenshot the visible card preview → PDF
    Same approach as trial-report.js: capture the on-screen preview
    with html2canvas, then pipe the image into jsPDF.
 ═══════════════════════════════════════════════════════════════ */
 
-// ── Patch Range.setEnd BEFORE html2canvas loads ─────────────
+// ── Patch Range API BEFORE html2canvas loads ────────────────
 // html2canvas 1.4.1 miscalculates text node offsets with
 // letter-spacing + multi-byte chars (ü,ö,ä,ß), passing an offset
 // larger than the node length → IndexSizeError. Clamping prevents it.
 (function() {
-  const orig = Range.prototype.setEnd;
+  var origSetEnd = Range.prototype.setEnd;
+  var origSetStart = Range.prototype.setStart;
   Range.prototype.setEnd = function(node, offset) {
-    const max = node.nodeType === 3 ? node.nodeValue.length : node.childNodes.length;
-    orig.call(this, node, Math.min(offset, max));
+    var max = node.nodeType === 3 ? node.nodeValue.length : node.childNodes.length;
+    origSetEnd.call(this, node, Math.min(offset, max));
+  };
+  Range.prototype.setStart = function(node, offset) {
+    var max = node.nodeType === 3 ? node.nodeValue.length : node.childNodes.length;
+    origSetStart.call(this, node, Math.min(offset, max));
   };
 })();
 
