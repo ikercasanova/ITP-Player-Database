@@ -75,6 +75,19 @@ const PDF = {
       // Capture video link positions for clickable PDF annotations
       const videoLinks = PDF._getVideoLinks(cardEl);
 
+      // ── Fix html2canvas IndexSizeError ────────────────────────
+      // html2canvas 1.4.1 crashes on text-overflow:ellipsis with
+      // special characters (umlauts etc). Disable it on the live
+      // element before capture, then restore after.
+      const ellipsisEls = [];
+      cardEl.querySelectorAll('*').forEach(el => {
+        const cs = getComputedStyle(el);
+        if (cs.textOverflow === 'ellipsis') {
+          ellipsisEls.push({ el, orig: el.style.textOverflow });
+          el.style.textOverflow = 'clip';
+        }
+      });
+
       // Wait for images to settle
       await new Promise(r => setTimeout(r, 300));
 
@@ -88,25 +101,10 @@ const PDF = {
         backgroundColor: '#ffffff',
         width: 794,
         height: 1123,
-        onclone(clonedDoc) {
-          // Fix html2canvas IndexSizeError — disable text-overflow:ellipsis
-          // which causes Range.setEnd offset mismatches with special chars
-          clonedDoc.querySelectorAll('*').forEach(el => {
-            const s = el.style;
-            if (getComputedStyle(el).textOverflow === 'ellipsis') {
-              s.textOverflow = 'clip';
-            }
-          });
-          // Also strip soft hyphens from text nodes
-          const walker = clonedDoc.createTreeWalker(
-            clonedDoc.body, NodeFilter.SHOW_TEXT, null, false
-          );
-          let node;
-          while ((node = walker.nextNode())) {
-            if (node.nodeValue) node.nodeValue = node.nodeValue.replace(/\u00AD/g, '');
-          }
-        },
       });
+
+      // Restore text-overflow
+      ellipsisEls.forEach(({ el, orig }) => { el.style.textOverflow = orig; });
 
       // Remove the card from DOM
       document.body.removeChild(cardEl);
