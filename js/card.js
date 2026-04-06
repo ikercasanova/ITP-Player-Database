@@ -145,7 +145,7 @@ function buildVideosHTML(urls, playerName, layout) {
   if (url1) {
     const yt = getYouTubeInfo(url1);
     if (yt) {
-      html += `<div class="card-video-item" data-url="${url1}">
+      html += `<a href="${url1}" class="card-video-item" data-url="${url1}" target="_blank" style="text-decoration:none;color:inherit">
           <img src="${yt.thumb}" class="card-video-thumb" alt="${L.highlightLabel}"
             onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
           <div class="card-video-thumb-gen" style="display:none">
@@ -154,23 +154,23 @@ function buildVideosHTML(urls, playerName, layout) {
             <div class="card-video-thumb-gen-name">${name}</div>
           </div>
           <div class="card-video-label">&#9654; ${L.highlightLabel}</div>
-        </div>`;
+        </a>`;
     } else {
-      html += `<div class="card-video-item" data-url="${url1}">
+      html += `<a href="${url1}" class="card-video-item" data-url="${url1}" target="_blank" style="text-decoration:none;color:inherit">
           <div class="card-video-thumb-gen">
             <div class="card-video-thumb-icon">&#9654;</div>
             <div class="card-video-thumb-gen-title">${L.highlight}</div>
             <div class="card-video-thumb-gen-name">${name}</div>
           </div>
           <div class="card-video-label" title="${url1}">&#9654; ${L.highlightLabel}</div>
-        </div>`;
+        </a>`;
     }
   }
 
   // Slot 2: Full Game
   if (url2) {
     const isVeo = /app\.veo\.co/i.test(url2);
-    html += `<div class="card-video-item" data-url="${url2}">
+    html += `<a href="${url2}" class="card-video-item" data-url="${url2}" target="_blank" style="text-decoration:none;color:inherit">
         <div class="card-video-thumb-gen card-video-thumb-gen--game">
           <div class="card-video-thumb-icon">&#9654;</div>
           <div class="card-video-thumb-gen-title">${L.fullGame}</div>
@@ -178,7 +178,7 @@ function buildVideosHTML(urls, playerName, layout) {
           ${isVeo ? '<div class="card-video-thumb-gen-source">veo</div>' : ''}
         </div>
         <div class="card-video-label" title="${url2}">&#9654; ${L.fullGameLabel}${isVeo ? ' · Veo' : ''}</div>
-      </div>`;
+      </a>`;
   }
 
   return html;
