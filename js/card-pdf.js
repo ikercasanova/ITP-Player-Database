@@ -1,9 +1,9 @@
 'use strict';
 
 /* ═══════════════════════════════════════════════════════════════
-   card-pdf.js — Direct html2canvas + jsPDF export for A4 player cards
-   Uses the same proven approach as trial-report.js:
-   html2canvas → canvas.toDataURL → jsPDF.addImage → save
+   card-pdf.js — Screenshot the visible card preview → PDF
+   Same approach as trial-report.js: capture the on-screen preview
+   with html2canvas, then pipe the image into jsPDF.
 ═══════════════════════════════════════════════════════════════ */
 
 const PDF = {
@@ -21,7 +21,7 @@ const PDF = {
   },
 
   async export(player, layoutId) {
-    // Load libraries on demand (same approach as trial report)
+    // Load libraries on demand
     try {
       await PDF._loadScript('html2canvas', 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js');
       await PDF._loadScript('jspdf', 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js');
@@ -30,89 +30,31 @@ const PDF = {
       return;
     }
 
-    // Show loading state
+    // Find the visible card preview on the page
+    const source = document.querySelector('#card-preview-wrapper .player-card');
+    if (!source) {
+      alert('Please preview the card first.');
+      return;
+    }
+
     const exportBtns = document.querySelectorAll('#card-btn-export-pdf, #btn-export-pdf');
     exportBtns.forEach(b => { b.disabled = true; b.textContent = 'Exporting…'; });
 
     try {
-      // Build a fresh card element at full A4 size
-      const cardEl = buildCard(player, layoutId);
-
-      // Must be in DOM and visible for html2canvas to capture
-      cardEl.style.position = 'fixed';
-      cardEl.style.left = '0';
-      cardEl.style.top = '0';
-      cardEl.style.width = '794px';
-      cardEl.style.height = '1123px';
-      cardEl.style.zIndex = '99999';
-      cardEl.style.transform = 'none';
-      document.body.appendChild(cardEl);
-
-      // ── Pre-process for html2canvas ────────────────────────────
-
-      // Fix: Replace <img object-fit:cover> with background-image div
-      const photoImg = cardEl.querySelector('.card-photo');
-      if (photoImg && photoImg.tagName === 'IMG') {
-        const div = document.createElement('div');
-        div.style.width = '100%';
-        div.style.height = '100%';
-        div.style.backgroundImage = `url(${photoImg.src})`;
-        div.style.backgroundSize = 'cover';
-        div.style.backgroundPosition = photoImg.style.objectPosition || 'center center';
-        div.style.display = 'block';
-        photoImg.replaceWith(div);
-      }
-
-      // Fix: Replace external video thumbnails with generated fallbacks
-      cardEl.querySelectorAll('.card-video-thumb').forEach(img => {
-        img.style.display = 'none';
-        const fallback = img.nextElementSibling;
-        if (fallback && fallback.classList.contains('card-video-thumb-gen')) {
-          fallback.style.display = 'flex';
-        }
-      });
-
-      // Capture video link positions for clickable PDF annotations
-      const videoLinks = PDF._getVideoLinks(cardEl);
-
-      // ── Fix html2canvas IndexSizeError ────────────────────────
-      // html2canvas 1.4.1 crashes with Range.setEnd on text nodes
-      // containing multi-byte chars (ü,ö,ä,ß). Wrapping each text
-      // node in a <span> prevents html2canvas from using Range API.
-      const walker = document.createTreeWalker(
-        cardEl, NodeFilter.SHOW_TEXT, null, false
-      );
-      const textNodes = [];
-      let tn;
-      while ((tn = walker.nextNode())) {
-        if (tn.nodeValue && tn.nodeValue.trim()) textNodes.push(tn);
-      }
-      textNodes.forEach(t => {
-        const span = document.createElement('span');
-        t.parentNode.insertBefore(span, t);
-        span.appendChild(t);
-      });
-
-      // Wait for images to settle
+      // Scroll the preview into view so html2canvas can see it
+      source.scrollIntoView({ block: 'start' });
       await new Promise(r => setTimeout(r, 300));
 
-      // ── Capture with html2canvas ──────────────────────────────
-
-      const canvas = await html2canvas(cardEl, {
+      // Capture the visible preview — same approach as trial report
+      const canvas = await html2canvas(source, {
         scale: 2,
         useCORS: true,
         allowTaint: true,
         logging: false,
         backgroundColor: '#ffffff',
-        width: 794,
-        height: 1123,
       });
 
-      // Remove the card from DOM
-      document.body.removeChild(cardEl);
-
-      // ── Build PDF with jsPDF ──────────────────────────────────
-
+      // Build PDF
       const imgData = canvas.toDataURL('image/jpeg', 0.95);
       const pageWidth = 210;
       const pageHeight = 297;
@@ -128,6 +70,7 @@ const PDF = {
       pdf.addImage(imgData, 'JPEG', 0, 0, imgWidth, Math.min(imgHeight, pageHeight));
 
       // Add clickable link annotations for video URLs
+      const videoLinks = PDF._getVideoLinks(source);
       videoLinks.forEach(link => {
         pdf.link(link.x, link.y, link.w, link.h, { url: link.url });
       });
@@ -149,7 +92,7 @@ const PDF = {
 
     } catch (err) {
       console.error('PDF export failed:', err);
-      alert('PDF export failed. Try in Chrome for best results.');
+      alert('PDF export failed: ' + err.message);
     }
 
     exportBtns.forEach(b => { b.disabled = false; b.textContent = 'Export PDF'; });
