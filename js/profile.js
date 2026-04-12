@@ -75,6 +75,17 @@ const Profile = {
       });
     }
 
+    // Alumni toggle
+    const alumniBtn = container.querySelector('#btn-toggle-alumni');
+    if (alumniBtn) {
+      alumniBtn.addEventListener('click', async () => {
+        player.status = player.status === 'alumni' ? 'active' : 'alumni';
+        await DB.save(player);
+        App.toast(player.status === 'alumni' ? 'Moved to Alumni' : 'Player reactivated');
+        Profile.show(player.id);
+      });
+    }
+
     // Delete button
     const deleteBtn = container.querySelector('[data-delete-id]');
     if (deleteBtn) {
@@ -196,6 +207,7 @@ const Profile = {
             <div class="profile-name">${player.firstName}<br>${player.lastName}</div>
             ${player.ageGroup ? `<span class="profile-age-group">${player.ageGroup}</span>` : ''}
             ${player.playerType === 'trial' ? '<span class="profile-trial-badge">TRIAL</span>' : ''}
+            ${player.status === 'alumni' ? '<span class="profile-alumni-badge">ALUMNI</span>' : ''}
           </div>
           ${framingControl}
         </div>
@@ -219,6 +231,9 @@ const Profile = {
           <button class="btn btn-outline" onclick="location.hash='#card/${player.id}'">Player Card</button>
           <button class="btn btn-outline" onclick="WhatsAppReport.showForPlayer('${player.id}')">WA Report</button>
           <button class="btn btn-outline" onclick="location.hash='#edit/${player.id}'">Edit Player</button>
+          <button class="btn btn-outline" id="btn-toggle-alumni" data-player-id="${player.id}">
+            ${player.status === 'alumni' ? 'Reactivate Player' : 'Move to Alumni'}
+          </button>
           <button class="btn btn-danger" data-delete-id="${player.id}">Delete</button>
         </div>
       </div>`;

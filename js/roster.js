@@ -31,11 +31,16 @@ const Roster = {
     const empty = document.getElementById('roster-empty');
     let players = await DB.getAll();
 
-    // Filter by age group or trial status
-    if (Roster.activeGroup === 'trials') {
-      players = players.filter(p => p.playerType === 'trial');
+    // Filter by age group, trial, or alumni status
+    if (Roster.activeGroup === 'alumni') {
+      players = players.filter(p => p.status === 'alumni');
+    } else if (Roster.activeGroup === 'trials') {
+      players = players.filter(p => p.playerType === 'trial' && p.status !== 'alumni');
     } else if (Roster.activeGroup !== 'all') {
-      players = players.filter(p => p.ageGroup === Roster.activeGroup);
+      players = players.filter(p => p.ageGroup === Roster.activeGroup && p.status !== 'alumni');
+    } else {
+      // "All" tab excludes alumni
+      players = players.filter(p => p.status !== 'alumni');
     }
 
     // Filter by search
@@ -94,6 +99,7 @@ const Roster = {
           ${photoHTML}
           ${player.ageGroup ? `<span class="tile-age-badge">${player.ageGroup}</span>` : ''}
           ${player.playerType === 'trial' ? '<span class="tile-trial-badge">TRIAL</span>' : ''}
+          ${player.status === 'alumni' ? '<span class="tile-alumni-badge">ALUMNI</span>' : ''}
         </div>
         <div class="tile-info">
           <div class="tile-name">${player.firstName} ${player.lastName}</div>

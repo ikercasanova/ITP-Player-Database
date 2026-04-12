@@ -280,6 +280,89 @@ const DB = {
     }
   },
 
+  // ── Sync Test Helpers (no network calls) ───────────────────
+
+  applyTestResult(player, testKey, attemptIndex, value, sessionDate) {
+    if (!player.tests) player.tests = {};
+    if (!player.tests[testKey]) {
+      player.tests[testKey] = { sessions: [], best: null };
+    }
+
+    const test = player.tests[testKey];
+    if (!test.sessions) test.sessions = [];
+
+    const date = sessionDate || new Date().toISOString().slice(0, 10);
+
+    let session = test.sessions.find(s => s.date === date);
+    if (!session) {
+      session = { date, attempts: [null, null, null], best: null };
+      test.sessions.push(session);
+      test.sessions.sort((a, b) => a.date.localeCompare(b.date));
+    }
+
+    session.attempts[attemptIndex] = value;
+
+    const LOWER_IS_BETTER = ['sprint5m', 'sprint10m', 'sprint20m', 'sprint30m', 'sprint40yd', 'dribbling'];
+    const validAttempts = session.attempts.filter(v => v !== null && v !== undefined && v !== '');
+    const nums = validAttempts.map(Number).filter(n => !isNaN(n));
+
+    if (nums.length > 0) {
+      session.best = LOWER_IS_BETTER.includes(testKey)
+        ? Math.min(...nums)
+        : Math.max(...nums);
+    } else {
+      session.best = null;
+    }
+
+    const allBests = test.sessions
+      .map(s => s.best)
+      .filter(b => b !== null && b !== undefined);
+    const allNums = allBests.map(Number).filter(n => !isNaN(n));
+
+    if (allNums.length > 0) {
+      test.best = LOWER_IS_BETTER.includes(testKey)
+        ? Math.min(...allNums)
+        : Math.max(...allNums);
+    } else {
+      test.best = null;
+    }
+
+    return player;
+  },
+
+  saveInBackground(player) {
+    const season = DB.getActiveSeason();
+    const now = new Date().toISOString();
+    const localPlayers = DB._getLocalAll(season);
+
+    const idx = localPlayers.findIndex(p => p.id === player.id);
+    if (idx >= 0) {
+      localPlayers[idx] = { ...localPlayers[idx], ...player, updatedAt: now };
+    } else {
+      localPlayers.push({ ...player, updatedAt: now });
+    }
+
+    // Sync localStorage write — instant
+    DB._saveLocal(localPlayers, season);
+
+    // Fire-and-forget Supabase upsert
+    supa.from('players').upsert({
+      id: player.id,
+      season,
+      data: idx >= 0 ? localPlayers[idx] : player,
+      updated_at: now
+    }).then(({ error }) => {
+      if (error) {
+        console.warn('Background save failed, queued:', error);
+        DB._setOffline();
+        DB._addPendingSync(player.id, season);
+      } else {
+        DB._setOnline();
+        DB._removePendingSync(player.id);
+      }
+    });
+  },
+
   // ── Test Result Updates (async) ────────────────────────────
 
   async updateTestResult(playerId, testKey, attemptIndex, value, sessionDate) {

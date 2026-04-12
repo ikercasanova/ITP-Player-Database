@@ -166,6 +166,7 @@ const Testing = {
 
     Testing.players = (await DB.getAll())
       .filter(p => groups.includes(p.ageGroup))
+      .filter(p => (p.status || 'active') !== 'alumni')
       .sort((a, b) => (a.lastName || '').localeCompare(b.lastName || ''));
 
     if (Testing.players.length === 0) {
@@ -284,7 +285,8 @@ const Testing = {
     });
 
     container.querySelector('#btn-end-session').addEventListener('click', async () => {
-      await Testing.saveCurrentPlayer(container);
+      Testing.saveCurrentPlayer(container);
+      await DB.syncPending();
       Testing.phase = 'summary';
       Testing.renderSummary();
     });
@@ -297,7 +299,8 @@ const Testing = {
 
     const finishBtn = container.querySelector('#btn-finish');
     if (finishBtn) finishBtn.addEventListener('click', async () => {
-      await Testing.saveCurrentPlayer(container);
+      Testing.saveCurrentPlayer(container);
+      await DB.syncPending();
       Testing.phase = 'summary';
       Testing.renderSummary();
     });
@@ -429,7 +432,8 @@ const Testing = {
     });
 
     container.querySelector('#btn-end-session').addEventListener('click', async () => {
-      await Testing.saveCurrentPlayer(container);
+      Testing.saveCurrentPlayer(container);
+      await DB.syncPending();
       Testing.phase = 'summary';
       Testing.renderSummary();
     });
@@ -442,7 +446,8 @@ const Testing = {
 
     const finishBtn = container.querySelector('#btn-finish');
     if (finishBtn) finishBtn.addEventListener('click', async () => {
-      await Testing.saveCurrentPlayer(container);
+      Testing.saveCurrentPlayer(container);
+      await DB.syncPending();
       Testing.phase = 'summary';
       Testing.renderSummary();
     });
@@ -506,12 +511,11 @@ const Testing = {
     }
   },
 
-  async saveCurrentPlayer(container) {
+  saveCurrentPlayer(container) {
     const player = Testing.players[Testing.currentIndex];
     if (!player) return;
 
     if (Testing.activeGroup) {
-      // Grouped: save each distance separately
       const group = TEST_GROUPS[Testing.activeGroup];
       for (const tk of group.tests) {
         const inputs = container.querySelectorAll(`.speed-attempt-input[data-test="${tk}"]`);
@@ -519,25 +523,25 @@ const Testing = {
           const idx = parseInt(inp.dataset.attempt);
           const v = inp.value.trim();
           const num = v === '' ? null : parseFloat(v);
-          await DB.updateTestResult(player.id, tk, idx, isNaN(num) ? null : num, Testing.sessionDate);
+          DB.applyTestResult(player, tk, idx, isNaN(num) ? null : num, Testing.sessionDate);
         }
       }
     } else {
-      // Single test
       const inputs = container.querySelectorAll('.attempt-input');
       for (const inp of inputs) {
         const idx = parseInt(inp.dataset.attempt);
         const v = inp.value.trim();
         const num = v === '' ? null : parseFloat(v);
-        await DB.updateTestResult(player.id, Testing.activeTest, idx, isNaN(num) ? null : num, Testing.sessionDate);
+        DB.applyTestResult(player, Testing.activeTest, idx, isNaN(num) ? null : num, Testing.sessionDate);
       }
     }
 
-    Testing.players[Testing.currentIndex] = await DB.get(player.id);
+    // Write localStorage instantly, Supabase in background
+    DB.saveInBackground(player);
   },
 
-  async navigate(dir, container) {
-    await Testing.saveCurrentPlayer(container);
+  navigate(dir, container) {
+    Testing.saveCurrentPlayer(container);
     Testing.currentIndex = Math.max(0, Math.min(Testing.players.length - 1, Testing.currentIndex + dir));
     Testing.renderQueue();
   },
