@@ -113,8 +113,11 @@ const CardEditor = {
         <div class="report-section">
           <div class="report-section-title">Partner Club Logo</div>
           <div class="card-logo-presets" id="card-logo-presets">
-            <div class="card-logo-option ${ev._partnerLogo === 'assets/logos/athletes-usa.png' ? 'selected' : ''}" data-logo="assets/logos/athletes-usa.png" title="Athletes USA">
-              <img src="assets/logos/athletes-usa.png" alt="Athletes USA">
+            <div class="card-logo-option ${ev._partnerLogo === 'assets/logos/athletes-usa-dark.png' ? 'selected' : ''}" data-logo="assets/logos/athletes-usa-dark.png" title="Athletes USA">
+              <img src="assets/logos/athletes-usa-dark.png" alt="Athletes USA">
+            </div>
+            <div class="card-logo-option ${ev._partnerLogo === 'assets/logos/athletes-usa.png' ? 'selected' : ''}" data-logo="assets/logos/athletes-usa.png" title="Athletes USA (White)">
+              <img src="assets/logos/athletes-usa.png" alt="Athletes USA (White)">
             </div>
             <div class="card-logo-option ${ev._partnerLogo === 'assets/logos/warubi-sports.png' ? 'selected' : ''}" data-logo="assets/logos/warubi-sports.png" title="Warubi Sports">
               <img src="assets/logos/warubi-sports.png" alt="Warubi Sports">
