@@ -36,25 +36,40 @@ function buildTestsHTML(tests, layout) {
 
   if (testEntries.length === 0) return '';
 
+  const anyAboveAvg = testEntries.some(([key, cfg]) => {
+    const val = parseFloat(tests[key]);
+    return cfg.higherIsBetter ? val >= cfg.benchmark : val <= cfg.benchmark;
+  });
+
   const legend = `<div class="test-bars-legend">
     <span class="test-legend-item"><span class="test-legend-swatch" style="background:#ED1C24"></span>${layout.labels.player}</span>
-    <span class="test-legend-item"><span class="test-legend-swatch" style="background:#888"></span>${layout.benchmarkLabel}</span>
+    ${anyAboveAvg ? `<span class="test-legend-item"><span class="test-legend-swatch" style="background:#888"></span>${layout.benchmarkLabel}</span>` : ''}
   </div>`;
 
   const rows = testEntries.map(([key, cfg]) => {
     const raw = tests[key];
-    const displayVal = parseFloat(raw) + ' ' + cfg.unit;
+    const val = parseFloat(raw);
+    const displayVal = val + ' ' + cfg.unit;
     const barPct = calcBarPercent(raw, cfg);
     const benchPct = calcBenchmarkPercent(cfg);
+
+    // Only show benchmark marker if player is above average
+    const aboveAvg = cfg.higherIsBetter ? val >= cfg.benchmark : val <= cfg.benchmark;
+    const benchMarkHTML = aboveAvg
+      ? `<div class="test-bar-benchmark" style="left:${benchPct.toFixed(1)}%"></div>`
+      : '';
+    const benchValHTML = aboveAvg
+      ? `<div class="test-bar-bench-val">${cfg.benchmark} ${cfg.unit}</div>`
+      : `<div class="test-bar-bench-val"></div>`;
 
     return `<div class="test-bar-row">
       <div class="test-bar-label">${cfg.label}</div>
       <div class="test-bar-value">${displayVal}</div>
       <div class="test-bar-track">
         <div class="test-bar-fill" style="width:${barPct.toFixed(1)}%"></div>
-        <div class="test-bar-benchmark" style="left:${benchPct.toFixed(1)}%"></div>
+        ${benchMarkHTML}
       </div>
-      <div class="test-bar-bench-val">${cfg.benchmark} ${cfg.unit}</div>
+      ${benchValHTML}
     </div>`;
   }).join('');
 
