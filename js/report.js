@@ -765,6 +765,30 @@ const Report = {
 
   // ── PDF Export ─────────────────────────────────────────────
 
+  // Compute fill width that visually aligns with the four threshold mark centers
+  // (12.5%, 37.5%, 62.5%, 87.5%). Mirrors TrialReport._computeVisualPct.
+  _computeVisualPct(value, thresh, lowerIsBetter) {
+    const { poor, average, good, elite } = thresh;
+    const interp = (a, b, base) => {
+      const span = a - b;
+      if (span === 0) return base + 12.5;
+      const ratio = (a - value) / span;
+      return base + Math.max(0, Math.min(1, ratio)) * 25;
+    };
+    if (lowerIsBetter) {
+      if (value >= poor)    return Math.max(2, (poor / value) * 12.5);
+      if (value >= average) return interp(poor, average, 12.5);
+      if (value >= good)    return interp(average, good, 37.5);
+      if (value >= elite)   return interp(good, elite, 62.5);
+      return Math.min(100, 87.5 + ((elite - value) / elite) * 12.5);
+    }
+    if (value <= poor)    return Math.max(2, (value / poor) * 12.5);
+    if (value <= average) return 12.5 + ((value - poor) / (average - poor)) * 25;
+    if (value <= good)    return 37.5 + ((value - average) / (good - average)) * 25;
+    if (value <= elite)   return 62.5 + ((value - good) / (elite - good)) * 25;
+    return Math.min(100, 87.5 + ((value - elite) / elite) * 12.5);
+  },
+
   _exportPDF() {
     const pages = document.getElementById('report-pages');
     if (!pages) return;
