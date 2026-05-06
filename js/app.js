@@ -32,6 +32,9 @@ const App = {
     // Migrate localStorage → Supabase if needed
     await App.migrateToCloud();
 
+    // One-time fix: convert any broadJump values entered in meters to cm
+    await App.migrateBroadJumpUnits();
+
     // First-launch check
     const players = await DB.getAll();
     if (players.length === 0) {
@@ -172,6 +175,62 @@ const App = {
       App.toast(`Migrated ${localPlayers.length} players to cloud`);
     } catch (err) {
       console.warn('Cloud migration skipped:', err.message);
+    }
+  },
+
+  // ── One-Time: Broad Jump m → cm Migration ──────────────────
+
+  async migrateBroadJumpUnits() {
+    const meta = DB.getMeta();
+    if (meta.broadJumpMigratedToCm) return;
+
+    try {
+      const players = await DB.getAll();
+      let fixedCount = 0;
+
+      for (const p of players) {
+        const bj = p.tests?.broadJump;
+        if (!bj) continue;
+
+        let changed = false;
+        const conv = (v) => (typeof v === 'number' && v > 0 && v < 10) ? Math.round(v * 100) : v;
+
+        if (typeof bj.best === 'number' && bj.best > 0 && bj.best < 10) {
+          bj.best = conv(bj.best);
+          changed = true;
+        }
+        if (Array.isArray(bj.sessions)) {
+          for (const s of bj.sessions) {
+            if (typeof s.best === 'number' && s.best > 0 && s.best < 10) {
+              s.best = conv(s.best);
+              changed = true;
+            }
+            if (Array.isArray(s.attempts)) {
+              for (let i = 0; i < s.attempts.length; i++) {
+                const a = s.attempts[i];
+                if (typeof a === 'number' && a > 0 && a < 10) {
+                  s.attempts[i] = conv(a);
+                  changed = true;
+                }
+              }
+            }
+          }
+        }
+
+        if (changed) {
+          await DB.save(p);
+          fixedCount++;
+        }
+      }
+
+      meta.broadJumpMigratedToCm = true;
+      DB.saveMeta(meta);
+
+      if (fixedCount > 0) {
+        App.toast(`Fixed broad jump units on ${fixedCount} player${fixedCount === 1 ? '' : 's'}`);
+      }
+    } catch (err) {
+      console.warn('Broad jump unit migration skipped:', err.message);
     }
   },
 

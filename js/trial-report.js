@@ -270,6 +270,9 @@ const TrialReport = {
 
     const previewArea = document.getElementById('trial-report-preview-standalone');
 
+    const strengthsHtml = TrialReport._renderEvalCard(ev, 'strengths');
+    const areasHtml = TrialReport._renderEvalCard(ev, 'areas');
+
     previewArea.innerHTML = `
       <div class="report-preview-toolbar">
         <button class="btn btn-primary" id="trl-btn-export-pdf">Export PDF</button>
@@ -279,9 +282,12 @@ const TrialReport = {
         <div class="rpt-page rpt-page-watermark">
           ${TrialReport._renderHeader(seasonLabel)}
           ${TrialReport._renderPlayerHero(player)}
-          <hr class="rpt-divider">
-          ${TrialReport._renderTwoColEval(ev)}
-          <hr class="rpt-divider">
+          ${TrialReport._renderPhysicalPerformance(player)}
+          ${strengthsHtml ? '<hr class="rpt-divider">' + strengthsHtml : ''}
+        </div>
+        <div class="rpt-page rpt-page-watermark rpt-page-continuation">
+          ${areasHtml}
+          ${areasHtml ? '<hr class="rpt-divider">' : ''}
           ${TrialReport._renderCoachAssessment(ev)}
           <hr class="rpt-divider">
           ${TrialReport._renderRecommendation(ev)}
@@ -351,49 +357,142 @@ const TrialReport = {
       </div>`;
   },
 
+  // ── Physical Performance ────────────────────────────────────
+
+  _renderPhysicalPerformance(player) {
+    const ageGroup = player.ageGroup;
+    const tests = player.tests || {};
+    const order = ['sprint5m', 'sprint10m', 'sprint20m', 'sprint30m', 'broadJump'];
+
+    const rows = [];
+    for (const key of order) {
+      const session = DB.getLatestSession(player, key);
+      let value = session && session.best != null ? session.best : null;
+      if (value == null) continue;
+      // Guard: broad jump entered in meters → convert to cm (benchmarks expect cm)
+      if (key === 'broadJump' && value > 0 && value < 10) value = Math.round(value * 100);
+      rows.push(TrialReport._renderTestRow(ageGroup, key, value));
+    }
+
+    const topSpeed = TrialReport._calcMaxSpeed(tests);
+    const callout = topSpeed
+      ? `<div class="rpt-top-speed-callout">Estimated top speed <strong>${topSpeed} km/h</strong> <span class="rpt-top-speed-note">derived from sprint splits</span></div>`
+      : '';
+
+    if (rows.length === 0 && !callout) return '';
+
+    return `
+      <div class="rpt-physical-section">
+        <div class="rpt-heading">Physical Performance</div>
+        <div class="rpt-physical-sub">Latest results vs. German ${ageGroup || ''} academy benchmarks</div>
+        <div class="rpt-test-rows">${rows.join('')}</div>
+        ${callout}
+      </div>`;
+  },
+
+  _renderTestRow(ageGroup, testKey, value) {
+    const def = TEST_DEFS[testKey];
+    if (!def) return '';
+    const { level } = Benchmarks.evaluate(ageGroup, testKey, value);
+    const thresh = Benchmarks.getThresholds(ageGroup, testKey);
+    const lowerIsBetter = !!def.lowerIsBetter;
+    const group = def.category === 'Speed' ? 'speed' : 'explosive';
+
+    // Format value: sprints/dribbling 2 decimals, otherwise integer
+    const fmt = (v) => def.unit === 's' ? Number(v).toFixed(2) : (Number.isInteger(v) ? v : Number(v).toFixed(1));
+    const valueStr = fmt(value);
+
+    let scaleHtml = '';
+    if (thresh) {
+      const order = [['poor', thresh.poor], ['average', thresh.average], ['good', thresh.good], ['elite', thresh.elite]];
+      const marks = order.map(([lvl, val]) => `<div class="rpt-thresh-mark" data-level="${lvl}">${fmt(val)}</div>`).join('');
+      const visualPct = TrialReport._computeVisualPct(value, thresh, lowerIsBetter);
+      scaleHtml = `
+        <div class="rpt-thresh-scale">${marks}</div>
+        <div class="rpt-thresh-bar">
+          <div class="rpt-thresh-fill" data-level="${level}" style="width:${visualPct}%"></div>
+        </div>`;
+    }
+
+    return `
+      <div class="rpt-test-row" data-level="${level}" data-group="${group}">
+        <div class="rpt-test-row-name">${def.name}</div>
+        <div class="rpt-test-row-value" data-level="${level}">${valueStr}<span class="rpt-test-row-unit">${def.unit}</span></div>
+        <div class="rpt-test-row-bar">${scaleHtml}</div>
+      </div>`;
+  },
+
+  // Compute fill width that visually aligns with the four threshold mark centers
+  // (12.5%, 37.5%, 62.5%, 87.5%) — each mark spans 25% of the bar.
+  _computeVisualPct(value, thresh, lowerIsBetter) {
+    const { poor, average, good, elite } = thresh;
+    const interp = (a, b, base) => {
+      const span = a - b;
+      if (span === 0) return base + 12.5;
+      const ratio = (a - value) / span;
+      return base + Math.max(0, Math.min(1, ratio)) * 25;
+    };
+
+    if (lowerIsBetter) {
+      if (value >= poor)    return Math.max(2, (poor / value) * 12.5);
+      if (value >= average) return interp(poor, average, 12.5);
+      if (value >= good)    return interp(average, good, 37.5);
+      if (value >= elite)   return interp(good, elite, 62.5);
+      return Math.min(100, 87.5 + ((elite - value) / elite) * 12.5);
+    }
+    // higher is better — invert
+    if (value <= poor)    return Math.max(2, (value / poor) * 12.5);
+    if (value <= average) return 12.5 + ((value - poor) / (average - poor)) * 25;
+    if (value <= good)    return 37.5 + ((value - average) / (good - average)) * 25;
+    if (value <= elite)   return 62.5 + ((value - good) / (elite - good)) * 25;
+    return Math.min(100, 87.5 + ((value - elite) / elite) * 12.5);
+  },
+
+  // Derive top speed (km/h) from best sprint splits (mirrors profile.js)
+  _calcMaxSpeed(tests) {
+    if (!tests) return null;
+    const t5  = tests.sprint5m?.best;
+    const t10 = tests.sprint10m?.best;
+    const t20 = tests.sprint20m?.best;
+    const t30 = tests.sprint30m?.best;
+    const t40 = tests.sprint40yd?.best;
+
+    const segments = [];
+    if (t20 && t30)  segments.push(10   / (t30 - t20));
+    if (t30 && t40)  segments.push(6.58 / (t40 - t30));
+    if (t10 && t30)  segments.push(20   / (t30 - t10));
+    if (t5  && t20)  segments.push(15   / (t20 - t5));
+    if (t5  && t10)  segments.push(5    / (t10 - t5));
+
+    if (segments.length === 0) return null;
+    const maxMs = Math.max(...segments);
+    if (!isFinite(maxMs) || maxMs <= 0) return null;
+    return Math.round(maxMs * 3.6 * 10) / 10;
+  },
+
   // ── Two-Column Strengths & Areas ────────────────────────────
 
-  _renderTwoColEval(ev) {
-    const hasStrengths = ev.strengths && ev.strengths.length > 0;
-    const hasAreas = ev.areasOfOpportunity && ev.areasOfOpportunity.length > 0;
-    if (!hasStrengths && !hasAreas) return '';
+  _renderEvalCard(ev, side) {
+    const isStrengths = side === 'strengths';
+    const items = isStrengths ? ev.strengths : ev.areasOfOpportunity;
+    if (!items || items.length === 0) return '';
 
-    let html = '';
+    const sentences = (isStrengths ? ev.strengthsSentences : ev.areasSentences) || [];
+    const cardClass = isStrengths ? 'strengths-card' : 'areas-card';
+    const heading = isStrengths ? 'Strengths' : 'Areas of Opportunity';
 
-    // Strengths
-    if (hasStrengths) {
-      html += '<div class="rpt-eval-section"><div class="rpt-eval-card strengths-card">';
-      html += '<div class="rpt-heading">Strengths</div>';
-      const sentences = ev.strengthsSentences || [];
-      html += '<ul class="rpt-bullet-list">';
-      if (sentences.length > 0) {
-        for (const s of sentences) html += `<li>${TrialReport._formatLabeledBullet(s)}</li>`;
-      } else {
-        const groups = TrialReport._groupTraitsByPillar(ev.strengths);
-        for (const [pillar, traits] of Object.entries(groups)) {
-          html += `<li><strong>${pillar}:</strong> ${traits.join(', ')}</li>`;
-        }
+    let html = `<div class="rpt-eval-section"><div class="rpt-eval-card ${cardClass}">`;
+    html += `<div class="rpt-heading">${heading}</div>`;
+    html += '<ul class="rpt-bullet-list">';
+    if (sentences.length > 0) {
+      for (const s of sentences) html += `<li>${TrialReport._formatLabeledBullet(s)}</li>`;
+    } else {
+      const groups = TrialReport._groupTraitsByPillar(items);
+      for (const [pillar, traits] of Object.entries(groups)) {
+        html += `<li><strong>${pillar}:</strong> ${traits.join(', ')}</li>`;
       }
-      html += '</ul></div></div>';
     }
-
-    // Areas of Opportunity
-    if (hasAreas) {
-      html += '<div class="rpt-eval-section"><div class="rpt-eval-card areas-card">';
-      html += '<div class="rpt-heading">Areas of Opportunity</div>';
-      const sentences = ev.areasSentences || [];
-      html += '<ul class="rpt-bullet-list">';
-      if (sentences.length > 0) {
-        for (const s of sentences) html += `<li>${TrialReport._formatLabeledBullet(s)}</li>`;
-      } else {
-        const groups = TrialReport._groupTraitsByPillar(ev.areasOfOpportunity);
-        for (const [pillar, traits] of Object.entries(groups)) {
-          html += `<li><strong>${pillar}:</strong> ${traits.join(', ')}</li>`;
-        }
-      }
-      html += '</ul></div></div>';
-    }
-
+    html += '</ul></div></div>';
     return html;
   },
 
@@ -643,36 +742,46 @@ Coach's notes: ${rawNotes}`
     const player = TrialReport._player;
     const filename = `ITP_Trial_Report_${player.firstName}_${player.lastName}.pdf`;
 
-    // Screenshot the VISIBLE preview directly — bypass html2pdf pipeline
-    const source = document.querySelector('#trl-report-pages .rpt-page');
-    if (!source) return;
+    const pages = document.querySelectorAll('#trl-report-pages .rpt-page');
+    if (!pages.length) return;
 
     const btn = document.getElementById('trl-btn-export-pdf');
     if (btn) { btn.disabled = true; btn.textContent = 'Exporting...'; }
 
     try {
-      // Scroll the preview into view so html2canvas can see it
-      source.scrollIntoView({ block: 'start' });
-      await new Promise(r => setTimeout(r, 200));
-
-      const canvas = await html2canvas(source, {
-        scale: 2,
-        useCORS: true,
-        allowTaint: true,
-        logging: false,
-        backgroundColor: '#ffffff'
-      });
-
-      const imgData = canvas.toDataURL('image/jpeg', 0.95);
+      const PDF = new jspdf.jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
       const pageWidth = 210;
       const pageHeight = 297;
-      const imgWidth = pageWidth;
-      const imgHeight = (canvas.height * pageWidth) / canvas.width;
+      let firstPage = true;
 
-      const PDF = new jspdf.jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
-      PDF.addImage(imgData, 'JPEG', 0, 0, imgWidth, Math.min(imgHeight, pageHeight));
+      for (let i = 0; i < pages.length; i++) {
+        const source = pages[i];
+        source.scrollIntoView({ block: 'start' });
+        await new Promise(r => setTimeout(r, 150));
+
+        const canvas = await html2canvas(source, {
+          scale: 2,
+          useCORS: true,
+          allowTaint: true,
+          logging: false,
+          backgroundColor: '#ffffff'
+        });
+
+        const imgData = canvas.toDataURL('image/jpeg', 0.95);
+        const imgHeightMm = (canvas.height * pageWidth) / canvas.width;
+
+        // Slice tall content across multiple A4 pages using negative Y offsets;
+        // each PDF page crops at its bounds, so the image effectively scrolls.
+        let consumed = 0;
+        while (consumed < imgHeightMm) {
+          if (!firstPage) PDF.addPage();
+          firstPage = false;
+          PDF.addImage(imgData, 'JPEG', 0, -consumed, pageWidth, imgHeightMm);
+          consumed += pageHeight;
+        }
+      }
+
       PDF.save(filename);
-
       App.toast('PDF exported');
     } catch (err) {
       console.error('PDF export error:', err);

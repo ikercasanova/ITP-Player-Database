@@ -546,7 +546,7 @@
 
 .rpt-divider {
   border: none;
-  height: 1px;
+  height: 2px;
   margin: 28px 0;
   background: linear-gradient(90deg, #E3000F 0%, #E3000F 60px, var(--rpt-warm-200) 60px, var(--rpt-warm-200) 100%);
   opacity: 1;
@@ -1934,4 +1934,187 @@
   line-height: 1.6;
   color: var(--gray-700);
   margin-top: 4px;
+}
+
+/* ── Trial Report — Continuation Page (page 2+) ──────────────── */
+
+.rpt-page-continuation {
+  padding-top: 38px;
+  margin-top: 24px;
+}
+
+.rpt-page-continuation > .rpt-eval-section:first-child,
+.rpt-page-continuation > .rpt-coach-band:first-child {
+  margin-top: 0;
+}
+
+/* ── Trial Report — Physical Performance Section ────────────────── */
+
+.rpt-physical-section {
+  padding: 14px 38px 12px 38px;
+  margin: 0 -38px;
+  background: var(--rpt-warm-50);
+  border-bottom: 1px solid var(--rpt-warm-200);
+}
+
+.rpt-physical-section .rpt-heading {
+  font-family: var(--font-cond);
+  font-weight: 800;
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--dark);
+  border-left: 3px solid var(--red);
+  padding-left: 8px;
+  margin-bottom: 2px;
+}
+
+.rpt-physical-sub {
+  font-family: var(--font-cond);
+  font-weight: 600;
+  font-size: 10px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--gray-500);
+  padding-left: 11px;
+  margin-bottom: 8px;
+}
+
+.rpt-test-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.rpt-test-row {
+  display: grid;
+  grid-template-columns: 110px 90px 1fr;
+  align-items: center;
+  gap: 12px;
+  padding: 4px 0;
+  border-bottom: 1px dashed var(--rpt-warm-200);
+}
+
+.rpt-test-row:last-child {
+  border-bottom: none;
+}
+
+/* Group separator: thicker top border + extra spacing when category changes
+   (e.g., between Speed sprints and the Explosive Power broad jump). */
+.rpt-test-row[data-group="speed"] + .rpt-test-row[data-group="explosive"],
+.rpt-test-row[data-group="explosive"] + .rpt-test-row[data-group="speed"] {
+  border-top: 2px solid var(--rpt-warm-300);
+  margin-top: 8px;
+  padding-top: 10px;
+}
+
+.rpt-test-row-name {
+  font-family: var(--font-cond);
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--dark);
+}
+
+.rpt-test-row-value {
+  font-family: var(--font-cond);
+  font-weight: 800;
+  font-size: 18px;
+  line-height: 1;
+  text-align: right;
+}
+
+.rpt-test-row-value[data-level="poor"]    { color: var(--bench-poor); }
+.rpt-test-row-value[data-level="average"] { color: var(--bench-avg); }
+.rpt-test-row-value[data-level="good"]    { color: var(--bench-good); }
+.rpt-test-row-value[data-level="elite"]   { color: var(--bench-elite); }
+.rpt-test-row-value[data-level="none"]    { color: var(--gray-500); }
+
+.rpt-test-row-unit {
+  font-family: var(--font-cond);
+  font-weight: 600;
+  font-size: 10px;
+  color: var(--gray-500);
+  margin-left: 2px;
+  letter-spacing: 0.5px;
+}
+
+.rpt-test-row-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.rpt-test-row-bar .rpt-thresh-scale {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0;
+}
+
+.rpt-test-row-bar .rpt-thresh-mark {
+  font-family: var(--font-cond);
+  font-weight: 700;
+  font-size: 8.5px;
+  letter-spacing: 0.3px;
+  flex: 1;
+  text-align: center;
+  padding: 0;
+}
+
+.rpt-thresh-bar {
+  position: relative;
+  height: 4px;
+  background: var(--rpt-warm-200);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.rpt-thresh-fill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.2s ease;
+}
+
+.rpt-thresh-fill[data-level="poor"]    { background: var(--bench-poor); }
+.rpt-thresh-fill[data-level="average"] { background: var(--bench-avg); }
+.rpt-thresh-fill[data-level="good"]    { background: var(--bench-good); }
+.rpt-thresh-fill[data-level="elite"]   { background: var(--bench-elite); }
+.rpt-thresh-fill[data-level="none"]    { background: transparent; }
+
+.rpt-top-speed-callout {
+  margin-top: 10px;
+  padding: 6px 10px;
+  background: rgba(227, 0, 15, 0.04);
+  border-left: 2px solid var(--red);
+  font-family: var(--font);
+  font-size: 11px;
+  color: var(--gray-700);
+  letter-spacing: 0.2px;
+}
+
+.rpt-top-speed-callout strong {
+  font-family: var(--font-cond);
+  font-weight: 800;
+  font-size: 13px;
+  color: var(--dark);
+  letter-spacing: 0.5px;
+  margin: 0 2px;
+}
+
+.rpt-top-speed-note {
+  color: var(--gray-500);
+  font-style: italic;
+  margin-left: 6px;
+  font-size: 10px;
+}
+
+@media print {
+  .rpt-physical-section,
+  .rpt-test-row-value,
+  .rpt-thresh-fill,
+  .rpt-top-speed-callout {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
 }
