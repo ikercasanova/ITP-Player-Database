@@ -477,6 +477,62 @@ const Report = {
       </div>`;
   },
 
+  // Render one card for a single test (CMJ, Broad Jump, Trap Bar, Pull-Ups, IFT, Passing, Dribbling).
+  // Returns '' if the player has no result for the test.
+  _renderSingleTestCard(player, testKey) {
+    const td = player.tests?.[testKey];
+    if (!td || td.best == null) return '';
+
+    const def = TEST_DEFS[testKey];
+    if (!def) return '';
+
+    const desc = TEST_DESCRIPTIONS[testKey] || '';
+    const latest = DB.getLatestSession(player, testKey);
+    const value = latest?.best ?? td.best;
+    const fmt = (v) => def.unit === 's' ? Number(v).toFixed(2) : (Number.isInteger(v) ? v : Number(v).toFixed(1));
+
+    const ageGroup = player.ageGroup;
+    const thresh = ageGroup ? Benchmarks.getThresholds(ageGroup, testKey) : null;
+    const evalRes = ageGroup ? Benchmarks.evaluate(ageGroup, testKey, value) : { level: 'none' };
+    const level = evalRes.level;
+    const lowerIsBetter = !!def.lowerIsBetter;
+
+    // Threshold row
+    let scaleHtml = '';
+    if (thresh) {
+      const order = [['poor', thresh.poor], ['average', thresh.average], ['good', thresh.good], ['elite', thresh.elite]];
+      const marks = order.map(([lvl, val]) => `<div class="rpt-thresh-mark" data-level="${lvl}">${fmt(val)}</div>`).join('');
+      const visualPct = Report._computeVisualPct(value, thresh, lowerIsBetter);
+      scaleHtml = `
+        <div class="rpt-thresh-scale">${marks}</div>
+        <div class="rpt-thresh-bar">
+          <div class="rpt-thresh-fill" data-level="${level}" style="width:${visualPct}%"></div>
+        </div>`;
+    }
+
+    // Progression chart — only if 2+ valid sessions
+    const validSessions = (td.sessions || []).filter(s => s.best != null);
+    let chartHtml = '';
+    if (validSessions.length >= 2 && typeof Profile !== 'undefined' && Profile.renderProgressionChart) {
+      chartHtml = `
+        <div class="rpt-test-card-chart">
+          ${Profile.renderProgressionChart(player, testKey, 540, 150)}
+        </div>`;
+    }
+
+    return `
+      <div class="rpt-test-card-block" data-level="${level}">
+        <div class="rpt-test-card-block-name">${def.name}</div>
+        ${desc ? `<div class="rpt-test-card-block-desc">${desc}</div>` : ''}
+        <div class="rpt-test-card-block-row">
+          <div class="rpt-test-card-block-row-name">Latest</div>
+          <div class="rpt-test-card-block-row-value" data-level="${level}">${fmt(value)}<span class="rpt-test-card-block-row-unit">${def.unit}</span></div>
+          <div class="rpt-test-card-block-row-bar">${scaleHtml}</div>
+        </div>
+        ${chartHtml}
+      </div>`;
+  },
+
   // ── Performance Tests — Smart Card Layout ──────────────────
 
   _renderPerformanceTests(player) {
