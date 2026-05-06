@@ -19,6 +19,20 @@ const TEST_DEFS = {
   dribbling:  { name: 'Dribbling',        unit: 's',     category: 'Technical',       lowerIsBetter: true },
 };
 
+/** Plain-English, parent-facing one-sentence description per test.
+ *  The 'speed' key is used by the unified Speed card on the family report,
+ *  which covers sprint5m + sprint30m + sprint40yd together. */
+const TEST_DESCRIPTIONS = {
+  speed:      'How fast a player can run at top speed, for example on a breakaway or racing for a through ball.',
+  cmj:        'How high a player can jump from a standing start, for example to rise above defenders on a corner or win a header.',
+  broadJump:  "How explosive a player's first step is, useful for breaking away from a defender or accelerating into space.",
+  trapBarDL:  'Lower body strength used to hold off opponents in duels and stay strong on the ball under contact.',
+  pullUps:    'Upper body and grip strength, important for shielding the ball, holding position, and winning physical battles.',
+  ift3015:    'How well a player can keep running at intensity, the engine that lets them stay sharp from kickoff to final whistle.',
+  passingAcc: 'Precision and consistency on the ball, measuring how reliably a player delivers the right pass in the right place under pressure.',
+  dribbling:  'Close control speed with the ball at feet, measuring how quickly a player can navigate tight spaces or beat a defender.',
+};
+
 /** Test groups — bundles of related tests that share a single testing session */
 const TEST_GROUPS = {
   speed: {
