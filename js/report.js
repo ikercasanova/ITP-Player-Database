@@ -360,7 +360,6 @@ const Report = {
             <hr class="rpt-divider">
             ${Report._renderPerformanceTests(player)}
             ${Report._renderDevelopedAreasAndOpportunities(player)}
-            ${Report._renderProgressionCharts(player)}
             ${Report._renderTrials(player)}
             ${Report._renderCoachEvaluation(player)}
             ${Report._renderMedia()}
@@ -681,82 +680,29 @@ const Report = {
   _renderPerformanceTests(player) {
     if (!player.tests || !player.ageGroup) return '';
 
-    const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-    const fmtDate = (iso) => {
-      const [y, m, d] = iso.split('-');
-      return `${MONTHS[parseInt(m, 10) - 1]} '${y.slice(2)}`;
-    };
+    // Order: CMJ, Broad Jump, Trap Bar, Pull-Ups, Speed (unified), IFT, Passing, Dribbling
+    const singleCardOrder = ['cmj', 'broadJump', 'trapBarDL', 'pullUps'];
+    const afterSpeedOrder = ['ift3015', 'passingAcc', 'dribbling'];
 
-    const categories = Benchmarks.getTestsByCategory();
-    let html = '';
-    let hasAnyData = false;
-
-    for (const [catName, testKeys] of Object.entries(categories)) {
-      let catCards = '';
-      for (const tk of testKeys) {
-        const testData = player.tests?.[tk];
-        if (!testData || testData.best == null) continue;
-        hasAnyData = true;
-
-        const def = TEST_DEFS[tk];
-        const latest = DB.getLatestSession(player, tk);
-        const { level } = Benchmarks.evaluate(player.ageGroup, tk, latest?.best ?? testData.best);
-        const levelLabel = level === 'none' ? '—' : level === 'poor' ? 'Below Avg' : level.charAt(0).toUpperCase() + level.slice(1);
-
-        // Only show sessions that have data
-        const sessions = (testData.sessions || []).filter(s => s.best != null);
-
-        let sessionsHTML = '';
-        if (sessions.length > 0) {
-          sessionsHTML = sessions.map(s => {
-            const { level: sLevel } = Benchmarks.evaluate(player.ageGroup, tk, s.best);
-            return `<div class="rpt-test-card-session">
-              <div class="rpt-test-card-session-val" data-level="${sLevel}">${s.best}</div>
-              <div class="rpt-test-card-session-date">${fmtDate(s.date)}</div>
-            </div>`;
-          }).join('');
-        }
-
-        // Benchmark threshold scale
-        const thresh = Benchmarks.getThresholds(player.ageGroup, tk);
-        let threshHTML = '';
-        if (thresh) {
-          const dirLabel = def.lowerIsBetter ? '\u2193 better' : '\u2191 better';
-          threshHTML = `
-            <div class="rpt-test-thresholds">
-              <div class="rpt-thresh-scale">
-                <span class="rpt-thresh-mark" data-level="poor">${thresh.poor}</span>
-                <span class="rpt-thresh-mark" data-level="average">${thresh.average}</span>
-                <span class="rpt-thresh-mark" data-level="good">${thresh.good}</span>
-                <span class="rpt-thresh-mark" data-level="elite">${thresh.elite}</span>
-              </div>
-              <div class="rpt-thresh-direction">${dirLabel}</div>
-            </div>`;
-        }
-
-        catCards += `
-          <div class="rpt-test-card" data-level="${level}">
-            <div class="rpt-test-card-name">
-              ${def.name} <span class="rpt-test-card-level" data-level="${level}">${levelLabel}</span>
-            </div>
-            <div class="rpt-test-card-sessions">${sessionsHTML}</div>
-            ${threshHTML}
-          </div>`;
-      }
-
-      if (catCards) {
-        html += `<div class="rpt-test-cat-label">${catName}</div>`;
-        html += `<div class="rpt-test-cards">${catCards}</div>`;
-      }
+    const cards = [];
+    for (const tk of singleCardOrder) {
+      const card = Report._renderSingleTestCard(player, tk);
+      if (card) cards.push(card);
+    }
+    const speed = Report._renderSpeedCard(player);
+    if (speed) cards.push(speed);
+    for (const tk of afterSpeedOrder) {
+      const card = Report._renderSingleTestCard(player, tk);
+      if (card) cards.push(card);
     }
 
-    if (!hasAnyData) return '';
+    if (cards.length === 0) return '';
 
     return `
       <div class="rpt-section">
         <div class="rpt-heading">Performance Tests</div>
         <div class="rpt-bench-ref">Benchmarks: German Top Academy Standards for ${player.ageGroup}</div>
-        ${html}
+        ${cards.join('')}
         <div class="rpt-bench-legend">
           <span class="rpt-bench-key" data-level="poor">Below Avg</span>
           <span class="rpt-bench-key" data-level="average">Average</span>
@@ -817,34 +763,6 @@ const Report = {
       </div>`;
   },
 
-  // ── Progression Charts — ALL tests with ≥2 sessions ────────
-
-  _renderProgressionCharts(player) {
-    if (!player.tests) return '';
-
-    const chartTests = [];
-    for (const [tk, td] of Object.entries(player.tests)) {
-      const sessions = td?.sessions || [];
-      const valid = sessions.filter(s => s.best != null);
-      if (valid.length >= 2) chartTests.push(tk);
-    }
-
-    if (chartTests.length === 0) return '';
-
-    const chartsHTML = chartTests.map(tk => {
-      const def = TEST_DEFS[tk];
-      return `<div class="rpt-chart-block">
-        <div class="rpt-chart-label">${def.name} (${def.unit})</div>
-        ${Profile.renderProgressionChart(player, tk, 540, 180)}
-      </div>`;
-    }).join('');
-
-    return `
-      <div class="rpt-section">
-        <div class="rpt-heading">Season Progression</div>
-        <div class="rpt-charts-stack">${chartsHTML}</div>
-      </div>`;
-  },
 
   // ── Season Highlights — Test Improvements + Improved Traits ──
 
