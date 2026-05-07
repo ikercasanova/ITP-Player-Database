@@ -591,8 +591,90 @@ const Report = {
       </div>`;
   },
 
-  // Stub — replaced in Task 5
-  _renderSpeedCurve(player) { return ''; },
+  // Speed curve: X = sprint distance, Y = time, one polyline per session.
+  // A session is included only if it has all three distances (5m, 30m, 40yd) recorded.
+  _renderSpeedCurve(player) {
+    const SPRINT_KEYS = ['sprint5m', 'sprint30m', 'sprint40yd'];
+    const SPRINT_LABELS = ['5m', '30m', '40yd'];
+
+    // Group sessions by date across the three distances
+    const byDate = {};
+    for (let i = 0; i < SPRINT_KEYS.length; i++) {
+      const td = player.tests?.[SPRINT_KEYS[i]];
+      if (!td) continue;
+      for (const s of (td.sessions || [])) {
+        if (s.best == null) continue;
+        if (!byDate[s.date]) byDate[s.date] = { date: s.date, times: [null, null, null] };
+        byDate[s.date].times[i] = s.best;
+      }
+    }
+
+    const completeSessions = Object.values(byDate)
+      .filter(s => s.times.every(t => t != null))
+      .sort((a, b) => a.date.localeCompare(b.date));
+
+    if (completeSessions.length === 0) return '';
+
+    // SVG geometry
+    const width = 540, height = 160;
+    const margin = { top: 18, right: 14, bottom: 32, left: 36 };
+    const plotW = width - margin.left - margin.right;
+    const plotH = height - margin.top - margin.bottom;
+
+    const xPositions = [
+      margin.left,
+      margin.left + plotW / 2,
+      margin.left + plotW
+    ];
+
+    const allTimes = completeSessions.flatMap(s => s.times);
+    const tMin = Math.min(...allTimes);
+    const tMax = Math.max(...allTimes);
+    const pad = (tMax - tMin || 0.5) * 0.08;
+    const yMin = tMin - pad;
+    const yMax = tMax + pad;
+    const valueToY = (v) => margin.top + ((v - yMin) / (yMax - yMin)) * plotH;
+
+    const RED = '#E3000F';
+    const GRAY = '#B8B5AE';
+
+    let svg = `<svg viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block">`;
+    svg += `<rect x="0" y="0" width="${width}" height="${height}" fill="#FAFAFA" rx="4"/>`;
+
+    // Vertical grid lines + X-axis labels
+    for (let i = 0; i < SPRINT_LABELS.length; i++) {
+      svg += `<line x1="${xPositions[i]}" y1="${margin.top}" x2="${xPositions[i]}" y2="${margin.top + plotH}" stroke="#E0E0E0" stroke-width="0.5"/>`;
+      svg += `<text x="${xPositions[i]}" y="${height - 12}" text-anchor="middle" font-family="Barlow Condensed, sans-serif" font-weight="700" font-size="10" fill="#666" letter-spacing="0.5">${SPRINT_LABELS[i]}</text>`;
+    }
+
+    // Y-axis: just min/max time labels (subtle)
+    svg += `<text x="${margin.left - 6}" y="${margin.top + 4}" text-anchor="end" font-family="Barlow Condensed, sans-serif" font-size="9" fill="#999">${tMin.toFixed(2)}s</text>`;
+    svg += `<text x="${margin.left - 6}" y="${margin.top + plotH}" text-anchor="end" font-family="Barlow Condensed, sans-serif" font-size="9" fill="#999">${tMax.toFixed(2)}s</text>`;
+
+    // One polyline per session
+    for (let si = 0; si < completeSessions.length; si++) {
+      const s = completeSessions[si];
+      const isLatest = si === completeSessions.length - 1;
+      const color = isLatest ? RED : GRAY;
+      const opacity = isLatest ? 1 : 0.55;
+      const stroke = isLatest ? 2.5 : 1.5;
+
+      const pts = s.times.map((t, i) => `${xPositions[i].toFixed(1)},${valueToY(t).toFixed(1)}`).join(' ');
+      svg += `<polyline points="${pts}" fill="none" stroke="${color}" stroke-width="${stroke}" stroke-opacity="${opacity}" stroke-linejoin="round" stroke-linecap="round"/>`;
+
+      for (let i = 0; i < 3; i++) {
+        svg += `<circle cx="${xPositions[i].toFixed(1)}" cy="${valueToY(s.times[i]).toFixed(1)}" r="${isLatest ? 3.5 : 2.5}" fill="${color}" opacity="${opacity}"/>`;
+      }
+    }
+
+    svg += '</svg>';
+
+    return `
+      <div class="rpt-test-card-chart rpt-speed-curve-wrap">
+        <div class="rpt-speed-curve-caption">Speed curve. Each line is one testing session. Lower lines mean faster runs.</div>
+        ${svg}
+      </div>`;
+  },
 
   // ── Performance Tests — Smart Card Layout ──────────────────
 
