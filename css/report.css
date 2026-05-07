@@ -2118,3 +2118,110 @@
     print-color-adjust: exact;
   }
 }
+
+/* ── Family Report: Vertical-Stack Test Cards ────────────────── */
+
+.rpt-test-card-block {
+  background: #FFFFFF;
+  border: 1px solid var(--rpt-warm-200);
+  border-radius: 8px;
+  padding: 16px 20px 18px 20px;
+  margin-bottom: 14px;
+  page-break-inside: avoid;
+}
+
+.rpt-test-card-block-name {
+  font-family: var(--font-cond);
+  font-weight: 800;
+  font-size: 14px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--dark);
+  border-left: 3px solid #E3000F;
+  padding-left: 8px;
+  margin-bottom: 4px;
+}
+
+.rpt-test-card-block-desc {
+  font-size: 11px;
+  font-style: italic;
+  color: var(--gray-500, #6B6B6B);
+  line-height: 1.5;
+  margin: 4px 0 14px 11px;
+}
+
+.rpt-test-card-block-row {
+  display: grid;
+  grid-template-columns: 110px 90px 1fr;
+  gap: 12px;
+  align-items: center;
+  padding: 5px 0;
+  border-bottom: 1px dashed var(--rpt-warm-200);
+}
+
+.rpt-test-card-block-row:last-of-type {
+  border-bottom: none;
+}
+
+.rpt-test-card-block-row-name {
+  font-family: var(--font-cond);
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--dark);
+}
+
+.rpt-test-card-block-row-value {
+  font-family: var(--font-cond);
+  font-weight: 800;
+  font-size: 18px;
+  line-height: 1;
+  text-align: right;
+}
+
+.rpt-test-card-block-row-value[data-level="poor"]    { color: var(--bench-poor); }
+.rpt-test-card-block-row-value[data-level="average"] { color: var(--bench-avg); }
+.rpt-test-card-block-row-value[data-level="good"]    { color: var(--bench-good); }
+.rpt-test-card-block-row-value[data-level="elite"]   { color: var(--bench-elite); }
+.rpt-test-card-block-row-value[data-level="none"]    { color: var(--gray-500, #6B6B6B); }
+
+.rpt-test-card-block-row-unit {
+  font-family: var(--font-cond);
+  font-weight: 600;
+  font-size: 10px;
+  color: var(--gray-500, #6B6B6B);
+  margin-left: 2px;
+  letter-spacing: 0.5px;
+}
+
+.rpt-test-card-block-row-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.rpt-test-card-chart {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--rpt-warm-200);
+}
+
+.rpt-speed-curve-caption {
+  font-family: var(--font-cond);
+  font-weight: 600;
+  font-size: 10px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--gray-500, #6B6B6B);
+  margin-bottom: 8px;
+}
+
+@media print {
+  .rpt-test-card-block,
+  .rpt-test-card-block-row-value,
+  .rpt-thresh-fill {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}
