@@ -533,6 +533,67 @@ const Report = {
       </div>`;
   },
 
+  // Render the unified Speed card holding 5m, 30m, 40yd sprint threshold rows + speed curve chart.
+  // Returns '' if the player has none of the three sprint distances recorded.
+  _renderSpeedCard(player) {
+    const SPRINT_KEYS = ['sprint5m', 'sprint30m', 'sprint40yd'];
+
+    // Filter to sprints the player has at least one valid session for
+    const presentKeys = SPRINT_KEYS.filter(tk => {
+      const td = player.tests?.[tk];
+      return td && td.best != null;
+    });
+    if (presentKeys.length === 0) return '';
+
+    const desc = TEST_DESCRIPTIONS.speed || '';
+    const ageGroup = player.ageGroup;
+
+    // Threshold rows
+    const rows = presentKeys.map(tk => {
+      const def = TEST_DEFS[tk];
+      const td = player.tests[tk];
+      const latest = DB.getLatestSession(player, tk);
+      const value = latest?.best ?? td.best;
+      const fmt = (v) => Number(v).toFixed(2);
+      const thresh = ageGroup ? Benchmarks.getThresholds(ageGroup, tk) : null;
+      const evalRes = ageGroup ? Benchmarks.evaluate(ageGroup, tk, value) : { level: 'none' };
+      const level = evalRes.level;
+
+      let scaleHtml = '';
+      if (thresh) {
+        const order = [['poor', thresh.poor], ['average', thresh.average], ['good', thresh.good], ['elite', thresh.elite]];
+        const marks = order.map(([lvl, val]) => `<div class="rpt-thresh-mark" data-level="${lvl}">${fmt(val)}</div>`).join('');
+        const visualPct = Report._computeVisualPct(value, thresh, true);
+        scaleHtml = `
+          <div class="rpt-thresh-scale">${marks}</div>
+          <div class="rpt-thresh-bar">
+            <div class="rpt-thresh-fill" data-level="${level}" style="width:${visualPct}%"></div>
+          </div>`;
+      }
+
+      return `
+        <div class="rpt-test-card-block-row" data-level="${level}">
+          <div class="rpt-test-card-block-row-name">${def.name}</div>
+          <div class="rpt-test-card-block-row-value" data-level="${level}">${fmt(value)}<span class="rpt-test-card-block-row-unit">s</span></div>
+          <div class="rpt-test-card-block-row-bar">${scaleHtml}</div>
+        </div>`;
+    }).join('');
+
+    // Speed curve chart (added in Task 5)
+    const curveHtml = Report._renderSpeedCurve(player);
+
+    return `
+      <div class="rpt-test-card-block">
+        <div class="rpt-test-card-block-name">Speed</div>
+        ${desc ? `<div class="rpt-test-card-block-desc">${desc}</div>` : ''}
+        ${rows}
+        ${curveHtml}
+      </div>`;
+  },
+
+  // Stub — replaced in Task 5
+  _renderSpeedCurve(player) { return ''; },
+
   // ── Performance Tests — Smart Card Layout ──────────────────
 
   _renderPerformanceTests(player) {
