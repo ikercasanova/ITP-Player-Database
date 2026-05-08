@@ -646,11 +646,14 @@ const Report = {
     const xPos = [plot.left, plot.left + plotW / 2, plot.right];
     const pctToY = (p) => plot.bottom - (Math.max(0, Math.min(100, p)) / 100) * plotH;
 
+    // Band stops match the threshold mark center positions used by _computeVisualPct
+    // (12.5 / 37.5 / 62.5 / 87.5) so each band actually contains the values for that tier.
+    // Result: BELOW band ~38% tall, AVG/GOOD ~25% each, ELITE ~12% — matches profile.js bands.
     const bands = [
-      { from: 100, to: 75, color: '#3182CE', label: 'ELITE' },
-      { from: 75,  to: 50, color: '#38A169', label: 'GOOD' },
-      { from: 50,  to: 25, color: '#ED8936', label: 'AVG' },
-      { from: 25,  to: 0,  color: '#E53E3E', label: 'BELOW' },
+      { from: 100,  to: 87.5, color: '#3182CE', label: 'ELITE' },
+      { from: 87.5, to: 62.5, color: '#38A169', label: 'GOOD' },
+      { from: 62.5, to: 37.5, color: '#ED8936', label: 'AVG' },
+      { from: 37.5, to: 0,    color: '#E53E3E', label: 'BELOW' },
     ];
 
     let svg = `<svg viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block">`;
@@ -663,7 +666,7 @@ const Report = {
       svg += `<text x="${plot.right + 8}" y="${labelY}" font-family="Barlow Condensed, sans-serif" font-weight="700" font-size="9" fill="${b.color}" opacity="0.85">${b.label}</text>`;
     }
 
-    for (const stop of [75, 50, 25]) {
+    for (const stop of [87.5, 62.5, 37.5]) {
       svg += `<line x1="${plot.left}" y1="${pctToY(stop).toFixed(1)}" x2="${plot.right}" y2="${pctToY(stop).toFixed(1)}" stroke="#fff" stroke-width="1" opacity="0.6"/>`;
     }
 
