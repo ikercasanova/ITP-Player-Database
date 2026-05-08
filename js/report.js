@@ -547,6 +547,20 @@ const Report = {
     const desc = TEST_DESCRIPTIONS.speed || '';
     const ageGroup = player.ageGroup;
 
+    // Latest-test pill: most recent session date across all three sprints
+    let latestDate = null;
+    for (const tk of presentKeys) {
+      const latest = DB.getLatestSession(player, tk);
+      if (latest?.date && (!latestDate || latest.date > latestDate)) latestDate = latest.date;
+    }
+    const fmtPillDate = (iso) => {
+      const d = new Date(iso + 'T12:00:00');
+      return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    };
+    const pillHtml = latestDate
+      ? `<div class="rpt-speed-latest-pill"><span class="rpt-speed-latest-pill-lbl">Latest test</span><span class="rpt-speed-latest-pill-date">${fmtPillDate(latestDate)}</span></div>`
+      : '';
+
     // Threshold rows
     const rows = presentKeys.map(tk => {
       const def = TEST_DEFS[tk];
@@ -578,25 +592,34 @@ const Report = {
         </div>`;
     }).join('');
 
-    // Speed curve chart (added in Task 5)
     const curveHtml = Report._renderSpeedCurve(player);
+    const legendHtml = Report._renderSpeedLegend(player);
+    const tableHtml = Report._renderSpeedResultsTable(player);
 
     return `
       <div class="rpt-test-card-block">
         <div class="rpt-test-card-block-name">Speed</div>
         ${desc ? `<div class="rpt-test-card-block-desc">${desc}</div>` : ''}
+        ${pillHtml}
         ${rows}
         ${curveHtml}
+        ${legendHtml}
+        ${tableHtml}
       </div>`;
   },
 
-  // Speed curve: X = sprint distance, Y = time, one polyline per session.
-  // A session is included only if it has all three distances (5m, 30m, 40yd) recorded.
+  // Speed progression chart: X = distance, Y = pct vs age-group benchmark
+  // (0 = poor, 100 = elite). Benchmark zones colored as background bands.
+  // One polyline per session that has all 3 distances recorded.
   _renderSpeedCurve(player) {
     const SPRINT_KEYS = ['sprint5m', 'sprint30m', 'sprint40yd'];
     const SPRINT_LABELS = ['5m', '30m', '40yd'];
+    const ageGroup = player.ageGroup;
+    if (!ageGroup) return '';
 
-    // Group sessions by date across the three distances
+    const thresholds = SPRINT_KEYS.map(tk => Benchmarks.getThresholds(ageGroup, tk));
+    if (thresholds.some(t => !t)) return '';
+
     const byDate = {};
     for (let i = 0; i < SPRINT_KEYS.length; i++) {
       const td = player.tests?.[SPRINT_KEYS[i]];
@@ -614,55 +637,49 @@ const Report = {
 
     if (completeSessions.length === 0) return '';
 
-    // SVG geometry
-    const width = 540, height = 160;
-    const margin = { top: 18, right: 14, bottom: 32, left: 36 };
-    const plotW = width - margin.left - margin.right;
-    const plotH = height - margin.top - margin.bottom;
+    const charted = completeSessions.slice(-6);
 
-    const xPositions = [
-      margin.left,
-      margin.left + plotW / 2,
-      margin.left + plotW
+    const width = 580, height = 240;
+    const plot = { left: 70, right: 480, top: 10, bottom: 200 };
+    const plotW = plot.right - plot.left;
+    const plotH = plot.bottom - plot.top;
+    const xPos = [plot.left, plot.left + plotW / 2, plot.right];
+    const pctToY = (p) => plot.bottom - (Math.max(0, Math.min(100, p)) / 100) * plotH;
+
+    const bands = [
+      { from: 100, to: 75, color: '#3182CE', label: 'ELITE' },
+      { from: 75,  to: 50, color: '#38A169', label: 'GOOD' },
+      { from: 50,  to: 25, color: '#ED8936', label: 'AVG' },
+      { from: 25,  to: 0,  color: '#E53E3E', label: 'BELOW' },
     ];
 
-    const allTimes = completeSessions.flatMap(s => s.times);
-    const tMin = Math.min(...allTimes);
-    const tMax = Math.max(...allTimes);
-    const pad = (tMax - tMin || 0.5) * 0.08;
-    const yMin = tMin - pad;
-    const yMax = tMax + pad;
-    const valueToY = (v) => margin.top + ((v - yMin) / (yMax - yMin)) * plotH;
-
-    const RED = '#E3000F';
-    const GRAY = '#B8B5AE';
-
     let svg = `<svg viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block">`;
-    svg += `<rect x="0" y="0" width="${width}" height="${height}" fill="#FAFAFA" rx="4"/>`;
 
-    // Vertical grid lines + X-axis labels
-    for (let i = 0; i < SPRINT_LABELS.length; i++) {
-      svg += `<line x1="${xPositions[i]}" y1="${margin.top}" x2="${xPositions[i]}" y2="${margin.top + plotH}" stroke="#E0E0E0" stroke-width="0.5"/>`;
-      svg += `<text x="${xPositions[i]}" y="${height - 12}" text-anchor="middle" font-family="Barlow Condensed, sans-serif" font-weight="700" font-size="10" fill="#666" letter-spacing="0.5">${SPRINT_LABELS[i]}</text>`;
+    for (const b of bands) {
+      const y = pctToY(b.from);
+      const h = pctToY(b.to) - y;
+      svg += `<rect x="${plot.left}" y="${y.toFixed(1)}" width="${plotW}" height="${h.toFixed(1)}" fill="${b.color}" fill-opacity="0.10"/>`;
+      const labelY = (y + h / 2 + 3).toFixed(1);
+      svg += `<text x="${plot.right + 8}" y="${labelY}" font-family="Barlow Condensed, sans-serif" font-weight="700" font-size="9" fill="${b.color}" opacity="0.85">${b.label}</text>`;
     }
 
-    // Y-axis: just min/max time labels (subtle)
-    svg += `<text x="${margin.left - 6}" y="${margin.top + 4}" text-anchor="end" font-family="Barlow Condensed, sans-serif" font-size="9" fill="#999">${tMin.toFixed(2)}s</text>`;
-    svg += `<text x="${margin.left - 6}" y="${margin.top + plotH}" text-anchor="end" font-family="Barlow Condensed, sans-serif" font-size="9" fill="#999">${tMax.toFixed(2)}s</text>`;
+    for (const stop of [75, 50, 25]) {
+      svg += `<line x1="${plot.left}" y1="${pctToY(stop).toFixed(1)}" x2="${plot.right}" y2="${pctToY(stop).toFixed(1)}" stroke="#fff" stroke-width="1" opacity="0.6"/>`;
+    }
 
-    // One polyline per session
-    for (let si = 0; si < completeSessions.length; si++) {
-      const s = completeSessions[si];
-      const isLatest = si === completeSessions.length - 1;
-      const color = isLatest ? RED : GRAY;
-      const opacity = isLatest ? 1 : 0.55;
-      const stroke = isLatest ? 2.5 : 1.5;
+    for (let i = 0; i < SPRINT_LABELS.length; i++) {
+      svg += `<line x1="${xPos[i]}" y1="${plot.top}" x2="${xPos[i]}" y2="${plot.bottom}" stroke="#D8D5CC" stroke-width="0.5"/>`;
+      svg += `<text x="${xPos[i]}" y="${height - 10}" text-anchor="middle" font-family="Barlow Condensed, sans-serif" font-weight="700" font-size="11" fill="#444">${SPRINT_LABELS[i]}</text>`;
+    }
 
-      const pts = s.times.map((t, i) => `${xPositions[i].toFixed(1)},${valueToY(t).toFixed(1)}`).join(' ');
-      svg += `<polyline points="${pts}" fill="none" stroke="${color}" stroke-width="${stroke}" stroke-opacity="${opacity}" stroke-linejoin="round" stroke-linecap="round"/>`;
-
+    for (let si = 0; si < charted.length; si++) {
+      const s = charted[si];
+      const style = Report._speedSessionStyle(si, charted.length);
+      const pcts = s.times.map((t, i) => Report._computeVisualPct(t, thresholds[i], true));
+      const pts = pcts.map((p, i) => `${xPos[i].toFixed(1)},${pctToY(p).toFixed(1)}`).join(' ');
+      svg += `<polyline points="${pts}" fill="none" stroke="${style.color}" stroke-width="${style.stroke}" stroke-opacity="${style.opacity}" stroke-linejoin="round" stroke-linecap="round"/>`;
       for (let i = 0; i < 3; i++) {
-        svg += `<circle cx="${xPositions[i].toFixed(1)}" cy="${valueToY(s.times[i]).toFixed(1)}" r="${isLatest ? 3.5 : 2.5}" fill="${color}" opacity="${opacity}"/>`;
+        svg += `<circle cx="${xPos[i].toFixed(1)}" cy="${pctToY(pcts[i]).toFixed(1)}" r="${style.dotR}" fill="${style.color}" opacity="${style.opacity}"/>`;
       }
     }
 
@@ -670,9 +687,110 @@ const Report = {
 
     return `
       <div class="rpt-test-card-chart rpt-speed-curve-wrap">
-        <div class="rpt-speed-curve-caption">Speed curve. Each line is one testing session. Lower lines mean faster runs.</div>
+        <div class="rpt-speed-curve-caption">Speed progression vs. age-group benchmark</div>
         ${svg}
       </div>`;
+  },
+
+  // Date legend below the speed curve. One swatch per chart-rendered session.
+  _renderSpeedLegend(player) {
+    const SPRINT_KEYS = ['sprint5m', 'sprint30m', 'sprint40yd'];
+    const ageGroup = player.ageGroup;
+    if (!ageGroup) return '';
+    const thresholds = SPRINT_KEYS.map(tk => Benchmarks.getThresholds(ageGroup, tk));
+    if (thresholds.some(t => !t)) return '';
+
+    const byDate = {};
+    for (let i = 0; i < SPRINT_KEYS.length; i++) {
+      const td = player.tests?.[SPRINT_KEYS[i]];
+      if (!td) continue;
+      for (const s of (td.sessions || [])) {
+        if (s.best == null) continue;
+        if (!byDate[s.date]) byDate[s.date] = { date: s.date, times: [null, null, null] };
+        byDate[s.date].times[i] = s.best;
+      }
+    }
+    const charted = Object.values(byDate)
+      .filter(s => s.times.every(t => t != null))
+      .sort((a, b) => a.date.localeCompare(b.date))
+      .slice(-6);
+
+    if (charted.length === 0) return '';
+
+    const fmt = (iso) => {
+      const d = new Date(iso + 'T12:00:00');
+      return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    };
+
+    const items = charted.map((s, i) => {
+      const style = Report._speedSessionStyle(i, charted.length);
+      let suffix = '';
+      if (charted.length >= 2 && i === charted.length - 1) suffix = ' (latest)';
+      else if (charted.length >= 3 && i === 0) suffix = ' (oldest)';
+      return `
+        <span class="rpt-speed-legend-item" style="color:${style.color}">
+          <svg width="20" height="3" style="overflow:visible"><line x1="0" y1="1.5" x2="20" y2="1.5" stroke="${style.color}" stroke-width="${style.stroke}" stroke-opacity="${style.opacity}"/></svg>
+          ${fmt(s.date)}${suffix}
+        </span>`;
+    }).join('');
+
+    return `<div class="rpt-speed-legend">${items}</div>`;
+  },
+
+  // Results table: one row per session that has at least one sprint result.
+  // Date column is colored to match the chart line; sessions not represented
+  // in the chart use neutral gray.
+  _renderSpeedResultsTable(player) {
+    const SPRINT_KEYS = ['sprint5m', 'sprint30m', 'sprint40yd'];
+
+    const byDate = {};
+    for (let i = 0; i < SPRINT_KEYS.length; i++) {
+      const td = player.tests?.[SPRINT_KEYS[i]];
+      if (!td) continue;
+      for (const s of (td.sessions || [])) {
+        if (s.best == null) continue;
+        if (!byDate[s.date]) byDate[s.date] = { date: s.date, times: [null, null, null] };
+        byDate[s.date].times[i] = s.best;
+      }
+    }
+
+    const allSessions = Object.values(byDate).sort((a, b) => a.date.localeCompare(b.date));
+    if (allSessions.length === 0) return '';
+
+    const charted = allSessions.filter(s => s.times.every(t => t != null)).slice(-6);
+    const colorByDate = {};
+    charted.forEach((s, i) => {
+      const style = Report._speedSessionStyle(i, charted.length);
+      colorByDate[s.date] = style.color;
+    });
+    const latestDate = allSessions[allSessions.length - 1].date;
+
+    const fmt = (iso) => {
+      const d = new Date(iso + 'T12:00:00');
+      return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    };
+
+    const rows = allSessions.map(s => {
+      const isLatest = s.date === latestDate;
+      const color = colorByDate[s.date] || '#888';
+      const cells = s.times.map(t => t == null ? '<span class="rpt-speed-na">&mdash;</span>' : `${Number(t).toFixed(2)}s`);
+      const rowAttrs = isLatest ? 'data-latest' : '';
+      return `
+        <tr ${rowAttrs} style="--c:${color}">
+          <td>${fmt(s.date)}</td>
+          <td>${cells[0]}</td>
+          <td>${cells[1]}</td>
+          <td>${cells[2]}</td>
+        </tr>`;
+    }).join('');
+
+    return `
+      <table class="rpt-speed-results-table">
+        <thead>
+          <tr><th>Session</th><th>5m</th><th>30m</th><th>40yd</th></tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>`;
   },
 
   // ── Performance Tests — Smart Card Layout ──────────────────
@@ -904,6 +1022,23 @@ const Report = {
     if (value <= good)    return 37.5 + ((value - average) / (good - average)) * 25;
     if (value <= elite)   return 62.5 + ((value - good) / (elite - good)) * 25;
     return Math.min(100, 87.5 + ((value - elite) / elite) * 12.5);
+  },
+
+  // Returns { color, stroke, opacity, dotR } for a session at zero-based age `idx`
+  // (0 = oldest of the rendered sessions, total-1 = latest).
+  _speedSessionStyle(idx, total) {
+    const isLatest = idx === total - 1;
+    if (isLatest) {
+      return { color: '#E3000F', stroke: 2.8, opacity: 1, dotR: 4.2 };
+    }
+    const generationsBack = (total - 1) - idx;
+    const palette = ['#5B7BA8', '#C49B6C'];
+    const color = palette[(generationsBack - 1) % palette.length];
+    const fadeStep = Math.max(0, generationsBack - 1) * 0.15;
+    const opacity = Math.max(0.45, 0.95 - fadeStep);
+    const stroke = generationsBack === 1 ? 1.9 : 1.7;
+    const dotR = generationsBack === 1 ? 3.2 : 3.0;
+    return { color, stroke, opacity, dotR };
   },
 
   _exportPDF() {

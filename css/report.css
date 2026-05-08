@@ -2225,3 +2225,116 @@
     print-color-adjust: exact;
   }
 }
+
+/* ── Family Report: Speed Card v2 (Pill + Legend + Results Table) ─ */
+
+.rpt-speed-latest-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 14px 11px;
+  padding: 3px 10px;
+  background: rgba(227, 0, 15, 0.06);
+  border-left: 2px solid #E3000F;
+  border-radius: 0 4px 4px 0;
+  font-family: var(--font-cond);
+  font-weight: 700;
+  font-size: 10px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--dark);
+}
+
+.rpt-speed-latest-pill-lbl  { color: var(--gray-500); }
+.rpt-speed-latest-pill-date { color: #E3000F; font-weight: 800; }
+
+.rpt-speed-curve-wrap .rpt-speed-curve-caption {
+  font-family: var(--font-cond);
+  font-weight: 600;
+  font-size: 10px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--gray-500);
+  margin-bottom: 8px;
+}
+
+.rpt-speed-legend {
+  display: flex;
+  gap: 18px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+  padding-left: 11px;
+}
+
+.rpt-speed-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-cond);
+  font-weight: 700;
+  font-size: 10px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.rpt-speed-results-table {
+  margin-top: 14px;
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 11px;
+}
+
+.rpt-speed-results-table th,
+.rpt-speed-results-table td {
+  text-align: left;
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--rpt-warm-200);
+}
+
+.rpt-speed-results-table th {
+  font-family: var(--font-cond);
+  font-weight: 700;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--gray-500);
+  background: var(--rpt-warm-50);
+}
+
+.rpt-speed-results-table td {
+  font-family: var(--font-cond);
+  font-weight: 600;
+  font-size: 12px;
+  color: var(--dark);
+}
+
+.rpt-speed-results-table tbody tr td:first-child {
+  font-weight: 800;
+  color: var(--c, #888);
+}
+
+.rpt-speed-results-table tbody tr td:first-child::before {
+  content: '\2022';
+  color: var(--c, #888);
+  margin-right: 6px;
+  font-size: 12px;
+}
+
+.rpt-speed-results-table tbody tr[data-latest] td {
+  font-weight: 800;
+  color: #E3000F;
+}
+
+.rpt-speed-na {
+  color: var(--gray-500);
+  font-weight: 500;
+}
+
+@media print {
+  .rpt-speed-latest-pill,
+  .rpt-speed-results-table tbody tr td,
+  .rpt-speed-legend-item {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}
