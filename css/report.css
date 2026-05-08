@@ -2150,6 +2150,21 @@
   margin: 4px 0 14px 11px;
 }
 
+.rpt-test-card-block-bench-note {
+  display: inline-block;
+  margin: -8px 0 14px 11px;
+  padding: 3px 10px;
+  background: rgba(49, 130, 206, 0.06);
+  border-left: 2px solid #3182CE;
+  border-radius: 0 4px 4px 0;
+  font-family: var(--font-cond);
+  font-weight: 700;
+  font-size: 10px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: #2B6CB0;
+}
+
 .rpt-test-card-block-row {
   display: grid;
   grid-template-columns: 110px 90px 1fr;

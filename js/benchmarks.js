@@ -71,6 +71,8 @@ const DEFAULT_BENCHMARKS = {
     sprint20m:  { poor: 3.45, average: 3.30, good: 3.15, elite: 3.02 },
     sprint30m:  { poor: 4.50, average: 4.30, good: 4.15, elite: 4.02 },
     sprint40yd: { poor: 5.20, average: 4.95, good: 4.75, elite: 4.55 },
+    passingAcc: { poor: 9, average: 12, good: 14, elite: 16 },
+    dribbling:  { poor: 12.85, average: 12.10, good: 11.75, elite: 11.00 },
   },
   'U-19': {
     cmj:        { poor: 36, average: 40, good: 44, elite: 48 },
@@ -83,6 +85,8 @@ const DEFAULT_BENCHMARKS = {
     sprint20m:  { poor: 3.35, average: 3.20, good: 3.05, elite: 2.95 },
     sprint30m:  { poor: 4.40, average: 4.20, good: 4.05, elite: 3.92 },
     sprint40yd: { poor: 5.05, average: 4.85, good: 4.65, elite: 4.48 },
+    passingAcc: { poor: 9, average: 12, good: 14, elite: 16 },
+    dribbling:  { poor: 12.85, average: 12.10, good: 11.75, elite: 11.00 },
   },
   'U-21': {
     cmj:        { poor: 38, average: 42, good: 46, elite: 50 },
@@ -95,8 +99,15 @@ const DEFAULT_BENCHMARKS = {
     sprint20m:  { poor: 3.30, average: 3.15, good: 3.00, elite: 2.90 },
     sprint30m:  { poor: 4.35, average: 4.15, good: 4.00, elite: 3.85 },
     sprint40yd: { poor: 4.95, average: 4.78, good: 4.58, elite: 4.42 },
+    passingAcc: { poor: 9, average: 12, good: 14, elite: 16 },
+    dribbling:  { poor: 12.85, average: 12.10, good: 11.75, elite: 11.00 },
   }
 };
+
+/** Tests whose benchmark thresholds are derived from the ITP cohort itself
+ *  (not external academy standards). Family report cards for these tests
+ *  show a "Benchmarks: ITP cohort" note instead of the German-academy default. */
+const ITP_BENCHMARK_TESTS = new Set(['passingAcc', 'dribbling']);
 
 const Benchmarks = {
 

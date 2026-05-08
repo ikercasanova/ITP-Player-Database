@@ -519,10 +519,15 @@ const Report = {
         </div>`;
     }
 
+    const benchNote = (typeof ITP_BENCHMARK_TESTS !== 'undefined' && ITP_BENCHMARK_TESTS.has(testKey))
+      ? '<div class="rpt-test-card-block-bench-note">Benchmarks: ITP cohort</div>'
+      : '';
+
     return `
       <div class="rpt-test-card-block" data-level="${level}">
         <div class="rpt-test-card-block-name">${def.name}</div>
         ${desc ? `<div class="rpt-test-card-block-desc">${desc}</div>` : ''}
+        ${benchNote}
         <div class="rpt-test-card-block-row">
           <div class="rpt-test-card-block-row-name">Latest</div>
           <div class="rpt-test-card-block-row-value" data-level="${level}">${fmt(value)}<span class="rpt-test-card-block-row-unit">${def.unit}</span></div>
