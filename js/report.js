@@ -251,12 +251,12 @@ const Report = {
     const coachBlock = (it, idx) => `
       <div class="ti-card" data-idx="${idx}">
         <div class="ti-card-head"><span class="ti-num">${idx + 1}</span><span class="ti-label">Coach-authored</span></div>
-        <input class="ti-input ti-title" data-field="title" placeholder="Title (e.g. Confidence on the ball)" value="${Report._esc(it.title)}">
-        <textarea class="ti-input ti-notes" data-field="rawNotes" rows="2" placeholder="Rough notes (e.g. started taking on defenders 1v1, used to dribble away from pressure)">${Report._esc(it.rawNotes)}</textarea>
+        <textarea class="ti-input ti-notes" data-field="rawNotes" rows="3" placeholder="Rough notes about what improved (e.g. started taking on defenders 1v1 in matches, used to dribble away from pressure). The AI will write the title and a polished sentence from these notes.">${Report._esc(it.rawNotes)}</textarea>
         <div class="ti-actions">
           <button class="btn btn-outline btn-sm ti-polish">Polish with AI</button>
         </div>
-        <textarea class="ti-input ti-desc" data-field="description" rows="2" placeholder="Polished description appears here. You can edit it.">${Report._esc(it.description)}</textarea>
+        <input class="ti-input ti-title" data-field="title" placeholder="Title appears after polish. Editable." value="${Report._esc(it.title)}">
+        <textarea class="ti-input ti-desc" data-field="description" rows="2" placeholder="Polished description appears here. Editable.">${Report._esc(it.description)}</textarea>
       </div>`;
 
     return autoBlock + coachBlock(items[1], 1) + coachBlock(items[2], 2);
@@ -333,9 +333,7 @@ const Report = {
     const descEl = card.querySelector('.ti-desc');
     const btn = card.querySelector('.ti-polish');
 
-    const title = (titleEl?.value || '').trim();
     const rawNotes = (notesEl?.value || '').trim();
-    if (!title) { App.toast('Add a title first'); return; }
     if (!rawNotes) { App.toast('Add a few rough notes first'); return; }
 
     const apiKey = Report._getApiKey();
@@ -346,13 +344,16 @@ const Report = {
     btn.textContent = 'Polishing...';
 
     try {
-      const polished = await ReportNarrative.polishImprovementDescription(player, title, rawNotes, apiKey);
-      if (polished) {
-        item.title = title;
+      const polished = await ReportNarrative.polishImprovementDescription(player, rawNotes, apiKey);
+      if (polished && polished.title && polished.description) {
+        item.title = polished.title;
         item.rawNotes = rawNotes;
-        item.description = polished;
-        descEl.value = polished;
+        item.description = polished.description;
+        if (titleEl) titleEl.value = polished.title;
+        descEl.value = polished.description;
         App.toast('Polished');
+      } else {
+        App.toast('Polishing returned empty result');
       }
     } catch (err) {
       App.toast(err.message || 'Polishing failed');

@@ -999,10 +999,14 @@ Lower is better: ${candidate.lowerIsBetter ? 'yes' : 'no'}`
   },
 
   /**
-   * Polish a coach's rough notes into a single warm parent-facing sentence
-   * for items 2 & 3 of the Top 3 Improvements section.
+   * Polish a coach's rough notes into BOTH a short title and a warm
+   * parent-facing one-sentence description for items 2 & 3 of the Top 3
+   * Improvements section.
+   *
+   * Returns { title, description } — both AI-generated from the notes.
+   * Throws on API error.
    */
-  async polishImprovementDescription(player, title, rawNotes, apiKey) {
+  async polishImprovementDescription(player, rawNotes, apiKey) {
     if (!apiKey || !rawNotes?.trim()) return null;
 
     const playerName = player.firstName || 'The player';
@@ -1019,23 +1023,22 @@ Lower is better: ${candidate.lowerIsBetter ? 'yes' : 'no'}`
         },
         body: JSON.stringify({
           model: 'claude-haiku-4-5-20251001',
-          max_tokens: 200,
+          max_tokens: 256,
           system: `You are writing one bullet point in a "Top 3 Improvements" section of a youth soccer family report shared with the player and their parents.
 
-Polish the coach's rough notes into a single warm, parent-facing sentence (max 30 words) describing how the player has improved in the area named by the title.
+Given the coach's rough notes about how the player has improved in some area, return JSON with two fields:
+- "title": a short 2-3 word capacity name that summarizes the improvement (e.g. "Confidence on the ball", "Game reading", "Composure under pressure", "Communication"). Title case. No punctuation.
+- "description": one warm, plain-English sentence (max 30 words) using the player's first name, grounded in what the coach observed. Tone: encouraging but professional, like a coach speaking to a family.
 
 Rules:
-- Use the player's first name
 - Stay grounded to what the coach observed; do not invent details
-- Plain language, like a coach speaking to a family
-- NO em dashes (—) or hyphens (-) as punctuation
+- NO em dashes (—) or hyphens (-) as punctuation in either field
 - NO superlatives like "incredible", "outstanding", "exceptional"
-- Return ONLY the sentence, no quotes, no preamble, no markdown`,
+- Return ONLY valid JSON, no markdown, no preamble`,
           messages: [{
             role: 'user',
             content: `Player: ${playerName}
 Position: ${positions}
-Improvement title: ${title}
 Coach's rough notes: ${rawNotes.trim()}`
           }]
         })
@@ -1048,8 +1051,12 @@ Coach's rough notes: ${rawNotes.trim()}`
       }
 
       const data = await response.json();
-      const text = (data.content?.[0]?.text || '').trim();
-      return text || null;
+      let content = (data.content?.[0]?.text || '{}').replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim();
+      const parsed = JSON.parse(content);
+      const title = (parsed.title || '').trim();
+      const description = (parsed.description || '').trim();
+      if (!title || !description) return null;
+      return { title, description };
     } catch (err) {
       console.error('Polish improvement description error:', err);
       throw err;
