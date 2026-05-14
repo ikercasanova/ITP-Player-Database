@@ -13,6 +13,8 @@ const Report = {
   _coachNotes: '',
   _mediaLinks: [],
   _endOfSeason: false,
+  _topImprovements: [],     // [{title, description, source: 'auto'|'coach', testKey?, rawNotes?}, ...]
+  _autoCandidateIdx: 0,     // re-roll cursor for the auto item
 
   init() {},
 
@@ -30,6 +32,10 @@ const Report = {
     Report._coachNotes = player.coachNotes || '';
     Report._mediaLinks = player.mediaLinks ? JSON.parse(JSON.stringify(player.mediaLinks)) : [];
     Report._endOfSeason = player.endOfSeason || false;
+    Report._topImprovements = player.topImprovements
+      ? JSON.parse(JSON.stringify(player.topImprovements))
+      : Report._emptyTopImprovements(player);
+    Report._autoCandidateIdx = 0;
 
     const container = document.getElementById('report-content');
     container.innerHTML = Report._renderBuilder(player);
@@ -42,6 +48,16 @@ const Report = {
       r[pk] = { strengths: [], weaknesses: [], improved: [] };
     }
     return r;
+  },
+
+  // Initial Top 3 array. Index 0 is the auto slot (filled lazily after first
+  // generation). Indices 1 and 2 are coach-authored slots.
+  _emptyTopImprovements() {
+    return [
+      { title: '', description: '', source: 'auto', testKey: null, rawNotes: '' },
+      { title: '', description: '', source: 'coach', rawNotes: '' },
+      { title: '', description: '', source: 'coach', rawNotes: '' },
+    ];
   },
 
   // ══════════════════════════════════════════════════════════════
@@ -78,6 +94,13 @@ const Report = {
           <p class="report-section-desc">Enter bullet points for each trial. Click "Generate" to create a polished narrative.</p>
           <div id="report-trials-list">${Report._renderTrialsList()}</div>
           <button class="btn btn-outline btn-sm" id="btn-add-trial">+ Add Trial</button>
+        </div>
+
+        <!-- ── Top 3 Improvements ─────────────────────────── -->
+        <div class="report-section">
+          <div class="report-section-title">Top 3 Improvements</div>
+          <p class="report-section-desc">The three biggest improvements this player has made in the program. Item 1 is auto-picked from testing. Items 2 and 3 are your words, polished by AI.</p>
+          <div id="report-top-improvements">${Report._renderTopImprovementsBuilder(player)}</div>
         </div>
 
         <!-- ── Coach Notes ────────────────────────────────── -->
@@ -185,7 +208,168 @@ const Report = {
     `).join('');
   },
 
-  _esc(s) { return s.replace(/"/g, '&quot;').replace(/</g, '&lt;'); },
+  _esc(s) {
+    if (s == null) return '';
+    return String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  },
+
+  // ── Top 3 Improvements — Builder UI ──────────────────────────
+
+  _renderTopImprovementsBuilder(player) {
+    const items = Report._topImprovements;
+    const candidates = ReportNarrative.getBestImprovementCandidates(player, 5);
+    const hasAutoCandidates = candidates.length > 0;
+    const auto = items[0];
+
+    let autoBlock;
+    if (!hasAutoCandidates) {
+      autoBlock = `
+        <div class="ti-card" data-idx="0">
+          <div class="ti-card-head"><span class="ti-num">1</span><span class="ti-label">No test improvements yet</span></div>
+          <p class="ti-empty-hint">This player has fewer than two completed sessions for any test, so the auto highlight is unavailable. You can leave this slot blank or use it as a coach-authored item.</p>
+          <input class="ti-input ti-title" data-field="title" placeholder="Title (e.g. Game Reading)" value="${Report._esc(auto.title)}">
+          <textarea class="ti-input ti-notes" data-field="rawNotes" rows="2" placeholder="Rough notes...">${Report._esc(auto.rawNotes)}</textarea>
+          <div class="ti-actions">
+            <button class="btn btn-outline btn-sm ti-polish">Polish with AI</button>
+          </div>
+          <textarea class="ti-input ti-desc" data-field="description" rows="2" placeholder="Polished description appears here. You can edit it.">${Report._esc(auto.description)}</textarea>
+        </div>`;
+    } else {
+      autoBlock = `
+        <div class="ti-card ti-card-auto" data-idx="0">
+          <div class="ti-card-head">
+            <span class="ti-num">1</span>
+            <span class="ti-label">Auto from testing</span>
+            <button class="btn-ti-reroll" title="Try the next-best test improvement">Re-roll</button>
+          </div>
+          <input class="ti-input ti-title" data-field="title" placeholder="Click Generate to fill" value="${Report._esc(auto.title)}">
+          <textarea class="ti-input ti-desc" data-field="description" rows="2" placeholder="Click Generate to fill">${Report._esc(auto.description)}</textarea>
+          ${auto.title ? '' : '<button class="btn btn-outline btn-sm ti-generate-auto">Generate from testing</button>'}
+        </div>`;
+    }
+
+    const coachBlock = (it, idx) => `
+      <div class="ti-card" data-idx="${idx}">
+        <div class="ti-card-head"><span class="ti-num">${idx + 1}</span><span class="ti-label">Coach-authored</span></div>
+        <input class="ti-input ti-title" data-field="title" placeholder="Title (e.g. Confidence on the ball)" value="${Report._esc(it.title)}">
+        <textarea class="ti-input ti-notes" data-field="rawNotes" rows="2" placeholder="Rough notes (e.g. started taking on defenders 1v1, used to dribble away from pressure)">${Report._esc(it.rawNotes)}</textarea>
+        <div class="ti-actions">
+          <button class="btn btn-outline btn-sm ti-polish">Polish with AI</button>
+        </div>
+        <textarea class="ti-input ti-desc" data-field="description" rows="2" placeholder="Polished description appears here. You can edit it.">${Report._esc(it.description)}</textarea>
+      </div>`;
+
+    return autoBlock + coachBlock(items[1], 1) + coachBlock(items[2], 2);
+  },
+
+  _bindTopImprovementsEvents(container, player) {
+    const root = container.querySelector('#report-top-improvements');
+    if (!root) return;
+
+    root.querySelectorAll('.ti-card').forEach(card => {
+      const idx = parseInt(card.dataset.idx, 10);
+      card.querySelectorAll('.ti-input').forEach(inp => {
+        inp.addEventListener('input', () => {
+          Report._topImprovements[idx][inp.dataset.field] = inp.value;
+        });
+      });
+
+      const polishBtn = card.querySelector('.ti-polish');
+      if (polishBtn) {
+        polishBtn.addEventListener('click', () => Report._polishImprovement(card, idx, player));
+      }
+
+      const rerollBtn = card.querySelector('.btn-ti-reroll');
+      if (rerollBtn) {
+        rerollBtn.addEventListener('click', () => Report._rerollAutoImprovement(container, player));
+      }
+
+      const generateBtn = card.querySelector('.ti-generate-auto');
+      if (generateBtn) {
+        generateBtn.addEventListener('click', () => Report._rerollAutoImprovement(container, player, /*reset=*/true));
+      }
+    });
+  },
+
+  async _rerollAutoImprovement(container, player, reset) {
+    const candidates = ReportNarrative.getBestImprovementCandidates(player, 5);
+    if (candidates.length === 0) { App.toast('No test improvements yet'); return; }
+
+    if (reset) Report._autoCandidateIdx = 0;
+    else Report._autoCandidateIdx = (Report._autoCandidateIdx + 1) % candidates.length;
+
+    const candidate = candidates[Report._autoCandidateIdx];
+    const apiKey = Report._getApiKey();
+
+    const root = container.querySelector('#report-top-improvements');
+    const card = root.querySelector('.ti-card[data-idx="0"]');
+    const titleEl = card.querySelector('.ti-title');
+    const descEl = card.querySelector('.ti-desc');
+    const rerollBtn = card.querySelector('.btn-ti-reroll');
+    const generateBtn = card.querySelector('.ti-generate-auto');
+
+    const original = rerollBtn ? rerollBtn.textContent : (generateBtn ? generateBtn.textContent : '');
+    if (rerollBtn) { rerollBtn.disabled = true; rerollBtn.textContent = 'Generating...'; }
+    if (generateBtn) { generateBtn.disabled = true; generateBtn.textContent = 'Generating...'; }
+
+    try {
+      const item = await ReportNarrative.generateAutoImprovementItem(player, candidate, apiKey);
+      if (item) {
+        Report._topImprovements[0] = item;
+        titleEl.value = item.title;
+        descEl.value = item.description;
+        if (generateBtn) generateBtn.style.display = 'none';
+      }
+    } finally {
+      if (rerollBtn) { rerollBtn.disabled = false; rerollBtn.textContent = original || 'Re-roll'; }
+      if (generateBtn) { generateBtn.disabled = false; generateBtn.textContent = original || 'Generate from testing'; }
+    }
+  },
+
+  async _polishImprovement(card, idx, player) {
+    const item = Report._topImprovements[idx];
+    const titleEl = card.querySelector('.ti-title');
+    const notesEl = card.querySelector('.ti-notes');
+    const descEl = card.querySelector('.ti-desc');
+    const btn = card.querySelector('.ti-polish');
+
+    const title = (titleEl?.value || '').trim();
+    const rawNotes = (notesEl?.value || '').trim();
+    if (!title) { App.toast('Add a title first'); return; }
+    if (!rawNotes) { App.toast('Add a few rough notes first'); return; }
+
+    const apiKey = Report._getApiKey();
+    if (!apiKey) return;
+
+    const original = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = 'Polishing...';
+
+    try {
+      const polished = await ReportNarrative.polishImprovementDescription(player, title, rawNotes, apiKey);
+      if (polished) {
+        item.title = title;
+        item.rawNotes = rawNotes;
+        item.description = polished;
+        descEl.value = polished;
+        App.toast('Polished');
+      }
+    } catch (err) {
+      App.toast(err.message || 'Polishing failed');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = original;
+    }
+  },
+
+  _getApiKey() {
+    let key = localStorage.getItem('itp_claude_api_key');
+    if (!key) {
+      key = window.prompt('Enter your Claude API key.\n\nGet one at: console.anthropic.com/settings/keys\nIt will be saved locally in your browser.');
+      if (key) localStorage.setItem('itp_claude_api_key', key.trim());
+    }
+    return key ? key.trim() : null;
+  },
 
   // ── Event Binding ────────────────────────────────────────────
 
@@ -240,6 +424,9 @@ const Report = {
       Report._bindMediaEvents(container);
     });
     Report._bindMediaEvents(container);
+
+    // Top 3 Improvements
+    Report._bindTopImprovementsEvents(container, player);
 
     // Coach notes + end-of-season toggle
     container.querySelector('#report-coach-notes').addEventListener('input', (e) => {
@@ -334,6 +521,7 @@ const Report = {
     player.coachNotes = Report._coachNotes;
     player.mediaLinks = Report._mediaLinks;
     player.endOfSeason = Report._endOfSeason;
+    player.topImprovements = Report._topImprovements;
     await DB.save(player);
   },
 
@@ -359,7 +547,7 @@ const Report = {
             ${Report._renderDevelopmentReview(player)}
             <hr class="rpt-divider">
             ${Report._renderPerformanceTests(player)}
-            ${Report._renderDevelopedAreasAndOpportunities(player)}
+            ${Report._renderTopImprovements(player)}
             ${Report._renderTrials(player)}
             ${Report._renderCoachEvaluation(player)}
             ${Report._renderMedia()}
@@ -838,54 +1026,33 @@ const Report = {
       </div>`;
   },
 
-  // ── Key Strengths + Areas of Opportunity ───────────────────
+  // ── Top 3 Improvements (auto + coach-authored, AI-polished) ──
 
-  _renderDevelopedAreasAndOpportunities(player) {
-    const strengths = ReportNarrative.getStrengthAndImprovedLabels(Report._review);
+  _renderTopImprovements(player) {
+    const items = (player.topImprovements || [])
+      .slice(0, 3)
+      .filter(it => it && (it.title || '').trim() && (it.description || '').trim());
 
-    // Pad to minimum 5 using test-derived strengths if needed
-    if (strengths.length < 5) {
-      const testStrengths = ReportNarrative.getTestDerivedStrengths(player);
-      for (const ts of testStrengths) {
-        if (strengths.length >= 5) break;
-        if (!strengths.includes(ts)) strengths.push(ts);
-      }
-    }
+    if (items.length === 0) return '';
 
-    // Absorb test improvement metrics from Season Highlights
-    const testImprovements = ReportNarrative.getBiggestImprovements(player);
-    const improvementItems = testImprovements.slice(0, 3).map(imp => {
-      const arrow = imp.lowerIsBetter ? '\u2212' : '+';
-      return `${imp.name}: ${imp.from} \u2192 ${imp.to}${imp.unit} (${arrow}${imp.pctChange})`;
-    });
-
-    const weaknesses = ReportNarrative.getWeaknessLabels(Report._review);
-
-    if (strengths.length === 0 && weaknesses.length === 0 && improvementItems.length === 0) return '';
-
-    // Build left card: traits first, then improvement metrics
-    let leftHTML = '';
-    if (strengths.length > 0) {
-      leftHTML += `<ul class="rpt-bullet-list">${strengths.map(s => `<li>${s}</li>`).join('')}</ul>`;
-    }
-    if (improvementItems.length > 0) {
-      leftHTML += `<div class="rpt-improvement-divider"></div>`;
-      leftHTML += `<ul class="rpt-bullet-list rpt-improvement-list">${improvementItems.map(item => `<li class="rpt-improvement-metric">${item}</li>`).join('')}</ul>`;
-    }
-    if (!leftHTML) leftHTML = '<p class="rpt-muted">No areas selected.</p>';
+    const cards = items.map((it, i) => {
+      const sourceChip = it.source === 'auto'
+        ? '<span class="rpt-improvement-source-chip">From testing</span>'
+        : '';
+      return `
+        <div class="rpt-improvement-card">
+          <div class="rpt-improvement-num">${i + 1}</div>
+          <div class="rpt-improvement-body">
+            <div class="rpt-improvement-title">${Report._esc(it.title)}${sourceChip}</div>
+            <div class="rpt-improvement-desc">${Report._esc(it.description)}</div>
+          </div>
+        </div>`;
+    }).join('');
 
     return `
-      <div class="rpt-two-col">
-        <div class="rpt-col-card">
-          <div class="rpt-heading">Key Developed Areas</div>
-          ${leftHTML}
-        </div>
-        <div class="rpt-col-card">
-          <div class="rpt-heading">Areas of Opportunity</div>
-          ${weaknesses.length > 0
-            ? `<ul class="rpt-bullet-list">${weaknesses.map(w => `<li>${w}</li>`).join('')}</ul>`
-            : '<p class="rpt-muted">No areas selected.</p>'}
-        </div>
+      <div class="rpt-section rpt-top-improvements">
+        <div class="rpt-heading">Top 3 Improvements</div>
+        ${cards}
       </div>`;
   },
 

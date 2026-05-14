@@ -909,6 +909,154 @@ const ReportNarrative = {
   },
 
   /**
+   * Return up to `count` candidate test improvements for the Top 3 Improvements
+   * section's auto-pick (item 1). Re-rolling cycles through this list.
+   */
+  getBestImprovementCandidates(player, count = 5) {
+    return ReportNarrative.getBiggestImprovements(player).slice(0, count);
+  },
+
+  /**
+   * Build a fallback auto-improvement item without calling the AI — used when
+   * no API key is set or the API call fails. Plain templated wording.
+   */
+  buildFallbackAutoItem(candidate) {
+    if (!candidate) return null;
+    const dir = candidate.lowerIsBetter ? 'down' : 'up';
+    const arrow = candidate.lowerIsBetter ? '−' : '+';
+    return {
+      title: candidate.name,
+      description: `Improved his ${candidate.name} from ${candidate.from}${candidate.unit} to ${candidate.to}${candidate.unit} (${arrow}${candidate.pctChange}) since the first session.`,
+      source: 'auto',
+      testKey: candidate.testKey,
+    };
+    // Suppress unused
+    void dir;
+  },
+
+  /**
+   * Generate a warm, parent-facing title + one-sentence description for a
+   * single test improvement. Returns { title, description, source: 'auto', testKey }.
+   * Falls back to buildFallbackAutoItem on any error.
+   */
+  async generateAutoImprovementItem(player, candidate, apiKey) {
+    if (!candidate) return null;
+    if (!apiKey) return ReportNarrative.buildFallbackAutoItem(candidate);
+
+    const playerName = player.firstName || 'The player';
+    const positions = (player.positions || []).map(p => typeof p === 'string' ? p : p.code).join(', ') || 'unknown';
+    const dirArrow = candidate.lowerIsBetter ? '−' : '+';
+
+    try {
+      const response = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': apiKey,
+          'anthropic-version': '2023-06-01',
+          'anthropic-dangerous-direct-browser-access': 'true'
+        },
+        body: JSON.stringify({
+          model: 'claude-haiku-4-5-20251001',
+          max_tokens: 256,
+          system: `You are writing one bullet point in a "Top 3 Improvements" section of a youth soccer family report. The audience is the player's parents.
+
+Given a single physical or technical test improvement, return JSON with two fields:
+- "title": a short 2-3 word capacity name that summarizes what got better (e.g. "Explosive power", "Top-end speed", "Lower-body strength", "Ball control"). Title case. No punctuation.
+- "description": one warm, plain-English sentence (max 25 words) that names the player by first name, mentions the test, the before and after values, and the percent change. Tone: encouraging but grounded. NO em dashes (—) or hyphens (-) as punctuation. NO superlatives like "incredible" or "outstanding".
+
+Return ONLY valid JSON, no markdown.`,
+          messages: [{
+            role: 'user',
+            content: `Player: ${playerName}
+Position: ${positions}
+Test: ${candidate.name} (${candidate.unit})
+First session: ${candidate.from}${candidate.unit}
+Latest session: ${candidate.to}${candidate.unit}
+Change: ${dirArrow}${candidate.pctChange}
+Lower is better: ${candidate.lowerIsBetter ? 'yes' : 'no'}`
+          }]
+        })
+      });
+
+      if (!response.ok) {
+        if (response.status === 401) localStorage.removeItem('itp_claude_api_key');
+        return ReportNarrative.buildFallbackAutoItem(candidate);
+      }
+
+      const data = await response.json();
+      let content = (data.content?.[0]?.text || '{}').replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim();
+      const parsed = JSON.parse(content);
+      const title = (parsed.title || candidate.name).trim();
+      const description = (parsed.description || '').trim();
+      if (!description) return ReportNarrative.buildFallbackAutoItem(candidate);
+
+      return { title, description, source: 'auto', testKey: candidate.testKey };
+    } catch (err) {
+      console.error('Auto improvement item generation error:', err);
+      return ReportNarrative.buildFallbackAutoItem(candidate);
+    }
+  },
+
+  /**
+   * Polish a coach's rough notes into a single warm parent-facing sentence
+   * for items 2 & 3 of the Top 3 Improvements section.
+   */
+  async polishImprovementDescription(player, title, rawNotes, apiKey) {
+    if (!apiKey || !rawNotes?.trim()) return null;
+
+    const playerName = player.firstName || 'The player';
+    const positions = (player.positions || []).map(p => typeof p === 'string' ? p : p.code).join(', ') || 'unknown';
+
+    try {
+      const response = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': apiKey,
+          'anthropic-version': '2023-06-01',
+          'anthropic-dangerous-direct-browser-access': 'true'
+        },
+        body: JSON.stringify({
+          model: 'claude-haiku-4-5-20251001',
+          max_tokens: 200,
+          system: `You are writing one bullet point in a "Top 3 Improvements" section of a youth soccer family report shared with the player and their parents.
+
+Polish the coach's rough notes into a single warm, parent-facing sentence (max 30 words) describing how the player has improved in the area named by the title.
+
+Rules:
+- Use the player's first name
+- Stay grounded to what the coach observed; do not invent details
+- Plain language, like a coach speaking to a family
+- NO em dashes (—) or hyphens (-) as punctuation
+- NO superlatives like "incredible", "outstanding", "exceptional"
+- Return ONLY the sentence, no quotes, no preamble, no markdown`,
+          messages: [{
+            role: 'user',
+            content: `Player: ${playerName}
+Position: ${positions}
+Improvement title: ${title}
+Coach's rough notes: ${rawNotes.trim()}`
+          }]
+        })
+      });
+
+      if (!response.ok) {
+        if (response.status === 401) localStorage.removeItem('itp_claude_api_key');
+        const err = await response.json().catch(() => ({}));
+        throw new Error(err.error?.message || `API error (${response.status})`);
+      }
+
+      const data = await response.json();
+      const text = (data.content?.[0]?.text || '').trim();
+      return text || null;
+    } catch (err) {
+      console.error('Polish improvement description error:', err);
+      throw err;
+    }
+  },
+
+  /**
    * Get all traits marked as "improved" as readable labels.
    */
   getImprovedTraitLabels(review) {
